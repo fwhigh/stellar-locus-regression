@@ -11,9 +11,37 @@ function slr_distance_residual, x, x_err, y, y_err, $
 ;  slr_distance_residual
 ;
 ; PURPOSE:
-;  Return the sum of hyperdimension color distances between two data
-;  sets
+;  Return the sum of hyperdimension color distances between color data
+;  and a stellar locus line
 ;
+; DESCRIPTION:
+;  
+;
+; CALLING SEQUENCE:
+;  result=slr_distance_residual(x,x_err,y,y_err[,OPTIONAL KEYWORDS])
+;
+; INPUTS:
+;  x     Array of color vectors, the data to be calibrated
+;  x_err The corresponding errors
+;  y     Array of color vectors representing the stellar locus line
+;  y_err The corresponding errors
+;
+; OPTIONAL INPUTS:
+;  /weighted   Weight the distances by the error?
+;  /debug      Show extra plots/text for debugging purposes?
+;  /get_goodi  Get indices of "good" objects?
+;  wthresh     The maximum allowable error-weighted distance to the
+;              locus line.  Must set get_goodi.  Default 1000
+;  thresh      The maximum allowable distance to the locus line.
+;              Must set get_goodi.  Default 1000
+;
+; OUTPUTS:
+;  result  Scalar sum of (optionally weighted) distances between the
+;          data and the stellar locus line
+;
+; OPTIONAL OUTPUTS:
+;  goodi       Array of "good" indices, which sasisfy thresh and
+;              wthresh conditions.  Must set get_goodi.
 ;-
 
   if not keyword_set(thresh) then thresh=1e3
