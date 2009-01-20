@@ -181,7 +181,7 @@ return,template
 
 end
 
-function read_colortable, file,verbose=verbose, force=force
+function slr_read_colortable, file,verbose=verbose, force=force
 
 if not keyword_set(verbose) then verbose=0
                              
