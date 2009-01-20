@@ -43,7 +43,7 @@ function slr_read_covey_locus, force=force
 
 file=slr_datadir()+path_sep()+'covey'+path_sep()+'superclean.fits'
 savefile=file+'.sav'
-if file_test(savefile) then begin
+if file_test(savefile) and ~keyword_set(force) then begin
    restore,savefile
 endif else begin
    cat=mrdfits(file,1)
