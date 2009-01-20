@@ -12,7 +12,7 @@ pro slr_init, rawfield=rawfield,$
   endif else use_cal=calfield
   calfield=use_cal
   if not keyword_set(rawfield) then begin
-     use_raw='s3' & instrument='imacs'
+     use_raw='hiext_stars3_fwhigh'
   endif else use_raw=rawfield
 
   option=create_struct(       "use_cal",use_cal)
