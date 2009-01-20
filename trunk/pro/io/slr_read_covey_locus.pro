@@ -11,7 +11,7 @@ function slr_read_covey_locus, force=force
 ; EXPLANATION:
 ;  Reads Covey's file superclean.fits and puts it into a structure.
 ;  When run for the first time, this routine also saves the catalog in
-;  an IDL save file.  All subsequent calls (or if /force is set) will
+;  an IDL save file.  All subsequent calls (if force is not set) will
 ;  read the .sav file and not the .fits file, but will return the same
 ;  data.  This is considerably faster.  The file superclean.fits is
 ;  assumed to be in $SLR_DATA/covey.
@@ -23,7 +23,7 @@ function slr_read_covey_locus, force=force
 ;
 ; OPTIONAL INPUTS:
 ;  force (bit)   Force a read of the .fits file rather than the .sav
-;                file?  Default 0.
+;                file?  The latter is faster.  Default 0.
 ;
 ; OUTPUTS:
 ;  catalog (structure)   Catalog of the stellar data
