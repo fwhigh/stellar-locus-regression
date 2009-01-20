@@ -222,7 +222,7 @@ pro slr_init, rawfield=rawfield,$
 
 
      ctabfile=slr_get_ctab_filename(caldat.field)
-     ctab=read_colortable(ctabfile,/verbose,force=force)
+     ctab=slr_read_colortable(ctabfile,/verbose,force=force)
 
 ;     if option.use_ir or use_cal eq 'ubercal_lowext2_fwhigh' then begin
      if option.use_ir then begin
@@ -484,7 +484,7 @@ pro slr_init, rawfield=rawfield,$
      endif else begin
 
         ctabfile=slr_get_ctab_filename(rawdat.field)
-        ctab=read_colortable(ctabfile,/verbose,force=force)
+        ctab=slr_read_colortable(ctabfile,/verbose,force=force)
 
         if option.use_ir then begin
            tmassfile_in=slr_get_2mass_filename(rawdat.field)
