@@ -6,10 +6,61 @@ function slr_read_covey_median_locus, $
    nosmooth=nosmooth,$
    postscript=postscript
 
+;+
+; NAME:
+;  slr_read_covey_median_locus
+;
+; PURPOSE:
+;  Read the median locus table of Covey et al. (2008), called
+;  medianlocus.tbl, available at Kevin Covey's website.
+;
+; EXPLANATION:
+;  Returns Covey's median locus, which is smoothed by default
+;  here.  This routine also makes cuts on the locus because we
+;  typically don't need the very red end.  File is assumed to
+;  be in $STL_DATA/covey.
+;
+; CALLING SEQUENCE:
+;  catalog=slr_read_covey_median_locus()
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;  plot (bit)        Plot the data?  Default 0.
+;  postscript (bit)  Save postscript versions of the plots?  Default
+;                    0. 
+;  force (bit)       Force to read from the original ascii table
+;                    rather than the .sav file?  Default 0.
+;  verbose (int)     Verbosity level.  Default 0.
+;  interactive (int) Wait for user response when plotting data to
+;                    screen? 
+;  nosmooth (bit)    Return unsmooth the data?  Default 0.
+;
+; OUTPUTS:
+;  catalog (structure)   The catalog of stellar locus data.
+;
+; OPIONAL OUTPUTS:
+;       
+;       
+; NOTES:
+;
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;  slr_datadir()
+;  slr_read_covey_locus()
+;  slr_figdir()
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
   k0 = [0.,0.,0.]
-;  k0 = [0.00417681,-0.00824140,0.000667928]
-;  k0 = [0.01,0.005,0.005]
-;  print,'Correcting Covey for reddening?!?!'
+;  k0 = [0.00417681,-0.00824140,0.000667928] & $
+;   print,'Shifting median locus'
+;  k0 = [0.01,0.005,0.005] & print,'Shifting median locus'
 
   if not keyword_set(verbose) then verbose=0
 
@@ -31,10 +82,12 @@ function slr_read_covey_median_locus, $
              /silent
 
      if keyword_set(nosmooth) then begin
-
+;;; Don't smooth
      endif else begin
+;;; Smooth
         boxsize=10
 
+;;; Median smooth
 ;;      ug=median(ug,boxsize)
 ;;      gr=median(gr,boxsize)
 ;;      ri=median(ri,boxsize)
@@ -43,6 +96,7 @@ function slr_read_covey_median_locus, $
 ;;      JH=median(JH,boxsize)
 ;;      HK=median(HK,boxsize)
 
+;;; Boxcar smooth
         ug=smooth(ug,boxsize)
         gr=smooth(gr,boxsize)
         ri=smooth(ri,boxsize)
@@ -51,6 +105,7 @@ function slr_read_covey_median_locus, $
         JH=smooth(JH,boxsize)
         HK=smooth(HK,boxsize)
 
+;;; Another kind of smooth
 ;;      ug=imsl_smoothdata1d(gi,ug,dist=0.2)
 ;;      gr=imsl_smoothdata1d(gi,gr,dist=0.2)
 ;;      ri=imsl_smoothdata1d(gi,ri,dist=0.2)
@@ -58,11 +113,12 @@ function slr_read_covey_median_locus, $
 ;;      zJ=imsl_smoothdata1d(gi,zJ,dist=0.2)
 ;;      JH=imsl_smoothdata1d(gi,JH,dist=0.2)
 ;;      HK=imsl_smoothdata1d(gi,HK,dist=0.2)
+     endelse
 
 ;;; Re-estimate error of locus as intrinsic width due to metallicity,
-;;; ie, do not include photometric error
-     endelse
-     locus=slr_read_covey_locus()
+;;; ie, do not include photometric error.  Is this right?  Gives wonky
+;;; errors.
+     locus=slr_read_covey_locus(force=force)
      nbins=n_elements(gi)
      large_bins=[0,1,nbins-2,nbins-1]
      for ii = 0,nbins-1 do begin
@@ -224,52 +280,6 @@ function slr_read_covey_median_locus, $
            junk='' & read,'Hit enter',junk
         endif
      endelse
-
-
-
-;;         window,0,xsize=800,ysize=800
-;;         multiplot,[0,3,2,0,0],/dox,/doy,gap=0.035
-;;         ploterror,cat.ug,cat.gr,cat.ug_width,cat.gr_width,/nohat,$
-;;                   xtitle='u - g',$
-;;                   ytitle='g - r'
-;;         arrow,!x.crange[0],!y.crange[0],$
-;;               !x.crange[0]+galext[0]-galext[1],$
-;;               !y.crange[0]+galext[1]-galext[2],$
-;;               /data,color=40,thick=4,/solid
-;;         multiplot,/dox,/doy
-;;         ploterror,cat.gr,cat.ri,cat.gr_width,cat.ri_width,/nohat,$
-;;                   xtitle='g - r',$
-;;                   ytitle='r - i'
-;;         arrow,!x.crange[0],!y.crange[0],$
-;;               !x.crange[0]+galext[1]-galext[2],$
-;;               !y.crange[0]+galext[2]-galext[3],$
-;;               /data,color=40,thick=4,/solid
-;;         multiplot,/dox,/doy
-;;         ploterror,cat.ri,cat.iz,cat.ri_width,cat.iz_width,/nohat,$
-;;                   xtitle='r - i',$
-;;                   ytitle='i - z'
-;;         arrow,!x.crange[0],!y.crange[0],$
-;;               !x.crange[0]+galext[2]-galext[3],$
-;;               !y.crange[0]+galext[3]-galext[4],$
-;;               /data,color=40,thick=4,/solid
-;;         multiplot,/dox,/doy
-;;         ploterror,cat.iz,cat.zJ,cat.iz_width,cat.zJ_width,/nohat,$
-;;                   xtitle='z - J',$
-;;                   ytitle='J - H'
-;;         arrow,!x.crange[0],!y.crange[0],$
-;;               !x.crange[0]+galext[3]-galext[4],$
-;;               !y.crange[0]+galext[4]-galext[5],$
-;;               /data,color=40,thick=4,/solid
-;;         multiplot,/dox,/doy
-;;         ploterror,cat.JH,cat.HK,cat.JH_width,cat.HK_width,/nohat,$
-;;                   xtitle='J - H',$
-;;                   ytitle='H - K'
-;;         arrow,!x.crange[0],!y.crange[0],$
-;;               !x.crange[0]+galext[4]-galext[5],$
-;;               !y.crange[0]+galext[5]-galext[6],$
-;;               /data,color=40,thick=4,/solid
-;;         multiplot,/default
-
 
   endif
 
