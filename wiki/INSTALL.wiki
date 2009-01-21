@@ -3,7 +3,7 @@
 
 = Basic Installation Instructions =
 
-Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory <somedir>, if not, follow instructions in the source tab above).  
+Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory {{{<somedir>}}}, if not, follow instructions in the source tab above).  
 
 == Quick Install ==
 
@@ -12,7 +12,7 @@ You'll need these idl libraries:
   * Goddard astronomy libraries
   * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (cmtotal.tar.gz)
 
-Put them in a directory where you can remember <prodirectory>
+Put them in a directory where you can remember {{{<prodirectory>}}}
 
 Put them in your IDL_PATH with RC file entries like:
 {{{
