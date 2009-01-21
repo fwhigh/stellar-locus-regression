@@ -10,7 +10,7 @@ function slr_options
   option=create_struct(option,"postscript",0)
   option=create_struct(option,"plot",1)
   option=create_struct(option,"interactive",1)
-  option=create_struct(option,"animate_regression",1)
+  option=create_struct(option,"animate_regression",0)
   option=create_struct(option,"weighted_residual",1)
   option=create_struct(option,"verbose",1)
   option=create_struct(option,"debug",0)
