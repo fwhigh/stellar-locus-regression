@@ -3,8 +3,7 @@
 
 = Basic Installation Instructions =
 
-Follow these instructions to get the SLR demo to work properly on your computer.
-
+Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory <somedir>, if not, follow instructions in the source tab above).  
 
 == Quick Install ==
 
