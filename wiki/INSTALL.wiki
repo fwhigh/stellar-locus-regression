@@ -3,7 +3,7 @@
 
 = Basic Installation Instructions =
 
-Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory {{{<somedir>}}}, we suggest something like ~/slr, if not, follow instructions in the source tab above).  
+Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory {{{<somedir>}}}, we suggest something like ~/slr, if not, follow instructions in the source tab above).  You also need IDL 7.0 with Analyst.
 
 == Quick Install ==
 
