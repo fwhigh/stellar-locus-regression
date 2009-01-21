@@ -77,6 +77,7 @@ endif
      cps
   endif else begin
      if keyword_set(interactive) then begin
+        print,'Optical stellar locus in field ',field
         junk='' & read,'Hit enter',junk
      endif
   endelse
@@ -106,6 +107,7 @@ endif
         cps
      endif else begin
         if keyword_set(interactive) then begin
+           print,'Infrared stellar locus in field ',field
            junk='' & read,'Hit enter',junk
         endif
      endelse
