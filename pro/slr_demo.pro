@@ -71,18 +71,18 @@ slr_locus_line_calibration,$
 
 
 print,'Best fit kappa'
-print,' kappa(g-r) = ',string(low_kappa[0],format='(F6.3)'),$
+print,' kappa(g-r) = ',string(low_kappa[0],format='(F8.3)'),$
    ' +/-',string(low_kappa_err[0],format='(F7.3)')
-print,' kappa(r-i) = ',string(low_kappa[1],format='(F6.3)'),$
+print,' kappa(r-i) = ',string(low_kappa[1],format='(F8.3)'),$
    ' +/-',string(low_kappa_err[1],format='(F7.3)')
-print,' kappa(i-z) = ',string(low_kappa[2],format='(F6.3)'),$
+print,' kappa(i-z) = ',string(low_kappa[2],format='(F8.3)'),$
    ' +/-',string(low_kappa_err[2],format='(F7.3)')
 print,'Compare to predicted Galactic extinction values'
-print,' E(g-r) = ',string(low_galext_mean[0],format='(F6.3)'),$
+print,' E(g-r) = ',string(low_galext_mean[0],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[0],format='(F7.3)')
-print,' E(r-i) = ',string(low_galext_mean[1],format='(F6.3)'),$
+print,' E(r-i) = ',string(low_galext_mean[1],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[1],format='(F7.3)')
-print,' E(i-z) = ',string(low_galext_mean[2],format='(F6.3)'),$
+print,' E(i-z) = ',string(low_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[2],format='(F7.3)')
       
 
@@ -110,22 +110,20 @@ slr_locus_line_calibration,$
    galext_stddev=high_galext_stddev
 
 print,'Best fit kappa'
-print,' kappa(g-r) = ',string(high_kappa[0],format='(F6.3)'),$
+print,' kappa(g-r) = ',string(high_kappa[0],format='(F8.3)'),$
    ' +/-',string(high_kappa_err[0],format='(F7.3)')
-print,' kappa(r-i) = ',string(high_kappa[1],format='(F6.3)'),$
+print,' kappa(r-i) = ',string(high_kappa[1],format='(F8.3)'),$
    ' +/-',string(high_kappa_err[1],format='(F7.3)')
-print,' kappa(i-z) = ',string(high_kappa[2],format='(F6.3)'),$
+print,' kappa(i-z) = ',string(high_kappa[2],format='(F8.3)'),$
    ' +/-',string(high_kappa_err[2],format='(F7.3)')
 print,'Compare to predicted Galactic extinction values'
-print,' E(g-r) = ',string(high_galext_mean[0],format='(F6.3)'),$
+print,' E(g-r) = ',string(high_galext_mean[0],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[0],format='(F7.3)')
-print,' E(r-i) = ',string(high_galext_mean[1],format='(F6.3)'),$
+print,' E(r-i) = ',string(high_galext_mean[1],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[1],format='(F7.3)')
-print,' E(i-z) = ',string(high_galext_mean[2],format='(F6.3)'),$
+print,' E(i-z) = ',string(high_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[2],format='(F7.3)')
-      
 
-
-
+message,"Demo complete",/info
 
 end
