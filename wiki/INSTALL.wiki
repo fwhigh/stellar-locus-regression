@@ -25,8 +25,9 @@ setenv IDL_PATH ${IDL_PATH}:+<prodirectory>
 }}}
 in tcsh.
 
+make sure your IDL_PATH includes the "+$IDL_DIR/lib"
 
-You need the Galactic dust maps and IDL code from the Schlegel et al. (1998), available at http://astro.berkeley.edu/~marc/dust/data/data.html.  Follow their install instructions.  You only need the high resolution 4096 E(B-V) maps, both the north and south Galactic planes (NGP and SGP).  Put them in a location like, {{{<somedir>}}}/$DUST_DIR/maps (not $DUST_DIR/map!).  Put the SFD IDL code in {{{<prodirectory>}}} and add to IDL_PATH.  Make sure you set DUST_DIR (see below).
+You need the Galactic dust maps and IDL code from the Schlegel et al. (1998), available at http://astro.berkeley.edu/~marc/dust/data/data.html.  Follow their install instructions.  You only need the high resolution 4096 E(B-V) maps, both the north and south Galactic planes (NGP and SGP).  Put them in a location like, {{{<somedir>}}}/stellar-locus-regression-read-only/example_data/sfd/maps (not sfd/map!).  Put the SFD IDL code in {{{<prodirectory>}}} and add to IDL_PATH.  Make sure you set DUST_DIR (see below).
 
 Now set some environment variables in your cshrc or bashrc file (example is bash):
 
@@ -38,7 +39,7 @@ export IDL_PATH
 export DUST_DIR=$SLR_DATA/sfd
 }}}
 
-To check that everything is working:
+To check that everything is working (don't forget to source .bashrc):
 
 {{{
 IDL> slr_demo
