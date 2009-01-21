@@ -20,23 +20,23 @@ and put the SFD idl code somewhere and add to IDL_PATH:
 in your cshrc or bashrc file (example is bash):
 
 
-#####
-
+{{{
 export DUST_DIR=/Users/stalder/stellar-locus-regression/
 export SLR_DATA=/Users/stalder/Documents/pisco/stellar-locus-regression/example_data/
 export SLR_WORK=/Users/stalder/Documents/pisco/stellar-locus-regression/
 IDL_PATH=$IDL_PATH:+/usr/local/idllibraries/idlutils/pro:+/usr/local/idllibraries/cmtotal:+/usr/local/idllibraries/SFD_stuff:+/Users/stalder/stellar-locus-regression/pro
 
 export IDL_PATH
-
-#####
+}}}
 
 also add in your idl_startup.pro:
 
+{{{
 usersym,cos(2*!pi*findgen(21)/20.), sin(2*!pi*findgen(21)/20.), /fill ; set psym=8 to be a circle
-
-#####
+}}}
 
 to check that everything is working:
 
+{{{
 IDL> slr_demo
+}}}
