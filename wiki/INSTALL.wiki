@@ -44,4 +44,4 @@ To check that everything is working (don't forget to source your rc file):
 IDL> slr_demo
 }}}
 
-the first time you run, it might take some time (it's reformatting the SFD to an IDL friendly format), it will be faster subsequently.
+the first time you run, it might take some time (it's reformatting the SFD data to an IDL friendly format), it will be faster subsequently.
