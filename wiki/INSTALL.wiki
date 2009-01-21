@@ -8,9 +8,9 @@ Follow these instructions to get the SLR demo to work properly on your computer 
 == Quick Install ==
 
 You'll need these idl libraries:
-  * idlutils: http://www.astro.princeton.edu/~schlegel/code.html (any will do, but you probably want the latest idlutils tar file e.g idlutils-v5_3_0.tar, this includes the Goddard astronomy libraries)
+  * idlutils: http://www.astro.princeton.edu/~schlegel/code.html (any installation procedure will do, but you probably want the latest idlutils tar file, e.g. idlutils-v5_3_0.tar, this includes the Goddard astronomy libraries)
   * Goddard astronomy libraries
-  * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (cmtotal.tar.gz)
+  * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (you want cmtotal.tar.gz)
 
 Put them in a directory where you can remember {{{<prodirectory>}}}
 
@@ -34,12 +34,11 @@ Now set some environment variables in your cshrc or bashrc file (example is bash
 {{{
 export SLR_WORK=<somedir>/stellar-locus-regression-read-only
 export SLR_DATA=$SLR_WORK/example_data
-IDL_PATH=$IDL_PATH:+$SLR_WORK/pro
-export IDL_PATH
+export IDL_PATH=$IDL_PATH:+$SLR_WORK/pro
 export DUST_DIR=$SLR_DATA/sfd
 }}}
 
-To check that everything is working (don't forget to source .bashrc):
+To check that everything is working (don't forget to source your rc file):
 
 {{{
 IDL> slr_demo
