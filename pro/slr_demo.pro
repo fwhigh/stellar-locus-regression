@@ -47,7 +47,10 @@ limits=slr_limits()
 
 
 
-message,'Regressing high extinction data',/info
+
+
+
+message,'Regressing low extinction data',/info
 
 ;;; Initialize data with low Galactic dust extinction
 slr_get_data,$
@@ -82,6 +85,10 @@ print,' E(r-i) = ',string(low_galext_mean[1],format='(F6.3)'),$
 print,' E(i-z) = ',string(low_galext_mean[2],format='(F6.3)'),$
       ' +/-',string(low_galext_stddev[2],format='(F7.3)')
       
+
+
+
+
 
 
 message,'Regressing high extinction data',/info
