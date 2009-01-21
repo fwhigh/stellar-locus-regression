@@ -41,6 +41,7 @@ option.postscript=0
 option.interactive=1
 option.use_ir=0
 option.verbose=1
+option.animate_regression=1
 
 ;;; Get global default hard limits on the data
 limits=slr_limits()
