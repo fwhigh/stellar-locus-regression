@@ -31,5 +31,5 @@ usersym,cos(2*!pi*findgen(21)/20.), sin(2*!pi*findgen(21)/20.), /fill ; set psym
 
 to check that everything is working:
 
-IDL> slr_init
+IDL> slr_demo
 
