@@ -5,6 +5,7 @@ pro slr_locus_cubes, field=field,$
                      covey_zJ=covey_zJ,$
                      postscript=postscript, $
                      interactive=interactive,$
+                     fix_plot_limits=fix_plot_limits,$
                      ironly=ironly,$
                      snlow=snlow
   
@@ -40,9 +41,12 @@ if keyword_set(gr) and not keyword_set(ironly) then begin
      ops,file=psfile,/encap,/color,form=2
      linethick=9
   endif else linethick=1
-;  xrange=[0,2]
-;  yrange=[0,1.4]
-;  zrange=[-0.2,1]
+
+  if keyword_set(fix_plot_limits) then begin
+     xrange=minmax(y[*,0])+[-1,1]*0.3
+     yrange=minmax(y[*,1])+[-1,1]*0.3
+     zrange=minmax(y[*,2])+[-1,1]*0.3
+  endif
 
   erase
   loadct,12,/silent
