@@ -32,8 +32,8 @@ You need the Galactic dust maps and IDL code from the Schlegel et al. (1998), av
 Now set some environment variables in your cshrc or bashrc file (example is bash):
 
 {{{
-export SLR_WORK=<somedir>{{{/stellar-locus-regression-read-only
-export SLR_DATA=$SLR_WORK/}}}example_data
+export SLR_WORK={{{<somedir>}}}/stellar-locus-regression-read-only
+export SLR_DATA=$SLR_WORK/example_data
 export IDL_PATH=$IDL_PATH:+$SLR_WORK/pro
 export DUST_DIR=$SLR_DATA/sfd
 }}}
