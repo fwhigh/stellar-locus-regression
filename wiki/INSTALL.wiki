@@ -8,9 +8,11 @@ Follow these instructions to get the SLR demo to work properly on your computer 
 == Quick Install ==
 
 You'll need these idl libraries:
-  * idlutils: http://www.astro.princeton.edu/~schlegel/code.html (this includes the Goddard astronomy libraries)
+  * idlutils: http://www.astro.princeton.edu/~schlegel/code.html (any will do, but you probably want the latest idlutils tar file e.g idlutils-v5_3_0.tar, this includes the Goddard astronomy libraries)
   * Goddard astronomy libraries
-  * Markwardt: http://www.physics.wisc.edu/~craigm/idl/
+  * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (cmtotal.tar.gz)
+
+Put them in a directory where you can remember <prodirectory>
 
 Put them in your IDL_PATH with RC file entries like:
 {{{
