@@ -45,6 +45,10 @@ option.verbose=1
 ;;; Get global default hard limits on the data
 limits=slr_limits()
 
+
+
+message,'Regressing high extinction data',/info
+
 ;;; Initialize data with low Galactic dust extinction
 slr_get_data,$
    fieldname='lowext_stars3_fwhigh',$
@@ -63,6 +67,25 @@ slr_locus_line_calibration,$
    galext_stddev=low_galext_stddev
 
 
+print,'Best fit kappa'
+print,' kappa(g-r) = ',string(low_kappa[0],format='(F6.3)'),$
+   ' +/-',string(low_kappa_err[0],format='(F8.5)')
+print,' kappa(r-i) = ',string(low_kappa[1],format='(F6.3)'),$
+   ' +/-',string(low_kappa_err[1],format='(F8.5)')
+print,' kappa(i-z) = ',string(low_kappa[2],format='(F6.3)'),$
+   ' +/-',string(low_kappa_err[2],format='(F8.5)')
+print,'Compare to predicted Galactic extinction values'
+print,' E(g-r) = ',string(low_galext_mean[0],format='(F6.3)'),$
+      ' +/-',string(low_galext_stddev[0],format='(F8.5)')
+print,' E(r-i) = ',string(low_galext_mean[1],format='(F6.3)'),$
+      ' +/-',string(low_galext_stddev[1],format='(F8.5)')
+print,' E(i-z) = ',string(low_galext_mean[2],format='(F6.3)'),$
+      ' +/-',string(low_galext_stddev[2],format='(F8.5)')
+      
+
+
+message,'Regressing high extinction data',/info
+
 ;;; Initialize data with high Galactic dust extinction
 slr_get_data,$
    fieldname='hiext_stars3_fwhigh',$
@@ -78,6 +101,16 @@ slr_locus_line_calibration,$
    kap_err=high_kappa_err,$
    galext_mean=high_galext_mean,$
    galext_stddev=high_galext_stddev
+
+print,'Compare to predicted Galactic extinction values'
+print,' E(g-r) = ',string(high_galext_mean[0],format='(F6.3)'),$
+      ' +/-',string(high_galext_stddev[0],format='(F8.5)')
+print,' E(r-i) = ',string(high_galext_mean[1],format='(F6.3)'),$
+      ' +/-',string(high_galext_stddev[1],format='(F8.5)')
+print,' E(i-z) = ',string(high_galext_mean[2],format='(F6.3)'),$
+      ' +/-',string(high_galext_stddev[2],format='(F8.5)')
+      
+
 
 
 

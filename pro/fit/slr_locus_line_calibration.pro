@@ -106,9 +106,9 @@ pro slr_locus_line_calibration,$
                    animate_regression=option.animate_regression,$
                    postscript=option.postscript,$
                    bestfit=calibfit1
-     if option.verbose ge 1 then $
+     if option.verbose ge 2 then $
         print,'Intermediate kappa = ',calibfit1.p
-     if option.verbose ge 1 then $
+     if option.verbose ge 2 then $
         print,'n stars used = ',n_elements(ind1)
      ind1_better=ind1[calibfit1.goodi]
      data.math1.kappa.guess[0:2]=calibfit1.p
@@ -146,9 +146,9 @@ pro slr_locus_line_calibration,$
         return
      endif
 
-     if option.verbose ge 1 then $
+     if option.verbose ge 2 then $
         print,'Final kappa = ',calibfit1.p
-     if option.verbose ge 1 then $
+     if option.verbose ge 2 then $
         print,'n stars used = ',n_elements(ind1_better)
 
      kappa=calibfit1.p
@@ -161,7 +161,7 @@ pro slr_locus_line_calibration,$
                     stddev((data.locus.i_galext-data.locus.z_galext)[ind1_better])]
      
 
-
+     kap_err=replicate(0.,n_elements(kappa))
      if bootstrap then begin
         if option.verbose ge 1 then $
            print,'Bootstrapping'
@@ -172,7 +172,7 @@ pro slr_locus_line_calibration,$
         n_iter=n_bootstrap
         delvarx,p_bootstrap
         for i=0,n_iter-1 do begin
-           if ((i+1) mod 20) eq 0 and option.verbose ge 1 then $
+           if ((i+1) mod 20) eq 0 and option.verbose ge 2 then $
               print,'Iteration ',i+1,'/',n_iter
            IMSL_RANDOMOPT, Set = i+1
            b1ind=imsl_random(n_data,/discrete_unif,parameters=n_data)-1
@@ -214,7 +214,7 @@ pro slr_locus_line_calibration,$
 ;        save,file=slr_datadir()+path_sep()+data.field+'_bootstrap.sav',$
 ;             data,option,p_bootstrap
 
-        if option.verbose ge 1 then $
+        if option.verbose ge 2 then $
            print,'Bootstrap error ',kap_err
      endif
 
@@ -225,7 +225,7 @@ pro slr_locus_line_calibration,$
      if use_ir then begin
         option.use_ir=1
 
-        if option.verbose ge 1 then $
+        if option.verbose ge 2 then $
            print,'Doing INFRARED'
 
         x1_dat=slr_get_data_array(data,option,err=x1_err,$
@@ -252,7 +252,7 @@ pro slr_locus_line_calibration,$
                       postscript=option.postscript,$
                       bestfit=calibfit1
 ;  ind1_better=ind1[calibfit1.goodi]
-        if option.verbose ge 1 then $
+        if option.verbose ge 2 then $
            print,'Final kappa = ',calibfit1.p
         kappa=push_arr(kappa,calibfit1.p)
         galext_mean=push_arr(galext_mean,$
@@ -262,10 +262,9 @@ pro slr_locus_line_calibration,$
 
 
 
-
+        kap_err=replicate(0.,n_elements(kappa))
         if bootstrap then begin
            if option.verbose ge 1 then begin
-              print
               print,'Bootstrapping'
            endif
            delvarx,p_bootstrap_ir
@@ -275,7 +274,7 @@ pro slr_locus_line_calibration,$
            n_iter=n_bootstrap
            delvarx,p_bootstrap
            for i=0,n_iter-1 do begin
-              if ((i+1) mod 100) eq 0 and option.verbose ge 1 then $
+              if ((i+1) mod 100) eq 0 and option.verbose ge 2 then $
                  print,'Iteration ',i+1,'/',n_iter
               IMSL_RANDOMOPT, Set = i+1
               b1ind=imsl_random(n_data,/discrete_unif,parameters=n_data)-1
@@ -313,7 +312,7 @@ pro slr_locus_line_calibration,$
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[1,*]))
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[2,*]))
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[3,*]))
-           if option.verbose ge 1 then $
+           if option.verbose ge 2 then $
               print,'Bootstrap error ',kap_err
 ;           save,file=slr_datadir()+path_sep()+data.field+'_bootstrap_ir.sav',$
 ;                data,option,p_bootstrap_ir
