@@ -5,8 +5,7 @@ function slr_figdir
 ;  slr_figdir
 ;
 ; PURPOSE:
-;  Return the generic, root figure directory for Stellar Locus
-;  Regression.
+;  Return the generic, root figure directory for Stellar Locus Regression.
 ;
 ; EXPLANATION:
 ;  This routine lets you put SLR figures always in the same place.

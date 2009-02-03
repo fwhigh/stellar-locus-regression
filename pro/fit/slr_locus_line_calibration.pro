@@ -10,7 +10,8 @@ pro slr_locus_line_calibration,$
    obji_out=obji_out, $
    errflag=errflag, $
    colorterms=colorterms, $
-   tostd=tostd
+   tostd=tostd,$
+   nstars=nstars
 
 ;+
 ; NAME:
@@ -88,7 +89,7 @@ pro slr_locus_line_calibration,$
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
                                output_indices=ind1,$
                                input_indices=obji_in)
-
+;     data.math1.m.val=colorterms
      slr_fit_curve,x_dat=x1_dat,$
                    x_err=x1_err,$
                    math=data.math1,$
@@ -138,6 +139,7 @@ pro slr_locus_line_calibration,$
      data.math1.kappa.val[0:2]=calibfit1.p
      data.math2.kappa.guess[0:2]=calibfit1.p
      data.math2.kappa.val[0:2]=calibfit1.p
+     data.math7.kappa.val[0:2]=calibfit1.p
      data.math8.kappa.val[0:2]=calibfit1.p
 
      if n_elements(ind1_better) lt 3 then begin
@@ -150,6 +152,7 @@ pro slr_locus_line_calibration,$
         print,'Final kappa = ',calibfit1.p
      if option.verbose ge 2 then $
         print,'n stars used = ',n_elements(ind1_better)
+     nstars=n_elements(ind1_better)
 
      kappa=calibfit1.p
      obji_out=ind1_better
@@ -161,7 +164,7 @@ pro slr_locus_line_calibration,$
                     stddev((data.locus.i_galext-data.locus.z_galext)[ind1_better])]
      
 
-     kap_err=replicate(0.,n_elements(kappa))
+;     kap_err=replicate(0.,n_elements(kappa))
      if bootstrap then begin
         if option.verbose ge 1 then $
            print,'Bootstrapping'
@@ -216,7 +219,9 @@ pro slr_locus_line_calibration,$
 
         if option.verbose ge 2 then $
            print,'Bootstrap error ',kap_err
-     endif
+     endif else begin
+        kap_err=[0.001,0.001,0.001]
+     endelse
 
 
 
@@ -262,7 +267,7 @@ pro slr_locus_line_calibration,$
 
 
 
-        kap_err=replicate(0.,n_elements(kappa))
+;        kap_err=replicate(0.,n_elements(kappa))
         if bootstrap then begin
            if option.verbose ge 1 then begin
               print,'Bootstrapping'
@@ -308,6 +313,7 @@ pro slr_locus_line_calibration,$
                  p_bootstrap_ir=[[p_bootstrap_ir],[bootfit.p]]
               endelse
            endfor
+;           kap_err=push_arr(kap_err,stddev(p_bootstrap_ir))
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[0,*]))
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[1,*]))
            kap_err=push_arr(kap_err,stddev(p_bootstrap_ir[2,*]))
@@ -316,7 +322,9 @@ pro slr_locus_line_calibration,$
               print,'Bootstrap error ',kap_err
 ;           save,file=slr_datadir()+path_sep()+data.field+'_bootstrap_ir.sav',$
 ;                data,option,p_bootstrap_ir
-        endif
+        endif else begin
+           kap_err=push_arr(kap_err,[1,1,1,1]*0.001)
+        endelse
 
 
      endif

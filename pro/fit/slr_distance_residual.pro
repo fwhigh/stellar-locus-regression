@@ -6,13 +6,11 @@ function slr_distance_residual, x, x_err, y, y_err, $
                                 thresh=thresh
 
 ;+
-;
 ; NAME:
 ;  slr_distance_residual
 ;
 ; PURPOSE:
-;  Return the sum of hyperdimension color distances between color data
-;  and a stellar locus line
+;  Return the sum of hyperdimension color distances between color data and a stellar locus line
 ;
 ; DESCRIPTION:
 ;  

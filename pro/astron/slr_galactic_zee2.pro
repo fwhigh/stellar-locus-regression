@@ -1,13 +1,13 @@
 function slr_galactic_zee2, r, i, b
 
 ;+ 
-;
 ; NAME:
-;
-;     GALACTIC_ZEE
+;     slr_galactic_zee2
 ;
 ; PURPOSE:
+;  Get MS photometric parallax distance above the Galactic plane Z.
 ;
+; EXPLANATION:
 ;     Get the distance above the Galactic plane, Z, from the r-i color
 ;     and r mag of a main sequence star, a la Juric et al. 2008.
 ;
@@ -15,18 +15,14 @@ function slr_galactic_zee2, r, i, b
 ;
 ;
 ; CALLING SEQUENCE:
-;     zee = slr_galactic_zee(r,i,b)
+;     zee = slr_galactic_zee2(r,i,b)
 ;
 ; INPUTS:
-;
 ;     r - N element array of r magnitudes (mag)
-;
 ;     i - N element array of i magnitudes (mag)
-;
 ;     b - N element array of Galactic latitude b (deg)
 ;
 ; OUTPUTS:
-;
 ;     zee - N elements array of heights above the Galactic plane (pc)
 ;
 ;-

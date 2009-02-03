@@ -5,8 +5,7 @@ function slr_datadir
 ;  slr_datadir
 ;
 ; PURPOSE:
-;  Return the generic, root data directory for Stellar Locus
-;  Regression.
+;  Return the generic, root data directory for Stellar Locus Regression.
 ;
 ; EXPLANATION:
 ;  This routine makes data access uniform, such that you can run IDL

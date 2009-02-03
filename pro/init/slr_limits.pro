@@ -1,7 +1,42 @@
 function slr_limits
 
 ;+
-; Set the default hard limits on the data
+; NAME:
+;  slr_limits
+;
+; PURPOSE:
+;  Set the default hard limits on the data
+;
+; EXPLANATION:
+;  
+;
+; CALLING SEQUENCE:
+;       
+;
+; INPUTS:
+; 
+;      
+;
+; OPTIONAL INPUTS:
+;
+;
+;
+; OUTPUTS:
+;       
+;
+; OPIONAL OUTPUTS:
+;       
+;       
+; NOTES:
+;
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
 ;-
 
   limits={type:1,$
@@ -26,10 +61,10 @@ function slr_limits
           izmax:100,$
           zJmin:-1000,$
           zJmax:+1000,$
-          magerr_floor:0.00,$
-          max_locus_dist:1.0,$
-          max_weighted_locus_dist:10,$
-          kappa_guess:[0.0,-0.5,-1.0,replicate(-27.5,4)],$
+          magerr_floor:0.005,$
+          max_locus_dist:1e3,$
+          max_weighted_locus_dist:1e3,$
+          kappa_guess:[0.0,0.0,0.0,replicate(-27.5,4)],$
           kappa_guess_range:replicate(5.,7)$
          }
 

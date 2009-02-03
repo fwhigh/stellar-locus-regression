@@ -4,6 +4,45 @@ function slr_get_data_array, cat, option, $
                              output_indices=ind, $
                              input_indices=in_ind
 
+;+
+; NAME:
+;  slr_get_data_array
+;
+; PURPOSE:
+;  Get the array of SLR color-data vectors.
+;
+; EXPLANATION:
+;       
+;
+; CALLING SEQUENCE:
+;       
+;
+; INPUTS:
+; 
+;      
+;
+; OPTIONAL INPUTS:
+;
+;
+;
+; OUTPUTS:
+;       
+;
+; OPIONAL OUTPUTS:
+;       
+;       
+; NOTES:
+;
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
 ind=slr_get_good_indices(cat,option,input_indices=in_ind,tmass_indices=tind)
 
 if option.verbose ge 1 and cat.deredden then begin
@@ -26,18 +65,14 @@ if option.use_ir then begin
          [(cat.locus.z[ind]-cat.locus.J[tind])],$
          [(cat.locus.i[ind]-cat.locus.J[tind])],$
          [(cat.locus.r[ind]-cat.locus.J[tind])],$
-         [(cat.locus.g[ind]-cat.locus.J[tind])]$
-        ]
-;         [(cat.locus.i[ind]-2*cat.locus.J[tind]+cat.locus.H[tind])]]
+         [(cat.locus.g[ind]-cat.locus.J[tind])]]
     err=[[(sqrt(cat.locus.g_err^2+cat.locus.r_err^2))[ind]],$
          [(sqrt(cat.locus.r_err^2+cat.locus.i_err^2))[ind]],$
          [(sqrt(cat.locus.i_err^2+cat.locus.z_err^2))[ind]],$
          [(sqrt(cat.locus.z_err[ind]^2+cat.locus.J_err[tind]^2))],$
          [(sqrt(cat.locus.i_err[ind]^2+cat.locus.J_err[tind]^2))],$
          [(sqrt(cat.locus.r_err[ind]^2+cat.locus.J_err[tind]^2))],$
-         [(sqrt(cat.locus.g_err[ind]^2+cat.locus.J_err[tind]^2))]$
-        ]
-;         [(sqrt(cat.locus.i_err[ind]^2+4*cat.locus.J_err[tind]^2+cat.locus.H_err[tind]^2))]]
+         [(sqrt(cat.locus.g_err[ind]^2+cat.locus.J_err[tind]^2))]]
     mag=[[(cat.locus.g-(cat.locus.g_galext)*cat.deredden)[ind]],$
          [(cat.locus.r-(cat.locus.r_galext)*cat.deredden)[ind]],$
          [(cat.locus.i-(cat.locus.i_galext)*cat.deredden)[ind]],$

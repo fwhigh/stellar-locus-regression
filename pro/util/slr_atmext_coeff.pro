@@ -2,33 +2,28 @@ function slr_atmext_coeff
 
 ;+
 ; NAME:
-;   
+;  slr_atmext_coeff
 ;
 ; PURPOSE:
-;       
+;  Get the CTIO atmospheric extinction coefficients.
 ;
 ; EXPLANATION:
-;       
+;  From the Smith et al. series of papers on Southern ugriz
+;  standards. 
 ;
 ; CALLING SEQUENCE:
-;       
+;  k=slr_atmext_coeff()
 ;
 ; INPUTS:
-; 
 ;      
 ;
 ; OPTIONAL INPUTS:
 ;
-;
-;
 ; OUTPUTS:
-;       
 ;
 ; OPIONAL OUTPUTS:
 ;       
-;       
 ; NOTES:
-;
 ;
 ; EXAMPLES:
 ;
