@@ -59,11 +59,13 @@ types={$
         r              : 4 ,$
         i              : 4 ,$
         z              : 4 ,$
+        J              : 4 ,$
         u_err          : 4 ,$
         g_err          : 4 ,$
         r_err          : 4 ,$
         i_err          : 4 ,$
         z_err          : 4 ,$
+        J_err          : 4 ,$
         g_r            : 4 ,$
         g_i            : 4 ,$
         g_z            : 4 ,$

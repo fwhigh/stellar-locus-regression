@@ -2,6 +2,47 @@ function slr_get_good_indices, cat, option, $
                                input_indices=in_ind, $
                                tmass_indices=tmass_indices
 
+;+
+; NAME:
+;  slr_get_good_indices
+;
+; PURPOSE:
+;  Get the indices of data that survive generic hard data cuts.
+;
+; EXPLANATION:
+;       
+;
+; CALLING SEQUENCE:
+;       
+;
+; INPUTS:
+; 
+;      
+;
+; OPTIONAL INPUTS:
+;
+;
+;
+; OUTPUTS:
+;       
+;
+; OPIONAL OUTPUTS:
+;       
+;       
+; NOTES:
+;
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
+
+
 ;;   if option.verbose ge 1 then begin
 ;;      irtesti=where(finite(cat.locus.J_err) and $
 ;;                    finite(cat.locus.J) and $

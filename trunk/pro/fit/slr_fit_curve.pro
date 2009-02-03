@@ -3,25 +3,22 @@ function curve_dist_func, p
   common curve_fit_func_xy, x, x_err, y, y_err, gof_arr, basis, this_fittype, colorterms, animate, weighted
   common curve_fit_test_par, fittype, A2_mean, A3_mean, math
 
-  p_counter=0
-  kappa=slr_math_struct_to_kappa(math,p,p_counter=p_counter)
-  m_op =slr_math_struct_to_m_operator(math,p,p_counter=p_counter)
-  x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
-
   n_dim=n_elements(x[0,*])
   n_dat=n_elements(x[*,0])
+
+  p_counter=0
+  kappa=slr_math_struct_to_kappa(math,p,p_counter=p_counter)
+;  m_op =slr_math_struct_to_m_operator(math,p,p_counter=p_counter)
+  m_op =identity(n_dim)
+  x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
 
   if size(y,/tname) eq 'UNDEFINED' then begin
      cat=slr_read_covey_median_locus()
      if 0 then print,'Reading Covey'
      if n_dim eq 3 then begin
         y=[[cat.gr],[cat.ri],[cat.iz]]
-;     y=[[anl.gr],[anl.ri],[anl.iz],[anl.zJ]]
         y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err]]
 
-;    y=[[cat.gr],[cat.ri],[cat.iz],[cat.iz+cat.zJ-cat.JH]]
-;    y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err],[sqrt(cat.iz_err^2+cat.zJ_err^2+cat.JH_err^2)]]
-;        print,'mop',m_op
         if n_elements(colorterms) eq 4 then begin
            color_matrix=slr_colorterm_matrix(colorterms,type=0)
         endif else if n_elements(colorterms) eq 3 then begin
@@ -30,6 +27,20 @@ function curve_dist_func, p
            message,"Wrong number of color coefficients"
         endelse
         
+     endif else if n_dim eq 4 then begin
+        y=[[cat.gr],[cat.ri],[cat.iz],$
+           [cat.zJ]]
+        y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err],$
+               [cat.zJ_err^2]]
+        
+        if n_elements(colorterms) eq 4 then begin
+           color_matrix=slr_colorterm_matrix(colorterms,type=3)
+;           color_matrix=slr_colorterm_matrix(colorterms,type=7)
+        endif else if n_elements(colorterms) eq 3 then begin
+           color_matrix=slr_colorterm_matrix(colorterms,type=6)
+        endif else begin
+           message,"Wrong number of color coefficients"
+        endelse
      endif else if n_dim eq 7 then begin
 ;     anl=slr_covey_analytic_locus(gi=cat.gi)
         y=[[cat.gr],[cat.ri],[cat.iz],$
@@ -66,7 +77,7 @@ function curve_dist_func, p
         print
         print,kappa
      endif
-     y=slr_color_transform(y,kappa=replicate(0.0,n_dim),$
+     y=slr_color_transform(y,kappa=replicate(0.,n_dim),$
                            m_op=color_matrix)
      
   endif
@@ -202,6 +213,45 @@ pro slr_fit_curve, x_dat=x_dat,$
                    verbose=verbose,$
                    bestfit=bestfit
 
+;+
+; NAME:
+;  slr_fit_curve
+;
+; PURPOSE:
+;  Regress color data points to an empirical curve.
+;
+; EXPLANATION:
+;       
+;
+; CALLING SEQUENCE:
+;       
+;
+; INPUTS:
+; 
+;      
+;
+; OPTIONAL INPUTS:
+;
+;
+;
+; OUTPUTS:
+;       
+;
+; OPIONAL OUTPUTS:
+;       
+;       
+; NOTES:
+;
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
   common curve_fit_func_xy, x, x_err, y, y_err, gof_arr, basis, this_fittype, colorterms, animate, weighted
   common curve_fit_test_par, this_fittype2, A2_mean, A3_mean, math_str
 
@@ -267,7 +317,6 @@ pro slr_fit_curve, x_dat=x_dat,$
      badi=[-1]
   endelse
 
-
   if plot then begin
      n_dim=n_elements(x[0,*])
      n_dat=n_elements(x[*,0])
@@ -277,15 +326,9 @@ pro slr_fit_curve, x_dat=x_dat,$
         y=[[cat.gr],[cat.ri],[cat.iz]]
         y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err]]
         if n_elements(colorterms) eq 4 then begin
-           color_matrix=identity(n_dim)+$
-                        [[ colorterms[0],             0,                           0],$
-                         [-colorterms[1], colorterms[1],                           0],$
-                         [             0,-colorterms[2], colorterms[2]-colorterms[3]]]
+           color_matrix=slr_colorterm_matrix(colorterms,type=0)
         endif else if n_elements(colorterms) eq 3 then begin
-           color_matrix=identity(n_dim)+$
-                        [[ colorterms[0],             0,             0],$
-                         [             0, colorterms[1],             0],$
-                         [             0,             0, colorterms[2]]]
+           color_matrix=slr_colorterm_matrix(colorterms,type=5)
         endif else begin
            message,"Wrong number of color coefficients"
         endelse

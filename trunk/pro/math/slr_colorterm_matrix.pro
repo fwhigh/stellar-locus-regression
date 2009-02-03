@@ -1,4 +1,4 @@
-function slr_colorterm_matrix, m_out,type=type
+function slr_colorterm_matrix, m_out,type=type, inverse=inverse
 
 if not keyword_set(type) then type=0
 
@@ -41,6 +41,8 @@ case type of
     end
     else:message,"Don't know math operator type "+strtrim(type,2)
 endcase
+
+if keyword_set(inverse) then matrix_out=inverse(matrix_out)
 
 return,matrix_out
 
