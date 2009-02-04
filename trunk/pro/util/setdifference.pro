@@ -1,5 +1,39 @@
 FUNCTION SetDifference, a, b  
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+;+
+; NAME:
+;  setdifference
+;
+; PURPOSE:
+;  Coyote's routine to return the difference of two sets (arrays).
+;
+; EXPLANATION:
+;
+; CALLING SEQUENCE:
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;
+; OUTPUTS:
+;
+; OPIONAL OUTPUTS:
+;       
+; NOTES:
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;  Written by D. Fanning
+;
+;-
+
 ; = a and (not b) = elements in A but not in B
 
 mina = Min(a, Max=maxa)

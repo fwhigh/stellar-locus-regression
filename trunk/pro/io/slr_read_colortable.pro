@@ -185,6 +185,57 @@ end
 
 function slr_read_colortable, file,verbose=verbose, force=force
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
+;+
+; NAME:
+;  slr_read_colortable
+;
+; PURPOSE:
+;  Read a colortable for SLR.
+;
+; EXPLANATION:
+;
+; CALLING SEQUENCE:
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;
+; OUTPUTS:
+;
+; OPIONAL OUTPUTS:
+;       
+; NOTES:
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
 if not keyword_set(verbose) then verbose=0
                              
 if verbose ge 1 then $

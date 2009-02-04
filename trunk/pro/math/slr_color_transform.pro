@@ -134,6 +134,57 @@ function slr_color_transform, x2,$
                               inverse=inverse,$
                               debug=debug
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
+;+
+; NAME:
+;  slr_color_transform
+;
+; PURPOSE:
+;  Return astronomical colors transformed by translations, scalings, shears, and rotations.
+;
+; EXPLANATION:
+;
+; CALLING SEQUENCE:
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;
+; OUTPUTS:
+;
+; OPIONAL OUTPUTS:
+;       
+; NOTES:
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
+;-
+
 n_dim=n_elements(x2[0,*])
 n_dat=n_elements(x2[*,0])
 
