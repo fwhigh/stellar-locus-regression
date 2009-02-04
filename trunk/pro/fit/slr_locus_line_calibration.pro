@@ -117,7 +117,8 @@ pro slr_locus_line_calibration,$
                    colorterms=colorterms,$
                    max_locus_dist=data.max_locus_dist,$
                    max_weighted_locus_dist=data.max_weighted_locus_dist,$
-                   weighted_residual=option.weighted_residual,$
+                   weighted_residual=0,$
+;                   weighted_residual=option.weighted_residual,$
                    fittype=0,$
                    xtitles=data.locus.xtitles,$
                    field=data.field,$
