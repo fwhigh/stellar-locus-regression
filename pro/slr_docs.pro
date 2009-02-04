@@ -54,8 +54,7 @@ pro slr_docs
 ;
 ;-
 
-install_dir=getenv('SLR_INSTALL')+$
-            path_sep()+'stellar-locus-regression'
+install_dir=getenv('SLR_INSTALL')
 outfile=install_dir+path_sep()+'docs'+path_sep()+'www'+$
         path_sep()+'idl_help.html'
 
