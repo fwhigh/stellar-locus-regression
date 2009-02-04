@@ -73,10 +73,16 @@ We've used the example directories mentioned in this install file.  This should 
 
 ===Test Your Installation===
 
-To check that everything is working (don't forget to source your rc file):
+To check that everything is working (don't forget to source your rc file), make the SLR documentation web page with
+{{{
+IDL> slr_docs
+}}}
+This will make the SLR IDL help page {{{$SLR_INSTALL/docs/www/idl_help.html}}}, which you can open in a web browser.
 
+If that worked, now run the demo with
 {{{
 IDL> slr_demo
 }}}
-
 The first time you run it, it will take some time (it's reformatting the data to an optimal, IDL-friendly format).  It will be much faster the second time.
+
+The demo will run SLR on the example Sloan Digital Sky Survey data that comes with your installation.  You should see plots of the stellar locus (you must hit enter to continue), a visualization of the numerical regression, and results for best-fit parameters printed to screen.
