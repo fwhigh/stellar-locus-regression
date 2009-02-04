@@ -1,7 +1,59 @@
 function slr_options
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
 ;+
-; Set default global options.
+; NAME:
+;  slr_options
+;
+; PURPOSE:
+;  Return a structure containing the default global options.
+;
+; EXPLANATION:
+;  It's always nice to have common options set in one place.
+;  This is that place.  This does NOT make use of common blocks, but
+;  rather returns a structure which must be passed to and recognized
+;  by the SLR subroutines.
+;
+; CALLING SEQUENCE:
+;  options=slr_options()
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;
+; OUTPUTS:
+;
+; OPIONAL OUTPUTS:
+;       
+; NOTES:
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2008
+;
 ;-
 
   option=create_struct(       "use_cal",'')

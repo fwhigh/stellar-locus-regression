@@ -8,7 +8,7 @@ function curve_dist_func, p
 
   p_counter=0
   kappa=slr_math_struct_to_kappa(math,p,p_counter=p_counter)
-;  m_op =slr_math_struct_to_m_operator(math,p,p_counter=p_counter)
+;  m_op =slr_math_struct_to_colorterm_matrix(math,p,p_counter=p_counter)
   m_op =identity(n_dim)
   x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
 
@@ -213,6 +213,27 @@ pro slr_fit_curve, x_dat=x_dat,$
                    verbose=verbose,$
                    bestfit=bestfit
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
 ;+
 ; NAME:
 ;  slr_fit_curve
@@ -302,7 +323,7 @@ pro slr_fit_curve, x_dat=x_dat,$
 ;print,'result p',p
   p_counter=0
   kappa=slr_math_struct_to_kappa(math,p,p_counter=p_counter)
-  m_op =slr_math_struct_to_m_operator(math,p,p_counter=p_counter)
+  m_op =slr_math_struct_to_colorterm_matrix(math,p,p_counter=p_counter)
   x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
 
 

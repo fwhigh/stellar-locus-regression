@@ -6,6 +6,27 @@ function slr_read_covey_median_locus, $
    nosmooth=nosmooth,$
    postscript=postscript
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
 ;+
 ; NAME:
 ;  slr_read_covey_median_locus
@@ -234,17 +255,27 @@ function slr_read_covey_median_locus, $
      endif else linethick=3
      erase
      loadct,0,/silent
-     plot_3dbox_fwhigh,cat.gr,cat.ri,cat.iz,$
-                       xtitle='!6g - r',ytitle='!6r - i',ztitle='!6i - z',$
-                       thick=linethick, $
-                       GRIDSTYLE=1, AZ=az, ax=ax, $
-                       /YSTYLE, charsize=charsize,$
-                       /xy_plane,/yz_plane,/xz_plane, /nodata_3d
+     plot_3dbox,cat.gr,cat.ri,cat.iz,$
+                xtitle='!6g - r',ytitle='!6r - i',ztitle='!6i - z',$
+                thick=linethick, $
+                GRIDSTYLE=1, AZ=az, ax=ax, $
+                /YSTYLE, charsize=charsize,$
+                /xy_plane,/yz_plane,/xz_plane, /nodata_3d
+;;      plot_3dbox_fwhigh,cat.gr,cat.ri,cat.iz,$
+;;                        xtitle='!6g - r',ytitle='!6r - i',ztitle='!6i - z',$
+;;                        thick=linethick, $
+;;                        GRIDSTYLE=1, AZ=az, ax=ax, $
+;;                        /YSTYLE, charsize=charsize,$
+;;                        /xy_plane,/yz_plane,/xz_plane, /nodata_3d
      loadct,12,/silent
-     plot_3dbox_fwhigh,cat.gr,cat.ri,cat.iz,$
+     plot_3dbox,cat.gr,cat.ri,cat.iz,$
                        /overplot, thick=linethick, $
                        color_3d=200, $
                        /xy_plane,/yz_plane,/xz_plane, /onlydata_3d
+;;      plot_3dbox_fwhigh,cat.gr,cat.ri,cat.iz,$
+;;                        /overplot, thick=linethick, $
+;;                        color_3d=200, $
+;;                        /xy_plane,/yz_plane,/xz_plane, /onlydata_3d
      if keyword_set(postscript) then begin
         cps
      endif else begin
