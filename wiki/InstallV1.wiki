@@ -62,7 +62,7 @@ We highly recommend putting them in the {{{example_data/covey}}} subdirectory of
 
 Now set some environment variables in your cshrc or bashrc file.  Remember to insert the appropriate directories.  Example is for tcsh:
 {{{
-setenv SLR_INSTALL <install-dir>
+setenv SLR_INSTALL <install-dir>/stellar-locus-regression-read-only
 setenv SLR_DATA $SLR_INSTALL/example_data
 setenv IDL_PATH {$IDL_PATH}:+$SLR_INSTALL/pro
 setenv DUST_DIR $SLR_DATA/sfd
