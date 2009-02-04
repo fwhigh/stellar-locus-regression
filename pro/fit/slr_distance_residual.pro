@@ -155,6 +155,6 @@ function slr_distance_residual, x, x_err, y, y_err, $
      endif
   endfor
 
-  return,distance_sum
+  return,distance_sum/sqrt(n_dat)
 
 end

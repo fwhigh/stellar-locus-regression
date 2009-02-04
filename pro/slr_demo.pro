@@ -62,6 +62,7 @@ option.postscript=0
 option.interactive=1
 option.use_ir=0
 option.verbose=1
+option.weighted_residual=0
 option.animate_regression=1
 
 ;;; Get global default hard limits on the data
@@ -89,7 +90,8 @@ slr_locus_line_calibration,$
    kappa=low_kappa,$
    kap_err=low_kappa_err,$
    galext_mean=low_galext_mean,$
-   galext_stddev=low_galext_stddev
+   galext_stddev=low_galext_stddev,$
+   bootstrap=(option.nbootstrap ne 0)
 
 
 print,'Best fit kappa'
@@ -129,7 +131,8 @@ slr_locus_line_calibration,$
    kappa=high_kappa,$
    kap_err=high_kappa_err,$
    galext_mean=high_galext_mean,$
-   galext_stddev=high_galext_stddev
+   galext_stddev=high_galext_stddev,$
+   bootstrap=(option.nbootstrap ne 0)
 
 print,'Best fit kappa'
 print,' kappa(g-r) = ',string(high_kappa[0],format='(F8.3)'),$

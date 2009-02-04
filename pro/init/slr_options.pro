@@ -76,7 +76,7 @@ function slr_options
   option=create_struct(option,"simulate",0)
   option=create_struct(option,"sample_study",0)
   option=create_struct(option,"max_sample_size",-1)
-  option=create_struct(option,"nbootstrap",0)
+  option=create_struct(option,"nbootstrap",10)
 ;  option=create_struct(option,"cutranges",~option.simulate)
   option=create_struct(option,"cutranges",0)
   option=create_struct(option,"basis",1)

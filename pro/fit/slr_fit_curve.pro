@@ -158,32 +158,116 @@ function curve_dist_func, p
 ;;            multiplot,/default
 
 ;;            wait,0.1
-           slr_locus_cubes,field='fit',$
-                           gr=x_transform[*,0],$
-                           ri=x_transform[*,1],$
-                           iz=x_transform[*,2],$
-                           zJ=x_transform[*,3],$
-                           covey_gr=y[*,0],$
-                           covey_ri=y[*,1],$
-                           covey_iz=y[*,2],$
-                           covey_zJ=y[*,3],$
-                           /ironly,$
-                           interactive=interactive,$
-                           postscript=postscript
+           if 0 then begin
+              slr_locus_cubes,field='fit',$
+                              gr=x_transform[*,0],$
+                              ri=x_transform[*,1],$
+                              iz=x_transform[*,2],$
+                              zJ=x_transform[*,3],$
+                              covey_gr=y[*,0],$
+                              covey_ri=y[*,1],$
+                              covey_iz=y[*,2],$
+                              covey_zJ=y[*,3],$
+                              /ironly,$
+                              interactive=interactive,$
+                              postscript=postscript
+           endif else begin
+              scatter=1
+              contour=~scatter
+              fill=1
+              linecolor=150
+              histbin=0.05
+              symsize=0.2
+
+              multiplot,[2,1],/dox,/doy
+              slr_plot_locus,$
+                 x_transform[*,0],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,0],y[*,1],thick=2
+
+              multiplot
+
+              slr_plot_locus,$
+                 x_transform[*,2],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,2],y[*,1],thick=2
+
+              multiplot,/default
+
+           endelse
         endif
      endif else begin
         if n_dat le 800 and animate then begin
-           slr_locus_cubes,field='fit',$
-                           gr=x_transform[*,0],$
-                           ri=x_transform[*,1],$
-                           iz=x_transform[*,2],$
-                           covey_gr=y[*,0],$
-                           covey_ri=y[*,1],$
-                           covey_iz=y[*,2],$
-                           /fix_plot_limits,$
-                           interactive=interactive,$
-                           postscript=postscript
-           wait,0.001
+           if 0 then begin
+              slr_locus_cubes,field='fit',$
+                              gr=x_transform[*,0],$
+                              ri=x_transform[*,1],$
+                              iz=x_transform[*,2],$
+                              covey_gr=y[*,0],$
+                              covey_ri=y[*,1],$
+                              covey_iz=y[*,2],$
+                              /fix_plot_limits,$
+                              interactive=interactive,$
+                              postscript=postscript
+              wait,0.001
+           endif else begin
+              scatter=1
+              contour=~scatter
+              fill=1
+              linecolor=150
+              histbin=0.05
+              symsize=0.2
+              buffer=0.5
+
+              erase & multiplot,[2,2],/dox,/doy,ygap=0.05
+              slr_plot_locus,$
+                 x_transform[*,0],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                 xrange=minmax(y[*,0])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,0],y[*,1],thick=2
+
+              multiplot,/dox
+
+              slr_plot_locus,$
+                 x_transform[*,2],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8i - z!6',$
+                 xrange=minmax(y[*,2])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,2],y[*,1],thick=2
+
+              multiplot,/dox,/doy
+
+              if n_elements(gof_arr) ge 2 then begin
+                 plot,findgen(n_elements(gof_arr)),$
+                      gof_arr,$
+                      /xstyle,/ystyle,/ylog,$
+                      xtitle='!6Iteration',$
+                      ytitle='!6Goodness of Fit'
+              endif                 
+
+              multiplot,/default
+
+
+              wait,0.001
+
+           endelse
         endif
      endelse
 
@@ -343,62 +427,167 @@ pro slr_fit_curve, x_dat=x_dat,$
      n_dat=n_elements(x[*,0])
      if n_dat le 5000 then begin
         cat=slr_read_covey_median_locus()
-     if n_dim eq 3 then begin
-        y=[[cat.gr],[cat.ri],[cat.iz]]
-        y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err]]
-        if n_elements(colorterms) eq 4 then begin
-           color_matrix=slr_colorterm_matrix(colorterms,type=0)
-        endif else if n_elements(colorterms) eq 3 then begin
-           color_matrix=slr_colorterm_matrix(colorterms,type=5)
-        endif else begin
-           message,"Wrong number of color coefficients"
-        endelse
+        if n_dim eq 3 then begin
+           y=[[cat.gr],[cat.ri],[cat.iz]]
+           y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err]]
+           if n_elements(colorterms) eq 4 then begin
+              color_matrix=slr_colorterm_matrix(colorterms,type=0)
+           endif else if n_elements(colorterms) eq 3 then begin
+              color_matrix=slr_colorterm_matrix(colorterms,type=5)
+           endif else begin
+              message,"Wrong number of color coefficients"
+           endelse
 ;        y=slr_color_transform(y,kappa=replicate(0.0,n_dim),$
 ;                              m_op=color_matrix)
 ;        print,'Color term matrix',color_matrix
 ;        print,'kappa',kappa
-        x_transform=slr_color_transform(x,kappa=kappa,$
-                                        m_op=color_matrix,/inverse)
-        slr_locus_cubes,field=field,$
-                        gr=x_transform[*,0],$
-                        ri=x_transform[*,1],$
-                        iz=x_transform[*,2],$
-                        covey_gr=y[*,0],$
-                        covey_ri=y[*,1],$
-                        covey_iz=y[*,2],$
-                        interactive=interactive,$
-                        postscript=postscript
-     endif else if n_dim eq 4 then begin
-        y=[[cat.gr],[cat.ri],[cat.iz],[cat.zJ]]
-        y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err],[cat.zJ_err^2]]
-        if n_elements(colorterms) eq 4 then begin
-           color_matrix=identity(n_dim)+$
-                        [[ colorterms[0],             0,                           0, 0],$
-                         [-colorterms[1], colorterms[1],                           0, 0],$
-                         [             0,-colorterms[2], colorterms[2]-colorterms[3], 0],$
-                         [             0,             0,                           0, 0]]
-        endif else if n_elements(colorterms) eq 3 then begin
-           color_matrix=identity(n_dim)+$
-                        [[ colorterms[0],             0,             0,         0],$
-                         [             0, colorterms[1],             0,         0],$
-                         [             0,             0, colorterms[2],         0],$
-                         [             0,             0,             0,         0]]
+           x_transform=slr_color_transform(x,kappa=kappa,$
+                                           m_op=color_matrix,/inverse)
+           if 0 then begin
+           slr_locus_cubes,field=field,$
+                           gr=x_transform[*,0],$
+                           ri=x_transform[*,1],$
+                           iz=x_transform[*,2],$
+                           covey_gr=y[*,0],$
+                           covey_ri=y[*,1],$
+                           covey_iz=y[*,2],$
+                           interactive=interactive,$
+                           postscript=postscript
         endif else begin
-           message,"Wrong number of color coefficients"
+              scatter=1
+              contour=~scatter
+              fill=1
+              linecolor=150
+              histbin=0.05
+              symsize=0.2
+              buffer=0.5
+
+              erase & multiplot,[2,2],/dox,/doy,ygap=0.05
+              slr_plot_locus,$
+                 x_transform[*,0],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                 xrange=minmax(y[*,0])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,0],y[*,1],thick=2
+
+              multiplot,/dox
+
+              slr_plot_locus,$
+                 x_transform[*,2],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8i - z!6',$
+                 xrange=minmax(y[*,2])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,2],y[*,1],thick=2
+
+              multiplot,/dox,/doy
+
+              if n_elements(gof_arr) ge 2 then begin
+                 plot,findgen(n_elements(gof_arr)),$
+                      gof_arr,$
+                      /xstyle,/ystyle,/ylog,$
+                      xtitle='!6Iteration',$
+                      ytitle='!6Goodness of Fit'
+              endif                 
+
+              multiplot,/default
+
+
+              if keyword_set(interactive) then begin
+                 junk='' & read,'Hit enter',junk
+              endif
+endelse
+        endif else if n_dim eq 4 then begin
+           y=[[cat.gr],[cat.ri],[cat.iz],[cat.zJ]]
+           y_err=[[cat.gr_err],[cat.ri_err],[cat.iz_err],[cat.zJ_err^2]]
+           if n_elements(colorterms) eq 4 then begin
+              color_matrix=identity(n_dim)+$
+                           [[ colorterms[0],             0,                           0, 0],$
+                            [-colorterms[1], colorterms[1],                           0, 0],$
+                            [             0,-colorterms[2], colorterms[2]-colorterms[3], 0],$
+                            [             0,             0,                           0, 0]]
+           endif else if n_elements(colorterms) eq 3 then begin
+              color_matrix=identity(n_dim)+$
+                           [[ colorterms[0],             0,             0,         0],$
+                            [             0, colorterms[1],             0,         0],$
+                            [             0,             0, colorterms[2],         0],$
+                            [             0,             0,             0,         0]]
+           endif else begin
+              message,"Wrong number of color coefficients"
+           endelse
+           x_transform=slr_color_transform(x,kappa=kappa,$
+                                           m_op=color_matrix,/inverse)
+           if 0 then begin
+           slr_locus_cubes,field=field,$
+                           gr=x_transform[*,0],$
+                           ri=x_transform[*,1],$
+                           iz=x_transform[*,2],$
+                           zJ=x_transform[*,3],$
+                           interactive=interactive,$
+                           postscript=postscript
+        endif else begin
+              scatter=1
+              contour=~scatter
+              fill=1
+              linecolor=150
+              histbin=0.05
+              symsize=0.2
+              buffer=0.5
+
+              erase & multiplot,[2,2],/dox,/doy,ygap=0.05
+              slr_plot_locus,$
+                 x_transform[*,0],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                 xrange=minmax(y[*,0])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,0],y[*,1],thick=2
+
+              multiplot
+
+              slr_plot_locus,$
+                 x_transform[*,2],x_transform[*,1],$
+                 contour=contour,scatter=scatter,djs_contour=contour,$
+                 fill=fill,linecolor=linecolor,ctable=ctable,$
+                 psym=8,symsize=symsize,charsize=charsize,$
+                 xtitle='!8i - z!6',$
+                 xrange=minmax(y[*,2])+[-1,1]*buffer,$
+                 yrange=minmax(y[*,1])+[-1,1]*buffer,$
+                 nlevels=nlevels,histbin=histbin    
+              oplot,y[*,2],y[*,1],thick=2
+
+              multiplot,/dox,/doy
+
+              if n_elements(gof_arr) ge 2 then begin
+                 plot,findgen(n_elements(gof_arr)),$
+                      gof_arr,$
+                      /xstyle,/ystyle,/ylog,$
+                      xtitle='!6Iteration',$
+                      ytitle='!6Goodness of Fit'
+              endif                 
+
+              multiplot,/default
+
+
+              if keyword_set(interactive) then begin
+                 junk='' & read,'Hit enter',junk
+              endif
+
         endelse
-        x_transform=slr_color_transform(x,kappa=kappa,$
-                                        m_op=color_matrix,/inverse)
-        slr_locus_cubes,field=field,$
-                        gr=x_transform[*,0],$
-                        ri=x_transform[*,1],$
-                        iz=x_transform[*,2],$
-                        zJ=x_transform[*,3],$
-                        interactive=interactive,$
-                        postscript=postscript
+           
+        endif
         
      endif
-     
-  endif
   endif
 
   bestfit={p:p,$

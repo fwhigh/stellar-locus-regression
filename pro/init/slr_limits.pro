@@ -82,11 +82,11 @@ function slr_limits
           izmax:100,$
           zJmin:-1000,$
           zJmax:+1000,$
-          magerr_floor:0.005,$
-          max_locus_dist:1e3,$
-          max_weighted_locus_dist:1e3,$
-          kappa_guess:[0.0,0.0,0.0,replicate(-27.5,4)],$
-          kappa_guess_range:replicate(5.,7)$
+          magerr_floor:0.000,$
+          max_locus_dist:0.3,$
+          max_weighted_locus_dist:6,$
+          kappa_guess:[0.,0.,0.,replicate(-27.5,4)],$
+          kappa_guess_range:replicate(1.,7)$
          }
 
   return,limits

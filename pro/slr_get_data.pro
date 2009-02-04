@@ -440,20 +440,64 @@ pro slr_get_data, fieldname=fieldname,$
      if option.plot then begin
         if n_elements(data.locus.obji) lt 5e3 then begin
            if option.use_ir then begin
-              slr_locus_cubes,field=data.field,$
-                              gr=data.locus.g[alli]-data.locus.r[alli],$
-                              ri=data.locus.r[alli]-data.locus.i[alli],$
-                              iz=data.locus.i[alli]-data.locus.z[alli],$
-                              zJ=data.locus.z[alli]-data.locus.J[tind],$
-                              interactive=option.interactive,$
-                              postscript=option.postscript
+              if 0 then begin
+                 slr_locus_cubes,field=data.field,$
+                                 gr=data.locus.g[alli]-data.locus.r[alli],$
+                                 ri=data.locus.r[alli]-data.locus.i[alli],$
+                                 iz=data.locus.i[alli]-data.locus.z[alli],$
+                                 zJ=data.locus.z[alli]-data.locus.J[tind],$
+                                 interactive=option.interactive,$
+                                 postscript=option.postscript
+              endif else begin
+                 message,"Not yet implemented"
+              endelse
            endif else begin
-              slr_locus_cubes,field=data.field,$
-                              gr=data.locus.g[data.locus.obji]-data.locus.r[data.locus.obji],$
-                              ri=data.locus.r[data.locus.obji]-data.locus.i[data.locus.obji],$
-                              iz=data.locus.i[data.locus.obji]-data.locus.z[data.locus.obji],$
-                              interactive=option.interactive,$
-                              postscript=option.postscript
+              if 0 then begin
+                 slr_locus_cubes,field=data.field,$
+                                 gr=data.locus.g[data.locus.obji]-data.locus.r[data.locus.obji],$
+                                 ri=data.locus.r[data.locus.obji]-data.locus.i[data.locus.obji],$
+                                 iz=data.locus.i[data.locus.obji]-data.locus.z[data.locus.obji],$
+                                 interactive=option.interactive,$
+                                 postscript=option.postscript
+              endif else begin
+                 datarr=slr_get_data_array(data,option,err=datarr_err,$
+                                           output_indices=ind)
+                 covey=slr_read_covey_median_locus()
+
+                 scatter=1
+                 contour=~scatter
+                 fill=1
+                 linecolor=150
+                 histbin=0.05
+                 symsize=0.2
+
+                 erase & multiplot,[2,1],/dox,/doy
+                 slr_plot_locus,$
+                    datarr[*,0],datarr[*,1],$
+                    contour=contour,scatter=scatter,djs_contour=contour,$
+                    fill=fill,linecolor=linecolor,ctable=ctable,$
+                    psym=8,symsize=symsize,charsize=charsize,$
+                    xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                    nlevels=nlevels,histbin=histbin    
+                 oplot,covey.gr,covey.ri,thick=2
+
+                 multiplot
+
+                slr_plot_locus,$
+                    datarr[*,2],datarr[*,1],$
+                    contour=contour,scatter=scatter,djs_contour=contour,$
+                    fill=fill,linecolor=linecolor,ctable=ctable,$
+                    psym=8,symsize=symsize,charsize=charsize,$
+                    xtitle='!8g - r!6',ytitle='!8r - i!6',$
+                    nlevels=nlevels,histbin=histbin    
+                 oplot,covey.iz,covey.ri,thick=2
+
+                 multiplot,/default
+
+                 if option.interactive then begin
+                    junk='' & read,'Hit enter',junk
+                 endif
+              endelse
            endelse
         endif else begin
 ;           slr_plot_locus
