@@ -149,6 +149,6 @@ print,' E(r-i) = ',string(high_galext_mean[1],format='(F8.3)'),$
 print,' E(i-z) = ',string(high_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[2],format='(F7.3)')
 
-message,"Demo complete",/info
+message,"Demo successfully completed",/info
 
 end
