@@ -1,10 +1,10 @@
-function slr_get_ctab_filename, field,$
-                                out=out,$
-                                dir=dir
+function slr_get_log_filename, field,$
+                               out=out,$
+                               dir=dir
 
-;$Rev::               $:  Revision of last commit
-;$Author::            $:  Author of last commit
-;$Date::              $:  Date of last commit
+;$Rev:: 56            $:  Revision of last commit
+;$Author:: fwhigh     $:  Author of last commit
+;$Date:: 2009-02-03 2#$:  Date of last commit
 ;
 ; Copyright 2009 by F. William High.
 ;
@@ -25,10 +25,10 @@ function slr_get_ctab_filename, field,$
 ;
 ;+
 ; NAME:
-;  slr_get_ctab_filename
+;  slr_get_log_filename
 ;
 ; PURPOSE:
-;  Get the colortable filename given a field.
+;  Get the log filename given a field.
 ;
 ; EXPLANATION:
 ;       
@@ -58,29 +58,17 @@ function slr_get_ctab_filename, field,$
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
-;       Written by:     FW High 2008
+;       Written by:     FW High 2009
 ;
 ;-
 
 on_error,2
 
-if keyword_set(out) then begin
-   file=strip_ext(field)+'_slr.ctab'
-   return,file
-endif
-
-;dir=slr_datadir()
-;file=file_search(dir,field+'.ctab',count=count)
-
 if not keyword_set(dir) then begin
-   file=field+'.ctab'
+   file=field+'_slr.log'
 endif else begin
-   file=dir+path_sep()+field+'.ctab'
+   file=dir+path_sep()+field+'_slr.log'
 endelse
-if file_test(file) then begin
-   return, file
-endif else begin
-   message,"Colortable "+file+" not found"
-endelse
+return, file
 
 end

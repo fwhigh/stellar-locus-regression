@@ -1,6 +1,5 @@
 pro slr_get_data, fieldname=fieldname,$
                   option=option,$
-                  limits=limits,$
                   force=force,$
                   data=data
 
@@ -41,7 +40,7 @@ pro slr_get_data, fieldname=fieldname,$
 ;
 ; CALLING SEQUENCE:
 ;  slr_get_data,$
-;      fieldname=fieldname,option=option,limits=limits,$
+;      fieldname=fieldname,option=option,$
 ;      data=data
 ;
 ; INPUTS:
@@ -50,7 +49,6 @@ pro slr_get_data, fieldname=fieldname,$
 ;
 ; OPTIONAL INPUTS:
 ;  option (struct)  Global options
-;  limits (struct)  Global hard limits on the data
 ;  force (bit)      Force to read the ascii rather than the .sav file?
 ;                   Default 0.
 ;
@@ -82,26 +80,22 @@ pro slr_get_data, fieldname=fieldname,$
      message,"Using default options",/info
      option=slr_options()
   endif
-  if not keyword_set(limits) then begin
-     message,"Using default limits",/info
-     limits=slr_limits()
-  endif
   
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
 
 ;;; Initialize the data structure
-  data=create_struct("field",fieldname,limits)
+  data=create_struct("field",fieldname)
 
 ;;; Define the math default structures
   math_step1={type:0,$
               dim:3,$
               kappa:{n:3,$
                      names:['k1','k2','k3'],$
-                     guess:limits.kappa_guess[0:2],$
-                     range:limits.kappa_guess_range[0:2],$
-                     val  :limits.kappa_guess[0:2],$
+                     guess:option.kappa_guess[0:2],$
+                     range:option.kappa_guess_range[0:2],$
+                     val  :option.kappa_guess[0:2],$
                      fixed:[   0,   0,   0]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -114,9 +108,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:4,$
               kappa:{n:4,$
                      names:['k1','k2','k3','k4'],$
-                     guess:limits.kappa_guess[0:3],$
-                     range:limits.kappa_guess_range[0:3],$
-                     val  :limits.kappa_guess[0:3],$
+                     guess:option.kappa_guess[0:3],$
+                     range:option.kappa_guess_range[0:3],$
+                     val  :option.kappa_guess[0:3],$
                      fixed:[   1,   1,   1,   0]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -129,9 +123,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:3,$
               kappa:{n:3,$
                      names:['k1','k2','k3'],$
-                     guess:limits.kappa_guess[0:2],$
-                     range:limits.kappa_guess_range[0:2],$
-                     val  :limits.kappa_guess[0:2],$
+                     guess:option.kappa_guess[0:2],$
+                     range:option.kappa_guess_range[0:2],$
+                     val  :option.kappa_guess[0:2],$
                      fixed:[   1,   1,   1]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -144,9 +138,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:3,$
               kappa:{n:3,$
                      names:['k1','k2','k3'],$
-                     guess:limits.kappa_guess[0:2],$
-                     range:limits.kappa_guess_range[0:2],$
-                     val  :limits.kappa_guess[0:2],$
+                     guess:option.kappa_guess[0:2],$
+                     range:option.kappa_guess_range[0:2],$
+                     val  :option.kappa_guess[0:2],$
                      fixed:[   0,   0,   0]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -159,9 +153,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:3,$
               kappa:{n:3,$
                      names:['k1','k2','k3'],$
-                     guess:limits.kappa_guess[0:2],$
-                     range:limits.kappa_guess_range[0:2],$
-                     val  :limits.kappa_guess[0:2],$
+                     guess:option.kappa_guess[0:2],$
+                     range:option.kappa_guess_range[0:2],$
+                     val  :option.kappa_guess[0:2],$
                      fixed:[   0,   0,   0]},$
               m:{n:3,$
                  names:['bg','br','bi'],$
@@ -174,9 +168,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:3,$
               kappa:{n:3,$
                      names:['k1','k2','k3'],$
-                     guess:limits.kappa_guess[0:2],$
-                     range:limits.kappa_guess_range[0:2],$
-                     val  :limits.kappa_guess[0:2],$
+                     guess:option.kappa_guess[0:2],$
+                     range:option.kappa_guess_range[0:2],$
+                     val  :option.kappa_guess[0:2],$
                      fixed:[   0,   0,   0]},$
               m:{n:3,$
                  names:['bg','br','bi'],$
@@ -189,9 +183,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:4,$
               kappa:{n:4,$
                      names:['k1','k2','k3','k4'],$
-                     guess:limits.kappa_guess[0:3],$
-                     range:limits.kappa_guess_range[0:3],$
-                     val  :limits.kappa_guess[0:3],$
+                     guess:option.kappa_guess[0:3],$
+                     range:option.kappa_guess_range[0:3],$
+                     val  :option.kappa_guess[0:3],$
                      fixed:[   1,   1,   1,   0]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -204,9 +198,9 @@ pro slr_get_data, fieldname=fieldname,$
               dim:7,$
               kappa:{n:7,$
                      names:['k1','k2','k3','k4','k5','k6','k7'],$
-                     guess:limits.kappa_guess[0:6],$
-                     range:limits.kappa_guess_range[0:6],$
-                     val  :limits.kappa_guess[0:6],$
+                     guess:option.kappa_guess[0:6],$
+                     range:option.kappa_guess_range[0:6],$
+                     val  :option.kappa_guess[0:6],$
                      fixed:[   1,   1,   1,   0,0,0,0]},$
               m:{n:4,$
                  names:['bg','br','bi','bz'],$
@@ -221,13 +215,22 @@ pro slr_get_data, fieldname=fieldname,$
   savefile=slr_datadir()+path_sep()+$
            data.field+'_data.sav'
 
+;;; Initialize the log file
+  ctabfile=slr_get_ctab_filename(data.field)
+  logfile=slr_get_log_filename(data.field)
+  data=create_struct(data,"logfile",logfile)
+  slr_log,data.logfile,$
+          ["Stellar Locus Regression v"+option.version,$
+           "High et al. 2009, AJ submitted",$
+           "Local time: "+systime()],$
+          /initialize
+
+
   if file_test(savefile) and not keyword_set(force) then begin
      restore,savefile
   endif else if fieldname ne 'none' then begin
 
-
-
-     ctabfile=slr_get_ctab_filename(data.field)
+     data=create_struct(data,"filename",ctabfile)
      ctab=slr_read_colortable(ctabfile,/verbose,force=force)
 
 ;     if option.use_ir or fieldname eq 'ubercal_lowext2_fwhigh' then begin
@@ -269,15 +272,14 @@ pro slr_get_data, fieldname=fieldname,$
      extinction_a=dust_getval(ell,bee,/interp)
      k_ext=(slr_sfd_coeff())[1:*]
 
-     obji=where(1/ctab.g_err gt data.snlow and $
-                1/ctab.r_err gt data.snlow and $
-                1/ctab.i_err gt data.snlow and $
-                1/ctab.z_err gt data.snlow and $
-                ctab.g lt data.gmax and $
+     obji=where(1/ctab.g_err gt option.snlow and $
+                1/ctab.r_err gt option.snlow and $
+                1/ctab.i_err gt option.snlow and $
+                1/ctab.z_err gt option.snlow and $
+                ctab.g lt option.gmax and $
 ;           ctab.g_galext lt 0.2 and $
-                abs(bee) gt data.beelow and $
-                (data.stars_and_gals or $
-                 (ctab.type eq data.type and ctab.tmixed eq data.tmixed)), $
+                abs(bee) gt option.beelow and $
+                (ctab.type eq option.type and ctab.tmixed eq option.tmixed), $
                 ngood)
 
      if ngood le 1 then begin
@@ -290,13 +292,13 @@ pro slr_get_data, fieldname=fieldname,$
 ;     k_ext=(slr_sfd_coeff())[1:*]
 
      g    =ctab.g
-     g_err=sqrt(ctab.g_err^2+data.magerr_floor^2)
+     g_err=sqrt(ctab.g_err^2+option.magerr_floor^2)
      r    =ctab.r
-     r_err=sqrt(ctab.r_err^2+data.magerr_floor^2)
+     r_err=sqrt(ctab.r_err^2+option.magerr_floor^2)
      i    =ctab.i
-     i_err=sqrt(ctab.i_err^2+data.magerr_floor^2)
+     i_err=sqrt(ctab.i_err^2+option.magerr_floor^2)
      z    =ctab.z
-     z_err=sqrt(ctab.z_err^2+data.magerr_floor^2)
+     z_err=sqrt(ctab.z_err^2+option.magerr_floor^2)
      if option.use_ir then begin
         euler_2000_fast, tmasscat.ra, tmasscat.dec, $
                          irell, irbee, 1
@@ -332,14 +334,14 @@ pro slr_get_data, fieldname=fieldname,$
 
 ;;;  Photometric parallax, Juric et al 2008
      Zee = slr_galactic_zee1(r,i,bee)
-     disti=where(zee lt data.zeelow)
+     disti=where(zee lt option.zeelow)
      Zee = slr_galactic_zee2(r,i,bee)
-     disti=setunion(disti,where(zee lt data.zeelow))
+     disti=setunion(disti,where(zee lt option.zeelow))
      if option.verbose ge 1 then begin
         print,n_elements(disti),' cal objects are in the disk'
      endif
 
-     if data.cutdiskstars then begin
+     if option.cutdiskstars then begin
         print,"Cutting disk stars"
         obji=setintersection(obji,$
                              setdifference(lindgen(n_elements(r)),disti))
@@ -403,25 +405,25 @@ pro slr_get_data, fieldname=fieldname,$
      data=create_struct(data,"math7",math_step7)
      data=create_struct(data,"math8",math_step8)
 
-     case option.dist_fittype of
-        0:begin
-           data.math1.kappa.guess=data.kappa_guess[0:2]
-           data.math1.kappa.range=data.kappa_guess_range[0:2]
-           data.math1.kappa.val  =data.kappa_guess[0:2]
+;;      case option.dist_fittype of
+;;         0:begin
+;;            data.math1.kappa.guess=data.kappa_guess[0:2]
+;;            data.math1.kappa.range=data.kappa_guess_range[0:2]
+;;            data.math1.kappa.val  =data.kappa_guess[0:2]
 
-           data.math2.kappa.guess=data.kappa_guess[0:3]
-           data.math2.kappa.range=data.kappa_guess_range[0:3]
-           data.math2.kappa.val  =data.kappa_guess[0:3]
+;;            data.math2.kappa.guess=data.kappa_guess[0:3]
+;;            data.math2.kappa.range=data.kappa_guess_range[0:3]
+;;            data.math2.kappa.val  =data.kappa_guess[0:3]
 
-           data.math3.kappa.guess=data.kappa_guess[0:2]
-           data.math3.kappa.range=data.kappa_guess_range[0:2]
-           data.math3.kappa.val  =data.kappa_guess[0:2]
+;;            data.math3.kappa.guess=data.kappa_guess[0:2]
+;;            data.math3.kappa.range=data.kappa_guess_range[0:2]
+;;            data.math3.kappa.val  =data.kappa_guess[0:2]
 
-        end
-        else:begin
-           message,"Don't know dist_fittype "+strtrim(option.dist_fittype,2)
-        end
-     endcase
+;;         end
+;;         else:begin
+;;            message,"Don't know dist_fittype "+strtrim(option.dist_fittype,2)
+;;         end
+;;      endcase
 
      if option.use_ir then begin
         delvarx,tind

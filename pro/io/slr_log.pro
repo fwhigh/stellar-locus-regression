@@ -1,6 +1,6 @@
-function slr_get_ctab_filename, field,$
-                                out=out,$
-                                dir=dir
+pro slr_log, file, $
+             lines, $
+             initialize=initialize
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -25,33 +25,34 @@ function slr_get_ctab_filename, field,$
 ;
 ;+
 ; NAME:
-;  slr_get_ctab_filename
+;  slr_log
 ;
 ; PURPOSE:
-;  Get the colortable filename given a field.
+;  Append information to a log file.
 ;
 ; EXPLANATION:
-;       
+;  Default behavior is to append to an existing log file.  You must
+;  specify /initialize at least once so that the file is sure to
+;  exist.
 ;
 ; CALLING SEQUENCE:
-;       
+;  slr_log,logfile,lines
 ;
 ; INPUTS:
-; 
-;      
+;  logfile (string)      The log filename.
+;  lines (string array)  Lines to write to logfile.  Should be
+;                        preformatted, as no formatting is done here.
 ;
 ; OPTIONAL INPUTS:
-;
-;
+;  initialize (bit)  Initialize logfile?  If true: logfile is
+;                    created if it doesn't exist, and is
+;                    clobbered otherwise.  Default false.
 ;
 ; OUTPUTS:
-;       
 ;
 ; OPIONAL OUTPUTS:
 ;       
-;       
 ; NOTES:
-;
 ;
 ; EXAMPLES:
 ;
@@ -62,25 +63,25 @@ function slr_get_ctab_filename, field,$
 ;
 ;-
 
-on_error,2
+ on_error,2
 
-if keyword_set(out) then begin
-   file=strip_ext(field)+'_slr.ctab'
-   return,file
+
+if not file_test(file) then begin
+   if not keyword_set(initialize) then begin
+      message,"You must initialize the log file with /initialize"
+   endif
 endif
 
-;dir=slr_datadir()
-;file=file_search(dir,field+'.ctab',count=count)
+if n_elements(lines) eq 0 then begin
+   message,"You must supply text to write"
+endif
 
-if not keyword_set(dir) then begin
-   file=field+'.ctab'
-endif else begin
-   file=dir+path_sep()+field+'.ctab'
-endelse
-if file_test(file) then begin
-   return, file
-endif else begin
-   message,"Colortable "+file+" not found"
-endelse
+if keyword_set(initialize) then append=0 else append=1
+
+openw,lun,file,/get_lun,append=append
+for ii=0,n_elements(lines)-1 do begin
+   printf,lun,lines[ii]
+endfor
+close,lun
 
 end

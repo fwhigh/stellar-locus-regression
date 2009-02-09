@@ -56,20 +56,16 @@ pro slr_demo
 
 
 ;;; Get global default options, then set some of your own.
+force=1
 option=slr_options()
 option.plot=1
 option.postscript=0
-option.interactive=1
+option.interactive=0
 option.use_ir=0
 option.verbose=1
 option.weighted_residual=0
-option.animate_regression=1
-
-;;; Get global default hard limits on the data
-limits=slr_limits()
-
-
-
+option.animate_regression=0
+;option.nbootstrap=0
 
 
 
@@ -78,8 +74,8 @@ message,'Regressing low extinction data',/info
 ;;; Initialize data with low Galactic dust extinction
 slr_get_data,$
    fieldname='lowext_stars3_fwhigh',$
+   force=force,$
    option=option,$
-   limits=limits,$
    data=low_dust_data
 
    
@@ -110,6 +106,12 @@ print,' E(i-z) = ',string(low_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[2],format='(F7.3)')
       
 
+slr_write_data,$
+   option=option,$
+   kappa=low_kappa,$
+   kap_err=low_kappa_err,$
+   data=low_dust_data
+   
 
 
 
@@ -120,8 +122,8 @@ message,'Regressing high extinction data',/info
 ;;; Initialize data with high Galactic dust extinction
 slr_get_data,$
    fieldname='hiext_stars3_fwhigh',$
+   force=force,$
    option=option,$
-   limits=limits,$
    data=high_dust_data
 
 ;;; Regress the data to the Covey median locus
@@ -148,6 +150,13 @@ print,' E(r-i) = ',string(high_galext_mean[1],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[1],format='(F7.3)')
 print,' E(i-z) = ',string(high_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(high_galext_stddev[2],format='(F7.3)')
+
+slr_write_data,$
+   option=option,$
+   kappa=high_kappa,$
+   kap_err=high_kappa_err,$
+   data=high_dust_data
+
 
 message,"Demo successfully completed",/info
 
