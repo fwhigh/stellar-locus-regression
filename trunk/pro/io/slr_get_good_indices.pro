@@ -79,7 +79,7 @@ function slr_get_good_indices, cat, option, $
   if option.use_ir then begin
      if keyword_set(in_ind) then begin
 ;        ind=setintersection(cat.locus.obji,in_ind)
-        ind=setintersection(cat.opti_ir,in_ind)
+        ind=setintersection(option.opti_ir,in_ind)
      endif else begin
         ind=cat.locus.obji
      endelse
@@ -92,14 +92,14 @@ function slr_get_good_indices, cat, option, $
         sind=push_arr(sind,tmpi[jj])
      endfor
 
-     goodi=where((cat.locus.g-cat.locus.r)[sind] ge cat.grmin and $
-                 (cat.locus.g-cat.locus.r)[sind] le cat.grmax and $
-                 (cat.locus.r-cat.locus.i)[sind] ge cat.rimin and $
-                 (cat.locus.r-cat.locus.i)[sind] le cat.rimax and $
-                 (cat.locus.i-cat.locus.z)[sind] ge cat.izmin and $
-                 (cat.locus.i-cat.locus.z)[sind] le cat.izmax and $
-                 (cat.locus.z[sind]-cat.locus.J[tind]) ge cat.zJmin and $
-                 (cat.locus.z[sind]-cat.locus.J[tind]) le cat.zJmax and $
+     goodi=where((cat.locus.g-cat.locus.r)[sind] ge option.grmin and $
+                 (cat.locus.g-cat.locus.r)[sind] le option.grmax and $
+                 (cat.locus.r-cat.locus.i)[sind] ge option.rimin and $
+                 (cat.locus.r-cat.locus.i)[sind] le option.rimax and $
+                 (cat.locus.i-cat.locus.z)[sind] ge option.izmin and $
+                 (cat.locus.i-cat.locus.z)[sind] le option.izmax and $
+                 (cat.locus.z[sind]-cat.locus.J[tind]) ge option.zJmin and $
+                 (cat.locus.z[sind]-cat.locus.J[tind]) le option.zJmax and $
                  finite(cat.locus.g_err[sind]) and $
                  finite(cat.locus.g[sind]) and $
                  finite(cat.locus.r_err[sind]) and $
@@ -121,12 +121,12 @@ function slr_get_good_indices, cat, option, $
      endif
      ind=sind[goodi]
   endif else begin
-     goodi=where((cat.locus.g-cat.locus.r) ge cat.grmin and $
-                 (cat.locus.g-cat.locus.r) le cat.grmax and $
-                 (cat.locus.r-cat.locus.i) ge cat.rimin and $
-                 (cat.locus.r-cat.locus.i) le cat.rimax and $
-;;                 (((cat.locus.g-cat.locus.i) ge cat.gimin and $
-;;                   (cat.locus.g-cat.locus.i) le cat.gimax) or $
+     goodi=where((cat.locus.g-cat.locus.r) ge option.grmin and $
+                 (cat.locus.g-cat.locus.r) le option.grmax and $
+                 (cat.locus.r-cat.locus.i) ge option.rimin and $
+                 (cat.locus.r-cat.locus.i) le option.rimax and $
+;;                 (((cat.locus.g-cat.locus.i) ge option.gimin and $
+;;                   (cat.locus.g-cat.locus.i) le option.gimax) or $
 ;;                  (cat.locus.r-cat.locus.i) ge 0.7 or $
 ;;                  (cat.locus.g-cat.locus.r) le 0.35) and $
                  finite(cat.locus.g_err) and finite(cat.locus.g) and $

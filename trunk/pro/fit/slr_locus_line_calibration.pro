@@ -104,7 +104,7 @@ pro slr_locus_line_calibration,$
   bootstrap=keyword_set(bootstrap)
   n_bootstrap=option.nbootstrap
 
-  if option.get_color_offset then begin
+  if option.get_kappa then begin
      option.use_ir=0
 
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
@@ -115,8 +115,8 @@ pro slr_locus_line_calibration,$
                    x_err=x1_err,$
                    math=data.math1,$
                    colorterms=colorterms,$
-                   max_locus_dist=data.max_locus_dist,$
-                   max_weighted_locus_dist=data.max_weighted_locus_dist,$
+                   max_locus_dist=option.max_locus_dist,$
+                   max_weighted_locus_dist=option.max_weighted_locus_dist,$
                    weighted_residual=0,$
 ;                   weighted_residual=option.weighted_residual,$
                    fittype=0,$
@@ -145,7 +145,7 @@ pro slr_locus_line_calibration,$
                    x_err=x1_err,$
                    math=data.math1,$
                    colorterms=colorterms,$
-                   max_locus_dist=data.max_locus_dist,$
+                   max_locus_dist=option.max_locus_dist,$
                    weighted_residual=option.weighted_residual,$
                    fittype=0,$
                    xtitles=data.locus.xtitles,$
@@ -177,6 +177,11 @@ pro slr_locus_line_calibration,$
      nstars=n_elements(ind1_better)
 
      kappa=calibfit1.p
+
+     slr_log,data.logfile,'kappa_gr '+string(kappa[0],format='(F)')
+     slr_log,data.logfile,'kappa_ri '+string(kappa[1],format='(F)')
+     slr_log,data.logfile,'kappa_iz '+string(kappa[2],format='(F)')
+
      obji_out=ind1_better
      galext_mean=[mean((data.locus.g_galext-data.locus.r_galext)[ind1_better]),$
                   mean((data.locus.r_galext-data.locus.i_galext)[ind1_better]),$
@@ -209,7 +214,7 @@ pro slr_locus_line_calibration,$
                          x_err=x1_err,$
                          math=data.math1,$
                          colorterms=colorterms,$
-                         max_locus_dist=data.max_locus_dist,$
+                         max_locus_dist=option.max_locus_dist,$
                          weighted_residual=option.weighted_residual,$
                          fittype=0,$
                          xtitles=data.locus.xtitles,$
@@ -241,8 +246,16 @@ pro slr_locus_line_calibration,$
 
         if option.verbose ge 2 then $
            print,'Bootstrap error ',kap_err
+
+        slr_log,data.logfile,$
+                'Number of bootstraps '+string(n_iter,format='(I)')
+        slr_log,data.logfile,'kappa_gr_err '+string(kap_err[0],format='(F)')
+        slr_log,data.logfile,'kappa_ri_err '+string(kap_err[1],format='(F)')
+        slr_log,data.logfile,'kappa_iz_err '+string(kap_err[2],format='(F)')
      endif else begin
-        kap_err=[0.001,0.001,0.001]
+        slr_log,data.logfile,$
+                'WARNING: Bootstrap not performed '
+        kap_err=[0.0,0.0,0.0]
      endelse
 
 
@@ -314,7 +327,7 @@ pro slr_locus_line_calibration,$
 ;                            math=data.math7,$
                             math=data.math8,$
                             colorterms=colorterms,$
-;                            max_locus_dist=data.max_locus_dist,$
+;                            max_locus_dist=option.max_locus_dist,$
                             weighted_residual=option.weighted_residual,$
                             fittype=0,$
                             xtitles=data.locus.xtitles,$

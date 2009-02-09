@@ -1,4 +1,4 @@
-function slr_options
+function slr_options, file=file
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -52,42 +52,152 @@ function slr_options
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
-;       Written by:     FW High 2008
+;  Written by:     FW High 2008
+;  2/09 FWH Options now come from an external config file
 ;
 ;-
 
-  option=create_struct(       "use_cal",'')
-  option=create_struct(option,"use_raw",'')
-  option=create_struct(option,"use_ir",1)
-  option=create_struct(option,"postscript",0)
-  option=create_struct(option,"plot",1)
-  option=create_struct(option,"interactive",0)
-  option=create_struct(option,"animate_regression",0)
-  option=create_struct(option,"weighted_residual",1)
-  option=create_struct(option,"verbose",1)
-  option=create_struct(option,"debug",0)
-  option=create_struct(option,"do_hard_ones",1)
-  option=create_struct(option,"get_color_offset",1)
-  option=create_struct(option,"get_color_terms",0)
-  option=create_struct(option,"match_objects",1)
-  option=create_struct(option,"cut_outliers",0)
-;  option=create_struct(option,"instrument",instrument)
+  on_error,2
 
-  option=create_struct(option,"simulate",0)
-  option=create_struct(option,"sample_study",0)
-  option=create_struct(option,"max_sample_size",-1)
-  option=create_struct(option,"nbootstrap",10)
-;  option=create_struct(option,"cutranges",~option.simulate)
-  option=create_struct(option,"cutranges",0)
-  option=create_struct(option,"basis",1)
-  option=create_struct(option,"minimizer",0)
-  option=create_struct(option,"line_fittype",3)
-  option=create_struct(option,"dist_fittype",0)
-  option=create_struct(option,"nbins",25)
-  option=create_struct(option,"startfrac",0.1)
-  option=create_struct(option,"stopfrac",1.0)
-  option=create_struct(option,"fitimp_thresh",0.4)
+  if not keyword_set(file) then begin
+     file=getenv('SLR_INSTALL')+path_sep()+$
+                 'config'+path_sep()+'default_slr.config'
+     message,"Using default config file "+file,/info
+  endif
+  if not file_test(file) then begin
+     message,"Config file "+file+" not found"
+  endif
 
-return,option
+  readcol,file,$
+          par,val,$
+          /silent,$
+          delimiter=' ',$
+          comment='#',$
+          format='(A,A)'
+
+  option=create_struct(       "version",'2.0')
+  for ii=0,n_elements(par)-1 do begin
+     case par[ii] of 
+        "use_ir":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "postscript":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "plot":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "interactive":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "animate_regression":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "weighted_residual":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "verbose":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "debug":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "nbootstrap":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "get_kappa":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "type":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "tmixed":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "deredden":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "cutdiskstars":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "beelow":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "zeelow":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "snlow":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "gsnlow":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "gmax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "rmin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "rmax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "gimin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "gimax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "grmin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "grmax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "rimin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "rimax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "izmin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "izmax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "zJmin":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "zJmax":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "magerr_floor":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "max_locus_dist":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "max_weighted_locus_dist":begin
+           option=create_struct(option,par[ii],float(val[ii]))
+        end
+        "kappa_guess":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "kappa_guess_range":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        else:begin
+           message,"Input parameter "+par[ii]+" unknown"
+        end
+     endcase
+  endfor
+
+  if option.verbose ge 1 then begin
+     message,"Using config file "+file,/info
+  endif
+
+  return,option
 
 end

@@ -1,6 +1,6 @@
 function colortable_column_format
 
-types={$
+  types={$
         Xpos           : 4 ,$
         Ypos           : 4 ,$
         chisqr         : 4 ,$
@@ -90,10 +90,10 @@ types={$
         redsh          : 4 ,$
         redsh_err      : 4 ,$
         u_galext       : 4 ,$
-        g_galext       : 4 ,$
-        r_galext       : 4 ,$
-        i_galext       : 4 ,$
-        z_galext       : 4 ,$
+;        g_galext       : 4 ,$
+;        r_galext       : 4 ,$
+;        i_galext       : 4 ,$
+;        z_galext       : 4 ,$
         dphotoz_minus  : 4 ,$
         dphotoz_plus   : 4 ,$
         delta_redshift : 4 ,$
@@ -110,80 +110,94 @@ types={$
         i_seflag       : 3 ,$
         z_seflag       : 3 }
 
-return,types
+  return,types
 
 end
 
-function get_cat_template, file
+function get_cat_template, file, $
+                           header=header, $
+                           literal=literal
 
 ; Initialize
-template = { version       : 1.0 ,$
-             datastart     : 0L  ,$
-             delimiter     : 32B ,$
-             missingvalue  : !values.f_nan ,$
+  template = { version       : 1.0 ,$
+               datastart     : 0L  ,$
+               delimiter     : 32B ,$
+               missingvalue  : !values.f_nan ,$
 ;             missingvalue  : '' ,$
-             commentsymbol : '#' }
-types=colortable_column_format()
+               commentsymbol : '#' }
+  types=colortable_column_format()
 
-lun=11
-openr,lun,file
-line=''
-readf, lun, line
-if strmid(line,0,1) eq '#' then begin
-    line=strmid(line,1)
-    fieldnames=strsplit(line,' ',/extract)
-endif else begin
-    message,"No comment line as expected"
-endelse
-close,lun
+  lun=11
+  openr,lun,file
+  line=''
+  readf, lun, line
+  if strmid(line,0,1) eq '#' then begin
+     header=line
+     line=strmid(line,1)
+     fieldnames=strsplit(line,' ',/extract)
+  endif else begin
+     message,"No comment line as expected"
+  endelse
+  close,lun
 
-for i=0,n_elements(fieldnames)-1 do begin
-    j=strpos(fieldnames[i],'-')
-    if j ge 0 then begin
+  for i=0,n_elements(fieldnames)-1 do begin
+     j=strpos(fieldnames[i],'-')
+     if j ge 0 then begin
         fieldnames[i]=$
-          strmid(fieldnames[i],0,j)+'_'+$
-          strmid(fieldnames[i],j+1)
-    endif
-endfor
+           strmid(fieldnames[i],0,j)+'_'+$
+           strmid(fieldnames[i],j+1)
+     endif
+  endfor
 
 ; Get the field locations
-line=strcompress(line)
-i=-1
-while (strpos(line,' ',i+1) ne -1) do begin
-    i=strpos(line,' ',i+1)
-    if size(fieldlocations,/tname) eq 'UNDEFINED' then $
-      fieldlocations=[i+1] else $
-      fieldlocations=[fieldlocations,i+1]
-endwhile
+  line=strcompress(line)
+  i=-1
+  while (strpos(line,' ',i+1) ne -1) do begin
+     i=strpos(line,' ',i+1)
+     if size(fieldlocations,/tname) eq 'UNDEFINED' then $
+        fieldlocations=[i+1] else $
+           fieldlocations=[fieldlocations,i+1]
+  endwhile
 
 ; Get the field types
-tags=tag_names(types)
-for i=0,n_elements(fieldnames)-1 do begin
-    type=types.(where(strlowcase(tags) eq strlowcase(fieldnames[i])))
-    if size(fieldtypes,/tname) eq 'UNDEFINED' then $
-      fieldtypes=[type] else $
-      fieldtypes=[fieldtypes,type]
-endfor
+  tags=tag_names(types)
+  delvarx,fieldtypes
+  if keyword_set(literal) then begin
+     fieldtypes=replicate(7,n_elements(fieldnames))
+  endif else begin
+     for i=0,n_elements(fieldnames)-1 do begin
+        here=where(strlowcase(tags) eq strlowcase(fieldnames[i]),$
+                   n_matches)
+        if n_matches eq 0 then begin
+           type=7               ; string is default
+           message,"Don't recognize "+fieldnames[i],/info
+        endif else type=types.(here)
+        fieldtypes=push_arr(fieldtypes,type)
+     endfor
+  endelse
 
 ; Get the field groups
-fieldgroups=lindgen(n_elements(fieldnames))
+  fieldgroups=lindgen(n_elements(fieldnames))
 
 ; Get the field count
-fieldcount=n_elements(fieldnames)
+  fieldcount=n_elements(fieldnames)
 
 ; Make the structure
-template=create_struct('fieldcount',fieldcount,$
-                       'fieldtypes',fieldtypes,$
-                       'fieldnames',fieldnames,$
-                       'fieldlocations',fieldlocations,$
-                       'fieldgroups',fieldgroups,$
-                       template)
+  template=create_struct('fieldcount',fieldcount,$
+                         'fieldtypes',fieldtypes,$
+                         'fieldnames',fieldnames,$
+                         'fieldlocations',fieldlocations,$
+                         'fieldgroups',fieldgroups,$
+                         template)
 
-return,template
+  return,template
 
 end
 
-function slr_read_colortable, file,verbose=verbose, force=force
+function slr_read_colortable, file,$
+                              verbose=verbose, $
+                              force=force, $
+                              literal=literal
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -233,26 +247,30 @@ function slr_read_colortable, file,verbose=verbose, force=force
 ;       
 ; HISTORY:
 ;       Written by:     FW High 2008
+;  2/09 FWH Added header keyword
+;           Removed
 ;
 ;-
 
-if not keyword_set(verbose) then verbose=0
-                             
-if verbose ge 1 then $
-   print,"Reading color table "+file
-savefile=file+'.sav'
-if file_test(savefile) and ~keyword_set(force) then begin
-   if verbose ge 1 then $
-      print,"Restoring "+savefile
-   restore,savefile 
-endif else begin
-   template=get_cat_template(file)
-   cat=read_ascii(file,template=template)
-   
-   cat=create_struct('catalog_type','colortable',cat)
-   save,file=savefile
-endelse
+  if not keyword_set(verbose) then verbose=0
+  
+  if verbose ge 1 then $
+     message,"Reading color table "+file,/info
+  savefile=file+'.sav'
+  if file_test(savefile) and ~keyword_set(force) then begin
+     if verbose ge 1 then $
+        print,"Restoring "+savefile
+     restore,savefile 
+  endif else begin
+     template=get_cat_template(file,header=header,literal=literal)
+     cat=read_ascii(file,template=template)
+     
+     cat=create_struct('catalog_type','colortable',$
+                       'header',header,$
+                       cat)
+     save,file=savefile
+  endelse
 
-return,cat
+  return,cat
 
 end
