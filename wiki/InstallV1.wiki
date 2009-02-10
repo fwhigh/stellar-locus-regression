@@ -1,5 +1,5 @@
 #summary Basic installation instructions for SLR version 1.
-#labels Phase-Deploy,Featured
+#labels Phase-Deploy
 
 = Basic Installation Instructions =
 
