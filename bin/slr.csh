@@ -3,7 +3,7 @@
 if ($#argv < 2) then
     echo "Stellar Locus Regression 2.0"
     echo "High et al. 2009, AJ submitted"
-    echo "high@physics.harvard.edu"
+    echo "fwhigh@gmail.com"
     echo "stellar-locus-regression.googlecode.com"
     echo
     echo "Usage: slr.csh <colortable_in> <colortable_out> [<configfile>]"

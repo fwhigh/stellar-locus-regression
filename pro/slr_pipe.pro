@@ -60,17 +60,9 @@ start_time=systime(1)
 
 ;;; Get global default options, then set some of your own.
 option=slr_options(file=getenv('SLR_CONFIG_FILE'))
-;; option.plot=1
-;; option.postscript=0
-;; option.interactive=1
-;; option.use_ir=0
-;; option.verbose=1
-;; option.weighted_residual=0
-;; option.animate_regression=1
-;; option.nbootstrap=0
 
-colortable_file=getenv('SLR_COLORTABLE_IN')
-if colortable_file eq '' then begin
+infile=getenv('SLR_COLORTABLE_IN')
+if infile eq '' then begin
    message,"You must specify a colortable with the "+$
            "environment variable SLR_COLORTABLE_IN"
 endif
@@ -79,7 +71,7 @@ message,'Regressing data',/info
 
 ;;; Initialize data with low Galactic dust extinction
 slr_get_data,$
-   colortable_file=colortable_file,$
+   file=infile,$
    force=option.force,$
    option=option,$
    data=low_dust_data
@@ -111,12 +103,14 @@ print,' E(r-i) = ',string(low_galext_mean[1],format='(F8.3)'),$
 print,' E(i-z) = ',string(low_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[2],format='(F7.3)')
       
+outfile=getenv('SLR_COLORTABLE_OUT')
 
 slr_write_data,$
    option=option,$
    kappa=low_kappa,$
    kap_err=low_kappa_err,$
-   data=low_dust_data
+   data=low_dust_data,$
+   file=outfile
    
 
 message,"SLR successfully completed in "+$

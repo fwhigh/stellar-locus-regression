@@ -66,9 +66,9 @@ function slr_get_log_filename, field,$
  on_error,2
 
 if not keyword_set(dir) then begin
-   file=field+'_slr.log'
+   file=field+'.slr'
 endif else begin
-   file=dir+path_sep()+field+'_slr.log'
+   file=dir+path_sep()+field+'.slr'
 endelse
 return, file
 

@@ -56,17 +56,17 @@ pro slr_demo
 
  compile_opt idl2, hidden
 
-;;; Get global default options, then set some of your own.
-force=1
+ start_time=systime(1)
+
+;;; Get global default options, then set some yourself.
 option=slr_options()
 option.plot=1
 option.postscript=0
-option.interactive=0
+option.interactive=1
 option.use_ir=0
 option.verbose=1
 option.weighted_residual=0
-option.animate_regression=0
-;option.nbootstrap=0
+option.animate_regression=1
 
 
 
@@ -74,8 +74,8 @@ message,'Regressing low extinction data',/info
 
 ;;; Initialize data with low Galactic dust extinction
 slr_get_data,$
-   fieldname='lowext_stars3_fwhigh',$
-   force=force,$
+   file='lowext_stars3_fwhigh.ctab',$
+   force=option.force,$
    option=option,$
    data=low_dust_data
 
@@ -122,8 +122,8 @@ message,'Regressing high extinction data',/info
 
 ;;; Initialize data with high Galactic dust extinction
 slr_get_data,$
-   fieldname='hiext_stars3_fwhigh',$
-   force=force,$
+   file='hiext_stars3_fwhigh.ctab',$
+   force=option.force,$
    option=option,$
    data=high_dust_data
 
@@ -159,6 +159,8 @@ slr_write_data,$
    data=high_dust_data
 
 
-message,"Demo successfully completed",/info
+message,"SLR successfully completed in "+$
+        strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
+        ' seconds',/info
 
 end

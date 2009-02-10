@@ -1,4 +1,4 @@
-pro slr_get_data, colortable_file=colortable_file,$
+pro slr_get_data, file=file,$
                   option=option,$
                   force=force,$
                   data=data
@@ -40,12 +40,12 @@ pro slr_get_data, colortable_file=colortable_file,$
 ;
 ; CALLING SEQUENCE:
 ;  slr_get_data,$
-;      colortable_file=colortable_file,option=option,$
+;      file=file,option=option,$
 ;      data=data
 ;
 ; INPUTS:
-;  colortable_file (string)  Name of a field with corresponding colortable
-;                      colortable_file+'.ctab'
+;  file (string)  Name of a field with corresponding colortable
+;                      file+'.ctab'
 ;
 ; OPTIONAL INPUTS:
 ;  option (struct)  Global options
@@ -71,24 +71,23 @@ pro slr_get_data, colortable_file=colortable_file,$
 
 
   compile_opt idl2, hidden
-  on_error,2
+;  on_error,2
 
-  if not keyword_set(colortable_file) then begin
+  if not keyword_set(file) then begin
      message,"Must specify a colortable"
   endif
-  if ~file_test(colortable_file) then begin
-     message,"Colortable "+colortable_file+" doesn't exist"
+  if ~file_test(file) then begin
+     message,"Colortable "+file+" doesn't exist"
   endif
   if not keyword_set(option) then begin
      message,"Using default options",/info
      option=slr_options()
   endif
-  
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
 
-  fieldname=slr_colortable_file_to_fieldname(colortable_file)
+  fieldname=slr_colortable_file_to_fieldname(file)
 
 ;;; Initialize the data structure
   data=create_struct("field",fieldname)
@@ -217,8 +216,7 @@ pro slr_get_data, colortable_file=colortable_file,$
 
 
 
-  savefile=slr_datadir()+path_sep()+$
-           data.field+'_data.sav'
+  savefile=file+'.sav'
 
 ;;; Initialize the log file
   logfile=slr_get_log_filename(data.field)
@@ -234,8 +232,8 @@ pro slr_get_data, colortable_file=colortable_file,$
      restore,savefile
   endif else if fieldname ne 'none' then begin
 
-     data=create_struct(data,"filename",colortable_file)
-     ctab=slr_read_colortable(colortable_file,/verbose,force=force)
+     data=create_struct(data,"filename",file)
+     ctab=slr_read_colortable(file,/verbose,force=force)
 
 ;     if option.use_ir or fieldname eq 'ubercal_lowext2_fwhigh' then begin
      if option.use_ir then begin
@@ -351,7 +349,7 @@ pro slr_get_data, colortable_file=colortable_file,$
                              setdifference(lindgen(n_elements(r)),disti))
      endif
 
-     locus={ctabfile:colortable_file,$
+     locus={ctabfile:file,$
             ctab:ctab,$
             g:g,$
             g_err:g_err,$

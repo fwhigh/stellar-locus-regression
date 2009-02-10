@@ -1,4 +1,4 @@
-pro slr_write_data, colortable_filename=colortable_filename,$
+pro slr_write_data, file=file,$
                     option=option,$
                     data=data,$
                     kappa=kappa,$
@@ -65,7 +65,11 @@ pro slr_write_data, colortable_filename=colortable_filename,$
   endif
 
   ctab_in_file=data.filename
-  ctab_out_file=slr_get_ctab_filename(data.filename,/out)
+  if keyword_set(file) then begin
+     ctab_out_file=file
+  endif else begin
+     ctab_out_file=slr_get_ctab_filename(data.filename,/out)
+  endelse
 
   ctab=data.locus.ctab
 
@@ -77,7 +81,7 @@ pro slr_write_data, colortable_filename=colortable_filename,$
             [sqrt(ctab.r_err^2+ctab.i_err^2+kap_err[0]^2)],$
             [sqrt(ctab.i_err^2+ctab.z_err^2+kap_err[0]^2)]]
 
-  message,'WARNING: Not correcting for color terms',/info
+  message,'Not correcting for color terms',/info
   data_calib=slr_color_transform(data,$
                                  kappa=kappa,$
                                  /inverse)

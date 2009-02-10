@@ -66,9 +66,14 @@ function slr_get_ctab_filename, field,$
   on_error,2
 
   if keyword_set(out) then begin
-     file=getenv('SLR_COLORTABLE_OUT')
-     if file ne '' then return, file
-     file=strip_ext(field)+'_slr.ctab'
+;     file=getenv('SLR_COLORTABLE_OUT')
+;     if file ne '' then return, file
+     ext=strip_ext(field,/get)+'.slr.ctab'
+     if ext eq '.ctab' then begin
+        file=strip_ext(field)+'.slr.ctab'
+     endif else begin
+        file=field+'.slr.ctab'
+     endelse
      return,file
   endif
 
