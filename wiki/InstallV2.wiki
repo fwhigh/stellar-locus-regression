@@ -3,7 +3,7 @@
 
 = Basic Installation Instructions =
 
-Please email fwhigh@gmail.com if you download SLR so we know who you are, and so we can put you on the mailing list for SLR updates.
+Please email [mailto:fwhigh@gmail.com fwhigh@gmail.com] if you download SLR so we know who you are, and so we can put you on the mailing list for SLR updates.
 
 First, go get the version 2 download at http://code.google.com/p/stellar-locus-regression/downloads/.  Untar it with `tar xzvf slr-v2.0.tar.gz`.
 
