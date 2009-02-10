@@ -1,0 +1,47 @@
+#summary Basic installation instructions for SLR.
+#labels Phase-Deploy
+
+= Basic Installation Instructions =
+
+Follow these instructions to get the SLR demo to work properly on your computer (after you have run "svn checkout" to a local directory {{{<somedir>}}}, we suggest something like ~/slr, if not, follow instructions in the source tab above).  You also need IDL 7.0 with Analyst.
+
+== Quick Install ==
+
+You'll need these idl libraries:
+  * idlutils: http://www.astro.princeton.edu/~schlegel/code.html (any installation procedure will do, but you probably want the latest idlutils tar file, e.g. idlutils-v5_3_0.tar, this includes the Goddard astronomy libraries)
+  * Goddard astronomy libraries
+  * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (you want cmtotal.tar.gz)
+
+Put them in your typical IDL directory, if you don't have one, a directory where you can remember {{{<prodirectory>}}}, e.g. /usr/local/idllibraries
+
+Put them in your IDL_PATH with RC file entries like:
+{{{
+IDL_PATH=$IDL_PATH:+<prodirectory>
+export IDL_PATH
+}}}
+in bash or
+{{{
+setenv IDL_PATH ${IDL_PATH}:+<prodirectory>
+}}}
+in tcsh.
+
+make sure your IDL_PATH includes the "+$IDL_DIR/lib"
+
+You need the Galactic dust maps and IDL code from the Schlegel et al. (1998), available at http://astro.berkeley.edu/~marc/dust/data/data.html.  Follow their install instructions.  You only need the high resolution 4096 E(B-V) maps, both the north and south Galactic planes (NGP and SGP).  Put them in a location like, {{{<somedir>}}}/stellar-locus-regression-read-only/example_data/sfd/maps (not sfd/map!).  Put the SFD IDL code in {{{<prodirectory>}}} and add to IDL_PATH.  Make sure you set DUST_DIR (see below).
+
+Now set some environment variables in your cshrc or bashrc file (example is bash):
+
+{{{
+export SLR_WORK=<somedir>/stellar-locus-regression-read-only
+export SLR_DATA=$SLR_WORK/example_data
+export IDL_PATH=$IDL_PATH:+$SLR_WORK/pro
+export DUST_DIR=$SLR_DATA/sfd
+}}}
+
+To check that everything is working (don't forget to source your rc file):
+
+{{{
+IDL> slr_demo
+}}}
+
+the first time you run, it might take some time (it's reformatting the SFD data to an IDL friendly format), it will be faster subsequently.
