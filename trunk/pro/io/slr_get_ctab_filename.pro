@@ -62,25 +62,28 @@ function slr_get_ctab_filename, field,$
 ;
 ;-
 
-on_error,2
+  compile_opt idl2, hidden
+  on_error,2
 
-if keyword_set(out) then begin
-   file=strip_ext(field)+'_slr.ctab'
-   return,file
-endif
+  if keyword_set(out) then begin
+     file=getenv('SLR_COLORTABLE_OUT')
+     if file ne '' then return, file
+     file=strip_ext(field)+'_slr.ctab'
+     return,file
+  endif
 
 ;dir=slr_datadir()
 ;file=file_search(dir,field+'.ctab',count=count)
 
-if not keyword_set(dir) then begin
-   file=field+'.ctab'
-endif else begin
-   file=dir+path_sep()+field+'.ctab'
-endelse
-if file_test(file) then begin
-   return, file
-endif else begin
-   message,"Colortable "+file+" not found"
-endelse
+  if not keyword_set(dir) then begin
+     file=field+'.ctab'
+  endif else begin
+     file=dir+path_sep()+field+'.ctab'
+  endelse
+  if file_test(file) then begin
+     return, file
+  endif else begin
+     message,"Colortable "+file+" not found"
+  endelse
 
 end

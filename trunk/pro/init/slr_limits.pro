@@ -60,6 +60,8 @@ function slr_limits
 ;
 ;-
 
+  message,"Obsolete"
+
   limits={type:1,$
           tmixed:0,$
           stars_and_gals:0,$

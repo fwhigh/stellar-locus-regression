@@ -63,6 +63,7 @@ pro slr_log, file, $
 ;
 ;-
 
+ compile_opt idl2, hidden
  on_error,2
 
 

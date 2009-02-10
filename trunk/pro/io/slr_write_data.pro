@@ -1,7 +1,5 @@
-pro slr_write_data, $;fieldname=fieldname,$
+pro slr_write_data, colortable_filename=colortable_filename,$
                     option=option,$
-;                    limits=limits,$
-                    force=force,$
                     data=data,$
                     kappa=kappa,$
                     kap_err=kappa_err,$
@@ -59,22 +57,14 @@ pro slr_write_data, $;fieldname=fieldname,$
 ;
 ;-
 
+  compile_opt idl2, hidden
   on_error,2
 
-;  if not keyword_set(fieldname) then begin
-;     message,"Must specify a field name"
-;  endif else if fieldname eq 'none' then begin
-;     message,"Can't write colortable for field "+fieldname
-;  endif
   if not keyword_set(option) then begin
      message,"Must supply options"
   endif
-;  if not keyword_set(limits) then begin
-;     message,"Using default limits",/info
-;     limits=slr_limits()
-;  endif
 
-  ctab_in_file=slr_get_ctab_filename(data.field)
+  ctab_in_file=data.filename
   ctab_out_file=slr_get_ctab_filename(data.filename,/out)
 
   ctab=data.locus.ctab
@@ -82,20 +72,27 @@ pro slr_write_data, $;fieldname=fieldname,$
   data=[[ctab.g-ctab.r],$
         [ctab.r-ctab.i],$
         [ctab.i-ctab.z]]
+  if not keyword_set(kap_err) then kap_err=replicate(0.,3)
+  data_err=[[sqrt(ctab.g_err^2+ctab.r_err^2+kap_err[0]^2)],$
+            [sqrt(ctab.r_err^2+ctab.i_err^2+kap_err[0]^2)],$
+            [sqrt(ctab.i_err^2+ctab.z_err^2+kap_err[0]^2)]]
 
   message,'WARNING: Not correcting for color terms',/info
   data_calib=slr_color_transform(data,$
                                  kappa=kappa,$
                                  /inverse)
+  
 
-  ctab_addendum=create_struct("gr"   ,data[*,0],$
-                              "gr_err",data[*,0],$
-                              "ri"   ,data[*,1],$
-                              "ri_err",data[*,1],$
-                              "iz"   ,data[*,2],$
-                              "iz_err",data[*,2])                              
-                              
 
+  ctab_addendum=create_struct("gr"    ,data[*,0],$
+                              "gr_err",data_err[*,0],$
+                              "ri"    ,data[*,1],$
+                              "ri_err",data_err[*,1],$
+                              "iz"    ,data[*,2],$
+                              "iz_err",data_err[*,2])                              
+
+  if option.verbose ge 1 then $
+     message,'Writing '+ctab_out_file,/info
   slr_append_colortable,ctab_in_file,$
                         ctab_out_file,$
                         ctab_addendum

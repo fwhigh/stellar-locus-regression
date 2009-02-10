@@ -62,7 +62,8 @@ function slr_get_log_filename, field,$
 ;
 ;-
 
-on_error,2
+ compile_opt idl2, hidden
+ on_error,2
 
 if not keyword_set(dir) then begin
    file=field+'_slr.log'

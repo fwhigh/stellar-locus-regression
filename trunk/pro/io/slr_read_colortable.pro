@@ -1,5 +1,7 @@
 function colortable_column_format
 
+  compile_opt idl2, hidden
+
   types={$
         Xpos           : 4 ,$
         Ypos           : 4 ,$
@@ -118,6 +120,8 @@ function get_cat_template, file, $
                            header=header, $
                            literal=literal
 
+  compile_opt idl2, hidden
+
 ; Initialize
   template = { version       : 1.0 ,$
                datastart     : 0L  ,$
@@ -170,7 +174,6 @@ function get_cat_template, file, $
                    n_matches)
         if n_matches eq 0 then begin
            type=7               ; string is default
-           message,"Don't recognize "+fieldnames[i],/info
         endif else type=types.(here)
         fieldtypes=push_arr(fieldtypes,type)
      endfor
@@ -251,6 +254,9 @@ function slr_read_colortable, file,$
 ;           Removed
 ;
 ;-
+
+  compile_opt idl2, hidden
+  on_error, 2
 
   if not keyword_set(verbose) then verbose=0
   

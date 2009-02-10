@@ -54,6 +54,7 @@ pro slr_demo
 ;
 ;-
 
+ compile_opt idl2, hidden
 
 ;;; Get global default options, then set some of your own.
 force=1

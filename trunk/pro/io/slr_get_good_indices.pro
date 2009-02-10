@@ -62,7 +62,8 @@ function slr_get_good_indices, cat, option, $
 ;
 ;-
 
-
+  compile_opt idl2, hidden
+  on_error, 2
 
 ;;   if option.verbose ge 1 then begin
 ;;      irtesti=where(finite(cat.locus.J_err) and $
