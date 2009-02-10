@@ -35,22 +35,37 @@ pro slr_pipe
 ;  slr_pipe
 ;
 ; INPUTS:
+;  Requires the environment variable SLR_COLORABLE_IN to be set to the
+;  input colortable.
+;  Requires the environment variable SLR_COLORABLE_OUT to be set to
+;  the output colortable.
 ;
 ; OPTIONAL INPUTS:
+;  You can set SLR_CONFIG_FILE to a custom SLR configuration file.
 ;
 ; OUTPUTS:
+;  Writes SLR calibrations to the file $SLR_COLORABLE_OUT.
+;  Logs SLR calibrations to a log file.
 ;
 ; OPIONAL OUTPUTS:
 ;       
 ; NOTES:
 ;
 ; EXAMPLES:
+;  At the commandline:
+;   % cd $SLR_INSTALL/example_data
+;   % slr.csh lowext_stars3_fwhigh.ctab lowext_stars3_fwhigh.slr.ctab
+;  First argument is the input colortable, second is the output.  The
+;  calibration results are logged to lowext_stars3_fwhigh.slr.
 ;
 ; PROCEDURES USED:
+;  slr_options
+;  slr_get_data
+;  slr_locus_line_calibration
+;  slr_write_data
 ;       
 ; HISTORY:
 ;       Written by:     FW High Jan 2009
-;
 ;-
 
 COMPILE_OPT idl2, HIDDEN
@@ -63,7 +78,7 @@ option=slr_options(file=getenv('SLR_CONFIG_FILE'))
 
 infile=getenv('SLR_COLORTABLE_IN')
 if infile eq '' then begin
-   message,"You must specify a colortable with the "+$
+   message,"You must specify an input colortable with the "+$
            "environment variable SLR_COLORTABLE_IN"
 endif
 
@@ -104,6 +119,10 @@ print,' E(i-z) = ',string(low_galext_mean[2],format='(F8.3)'),$
       ' +/-',string(low_galext_stddev[2],format='(F7.3)')
       
 outfile=getenv('SLR_COLORTABLE_OUT')
+if outfile eq '' then begin
+   message,"You must specify an output colortable with the "+$
+           "environment variable SLR_COLORTABLE_OUT"
+endif
 
 slr_write_data,$
    option=option,$

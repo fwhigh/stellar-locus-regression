@@ -12,6 +12,61 @@ pro slr_plot_locus,x,y,$
                    histbin=histbin,nlevels=nlevels,$
                    overplot=overplot,color=color
 
+;$Rev::               $:  Revision of last commit
+;$Author::            $:  Author of last commit
+;$Date::              $:  Date of last commit
+;
+; Copyright 2009 by F. William High.
+;
+; This file is part of Stellar Locus Regression (SLR).
+;
+; SLR is free software: you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation, either version 3 of the License, or (at your
+; option) any later version.
+;
+; SLR is distributed in the hope that it will be useful, but WITHOUT
+; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+; License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with SLR.  If not, see <http://www.gnu.org/licenses/>.
+;
+;+
+; NAME:
+;  slr_plot_locus
+;
+; PURPOSE:
+;  Plot a color-color locus of stellar data points.
+;
+; EXPLANATION:
+;  There are different ways to represent the locus, appropriate for
+;  different situations.  This wraps them all together.
+;
+; CALLING SEQUENCE:
+;
+; INPUTS:
+;
+; OPTIONAL INPUTS:
+;
+; OUTPUTS:
+;
+; OPIONAL OUTPUTS:
+;       
+; NOTES:
+;
+; EXAMPLES:
+;
+; PROCEDURES USED:
+;       
+; HISTORY:
+;       Written by:     FW High 2009
+;-
+
+ compile_opt idl2, hidden
+ on_error, 2
+
   if keyword_set(scatter) then begin
      slr_locus_scatter,x,y,$
                        xtitle=xtitle,ytitle=ytitle,title=title,$

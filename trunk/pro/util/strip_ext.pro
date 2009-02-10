@@ -1,4 +1,5 @@
-function strip_ext,name,get_ext=get_ext
+function strip_ext,name,$
+                   get_ext=get_ext
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -51,6 +52,9 @@ function strip_ext,name,get_ext=get_ext
 ;
 ;-
 
+ compile_opt idl2, hidden
+ on_error, 2
+
 
 ; Preserve the variable "name".
 name2=name
@@ -80,8 +84,7 @@ endif else begin
         endif
 
         if strpos(name2,'.')+1 eq strlen(name2) then begin
-            message,'Cannot have a dot as the last character',/info
-            return,bunk
+            message,'Cannot have a dot as the last character'
         endif
 
         val=val+strmid(name2,0,strpos(name2,'.')+1)
