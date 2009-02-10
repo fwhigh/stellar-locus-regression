@@ -1,14 +1,28 @@
-#summary Basic installation instructions for SLR version 1.
+#summary Basic installation instructions for SLR version 2.
+#labels Phase-Deploy,Featured
 
 = Basic Installation Instructions =
 
-First, go get the version 1.0 download at http://code.google.com/p/stellar-locus-regression/downloads/.  Untar it with `tar xzvf slr-v1.0.tar.gz`.
+First, go get the version 2 download at http://code.google.com/p/stellar-locus-regression/downloads/.  Untar it with `tar xzvf slr-v2.0.tar.gz`.
 
-Put the package in some directory {{{<install-dir>}}}.  This can be {{{/usr/local/idllibraries}}} or {{{$HOME}}} or whatever you prefer.  The package root directory will then be {{{<install-dir>/slr-v1.0}}}.
+Put the package in some directory {{{<install-dir>}}}.  This can be {{{/usr/local/idllibraries}}} or {{{$HOME}}} or whatever you prefer.  The package root directory will then be {{{<install-dir>/slr-v2.0}}}.
 
 To get things running, right now you need IDL 7.0 with Analyst.  Plans to be rid of the Analyst-dependence are in the works.
 
 == Quick Install ==
+
+ * Install and set up the Goddard astronomy IDL libraries, idlutils, and the Markwardt IDL libraries.
+ * Install and set up the Schlegel, Finkbeiner, and Davis (1998) E(B-V) dust maps and IDL utilities.
+ * Download the stellar locus data of Covey et al. (2007) and put them in a directory `<data-dir>/covey`.
+ * Issue (in tcsh):
+{{{
+setenv SLR_INSTALL <install-dir>/slr-v2.0
+setenv SLR_DATA <data-dir>
+setenv PATH {$PATH}:$SLR_INSTALL/bin
+}}}
+ * Go to "Test Your Installation" below.
+
+== Full Install ==
 
 ===IDL Libraries===
 
@@ -17,16 +31,16 @@ You'll need these idl libraries:
   * Goddard astronomy libraries (see above)
   * Markwardt: http://www.physics.wisc.edu/~craigm/idl/ (you want cmtotal.tar.gz)
 
-Put them in your typical IDL directory.  For example, use a directory you can remember {{{<prodirectory>}}}, like {{{/usr/local/idllibraries}}}.
+Put them in your typical IDL directory.  For example, use a directory you can remember {{{<pro-dir>}}}, like {{{/usr/local/idllibraries}}}.
 
 Don't forget to add them to your {{{IDL_PATH}}} with shell startup file entries similar to:
 {{{
-IDL_PATH=$IDL_PATH:+<prodirectory>/idlutils:+<prodirectory>/markwardt
+IDL_PATH=$IDL_PATH:+<pro-dir>/idlutils:+<pro-dir>/markwardt
 export IDL_PATH
 }}}
 in bash or
 {{{
-setenv IDL_PATH {$IDL_PATH}:+<prodirectory>/idlutils:+<prodirectory>/markwardt
+setenv IDL_PATH {$IDL_PATH}:+<pro-dir>/idlutils:+<pro-dir>/markwardt
 }}}
 in tcsh.
 
@@ -41,10 +55,20 @@ setenv IDL_PATH \<IDL_DEFAULT\>
 
 ===Galactic Dust Maps===
 
-You need the Galactic dust maps and IDL code from the Schlegel et al. (1998), available at http://astro.berkeley.edu/~marc/dust/data/data.html.  Follow their install instructions.  You only need the high resolution 4096 E(B-V) maps, both the north and south Galactic planes (NGP and SGP).  Put them in a location like, {{{<install-dir>/slr-v1.0/example_data/sfd/maps}}}.  *Make sure this is maps and not map.*  Put the SFD IDL code in {{{<prodirectory>}}} and add to IDL_PATH.  As instructed at the website, you must set DUST_DIR.
+SLR in effect uses dust maps located in `$DUST_DIR/maps` to get Schegel et al. (1998) dust values.  Here's how to set this up.
+
+Go to http://astro.berkeley.edu/~marc/dust/data/data.html to get the dust maps and IDL code.  Follow their install instructions.  You only need the high resolution 4096 E(B-V) maps, both the north and south Galactic planes (NGP and SGP).  Put them in some directory, for example {{{<install-dir>/slr-v1.0/example_data/sfd/maps}}}.  *Make sure the top directory is maps and not map.*  Put the SFD IDL code in some {{{<pro-dir>}}} and add to IDL_PATH.  
+
+As instructed at the website, set the `DUST_DIR` environment variable.  If you used our suggestion, then you would issue
+{{{
+setenv DUST_DIR <install-dir>/slr-v1.0/example_data/sfd
+}}}
+The directory `$DUST_DIR/maps` must exist and contain the E(B-V) dust maps.
 
 
 ===The Standard Stellar Locus===
+
+SLR gets the standard stellar locus data from the directory `$SLR_DATA/covey`.
 
 Go get Kevin Covey's stellar locus data, which he makes available on his own website.  You'll need the stellar data:
 
@@ -54,7 +78,11 @@ and the median locus line data:
 
 http://www.cfa.harvard.edu/~kcovey/research/medianlocus.tbl
 
-We highly recommend putting them in the {{{example_data/covey}}} subdirectory of your installation, which will help you get the demo running.
+Put them in some directory `<data-dir>/covey`.  We suggest putting them in the {{{<install-dir>/example_data/covey}}} subdirectory of your installation.  Set `SLR_DATA`.  If you used our suggestion, then you would issue
+{{{
+setenv SLR_DATA <install-dir>/example_data
+}}}
+The directory `$SLR_DATA/covey` must exist and contain `medianlocus.tbl` and `superclean.fits`.
 
 
 ===SLR Environment Variables===
@@ -62,26 +90,42 @@ We highly recommend putting them in the {{{example_data/covey}}} subdirectory of
 Now set some environment variables in your cshrc or bashrc file.  Remember to insert the appropriate directories.  Example is for tcsh:
 {{{
 setenv SLR_INSTALL <install-dir>/slr-v1.0
-setenv SLR_DATA $SLR_INSTALL/example_data
+setenv SLR_DATA <data-dir>
 setenv IDL_PATH {$IDL_PATH}:+$SLR_INSTALL/pro
 setenv DUST_DIR $SLR_DATA/sfd
+setenv PATH {$PATH}:$SLR_INSTALL/bin
 }}}
 
 We've used the example directories mentioned in this install file.  This should let the demo (see below) work properly.  If you made different choices, you must make sure these environment variables reflect them.
 
 
-===Test Your Installation===
+==Test Your Installation==
 
-To check that everything is working (don't forget to source your rc file), make the SLR documentation web page with
+===1: Make the Documentation===
+
+To check that everything is working (don't forget to source your rc file), fire up IDL and then make the SLR documentation web page with
 {{{
 IDL> slr_docs
 }}}
 This will make the SLR IDL help page {{{$SLR_INSTALL/docs/www/idl_help.html}}}, which you can open in a web browser.
 
-If that worked, now run the demo with
+===2: Run the Standalone Executable===
+
+Go to the directory `$SLR_INSTALL/example_data`, then issue at the commandline
+{{{
+slr.csh lowext_stars3_fwhigh.ctab lowext_stars3_fwhigh.slr.ctab
+}}}
+This will run SLR on the example colortable we provided (first argument), and output SLR calibrations to another colortable (second argument).  The output colortable is equal to the input colortable but with the additional appended columns `GR`, `RI`, etc, which are the calibrated colors _g - r_, _r - i_.  Estimated color errors, with bootstrap errors added in quadrature, are also output.
+
+Browse the log file that SLR generates, in this case `lowext_stars3_fwhigh.slr`.  This contains the color calibrations with bootstrap errors.
+
+
+===3: Run from Within IDL===
+
+Now that you've run the commandline version of SLR, try doing SLR from within the IDL environment.  Fire up IDL and run our demo script,
 {{{
 IDL> slr_demo
 }}}
-The first time you run it, it will take some time (it's reformatting the data to an optimal, IDL-friendly format).  It will be much faster the second time.
+The first time you run it, it will take some time (it's reformatting the data to an optimal, IDL-friendly format).  It will be faster the second time.
 
 The demo will run SLR on the example Sloan Digital Sky Survey data that comes with your installation.  You should see plots of the stellar locus (you must hit enter to continue), a visualization of the numerical regression, and results for best-fit parameters printed to screen.
