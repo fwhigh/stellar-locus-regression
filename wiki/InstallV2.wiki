@@ -122,7 +122,7 @@ Browse the log file that SLR generates, in this case `lowext_stars3_fwhigh.slr`.
 
 ===3: Run from Within IDL===
 
-Now that you've run the commandline version of SLR, try doing SLR from within the IDL environment.  Fire up IDL and run our demo script,
+Now that you've run the commandline version of SLR, try doing SLR from within the IDL environment.  Go to the directory `$SLR_INSTALL/example_data`, fire up IDL, and run our demo script,
 {{{
 IDL> slr_demo
 }}}
