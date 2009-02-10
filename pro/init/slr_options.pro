@@ -57,6 +57,8 @@ function slr_options, file=file
 ;
 ;-
 
+  compile_opt idl2, hidden
+
   on_error,2
 
   if not keyword_set(file) then begin
@@ -79,6 +81,9 @@ function slr_options, file=file
   for ii=0,n_elements(par)-1 do begin
      case par[ii] of 
         "use_ir":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "force":begin
            option=create_struct(option,par[ii],fix(val[ii]))
         end
         "postscript":begin

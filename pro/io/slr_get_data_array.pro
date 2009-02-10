@@ -64,6 +64,8 @@ function slr_get_data_array, cat, option, $
 ;
 ;-
 
+ compile_opt idl2, hidden
+
 ind=slr_get_good_indices(cat,option,input_indices=in_ind,tmass_indices=tind)
 
 if option.verbose ge 1 and option.deredden then begin

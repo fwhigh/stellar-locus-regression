@@ -96,6 +96,8 @@ pro slr_locus_line_calibration,$
 ;
 ;-
 
+ compile_opt idl2, hidden
+
   if not keyword_set(colorterms) then $
      colorterms=replicate(0.,4)
 

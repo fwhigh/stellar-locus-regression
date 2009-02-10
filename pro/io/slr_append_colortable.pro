@@ -56,6 +56,7 @@ pro slr_append_colortable, ctab_in_file, $
 ;
 ;-
 
+  compile_opt idl2, hidden
   on_error,2
 
   tmptags=tag_names(ctab_add)
