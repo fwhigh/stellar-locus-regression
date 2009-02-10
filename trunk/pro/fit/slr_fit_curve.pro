@@ -295,7 +295,8 @@ pro slr_fit_curve, x_dat=x_dat,$
                    interactive=interactive,$
                    debug=debug,$
                    verbose=verbose,$
-                   bestfit=bestfit
+                   bestfit=bestfit, $
+                   benchmark=benchmark
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -397,7 +398,15 @@ pro slr_fit_curve, x_dat=x_dat,$
   function_name='curve_dist_func'
   ftol=1e-6
 
+  if keyword_set(benchmark) then start_time=systime(1)
   p = amoeba(ftol,scale=scale,p0=p0,function_name=function_name)
+  if keyword_set(benchmark) then begin
+     if verbose ge 1 then begin
+        message,"Fit completed in "+$
+                strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
+                ' seconds',/info
+     endif
+  endif
   if p[0] eq -1 then begin
      print,'Did not converge!!'
      p=replicate(0.,n_elements(x_dat[0,*]))

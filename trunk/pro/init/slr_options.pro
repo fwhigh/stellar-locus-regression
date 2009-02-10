@@ -64,7 +64,7 @@ function slr_options, file=file
   if not keyword_set(file) then begin
      file=getenv('SLR_INSTALL')+path_sep()+$
                  'config'+path_sep()+'default_slr.config'
-     message,"Using default config file "+file,/info
+;     message,"Using default config file "+file,/info
   endif
   if not file_test(file) then begin
      message,"Config file "+file+" not found"

@@ -109,6 +109,8 @@ pro slr_locus_line_calibration,$
   if option.get_kappa then begin
      option.use_ir=0
 
+     if option.verbose ge 1 then $
+        message,"Fitting",/info
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
                                output_indices=ind1,$
                                input_indices=obji_in)
@@ -130,7 +132,8 @@ pro slr_locus_line_calibration,$
                    plot=option.plot,$
                    animate_regression=option.animate_regression,$
                    postscript=option.postscript,$
-                   bestfit=calibfit1
+                   bestfit=calibfit1,$
+                   /benchmark
      if option.verbose ge 2 then $
         print,'Intermediate kappa = ',calibfit1.p
      if option.verbose ge 2 then $
@@ -140,6 +143,10 @@ pro slr_locus_line_calibration,$
      data.math1.kappa.val[0:2]=calibfit1.p
      data.math2.kappa.guess[0:2]=calibfit1.p
      data.math2.kappa.val[0:2]=calibfit1.p
+
+
+     if option.verbose ge 1 then $
+        message,"Cutting outliers, fitting again",/info
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
                                input_indices=ind1_better,$
                                output_indices=ind1)
@@ -158,7 +165,8 @@ pro slr_locus_line_calibration,$
                    plot=option.plot,$
                    animate_regression=option.animate_regression,$
                    postscript=option.postscript,$
-                   bestfit=calibfit1
+                   bestfit=calibfit1,$
+                   /benchmark
      data.math1.kappa.guess[0:2]=calibfit1.p
      data.math1.kappa.val[0:2]=calibfit1.p
      data.math2.kappa.guess[0:2]=calibfit1.p
@@ -195,9 +203,11 @@ pro slr_locus_line_calibration,$
 
 ;     kap_err=replicate(0.,n_elements(kappa))
      if bootstrap then begin
-        if option.verbose ge 1 then $
-           print,'Bootstrapping'
-        delvarx,p_bootstrap
+        start_time=systime(1)
+        if option.verbose ge 1 then begin
+           message,"Bootstrapping "+strtrim(n_bootstrap,2)+" times to estimate errors.",/info
+        endif
+         delvarx,p_bootstrap
         x1_orig=x1_dat
         x1_err_orig=x1_err
         n_data=n_elements(x1_orig[*,0])
@@ -246,6 +256,11 @@ pro slr_locus_line_calibration,$
 ;        save,file=slr_datadir()+path_sep()+data.field+'_bootstrap.sav',$
 ;             data,option,p_bootstrap
 
+        if option.verbose ge 1 then begin
+           message,"Bootstrap completed in "+$
+                   strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
+                   ' seconds',/info
+        endif
         if option.verbose ge 2 then $
            print,'Bootstrap error ',kap_err
 
