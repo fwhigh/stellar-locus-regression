@@ -111,7 +111,7 @@ This will make the SLR IDL help page {{{$SLR_INSTALL/docs/www/idl_help.html}}}, 
 
 ===2: Run the Standalone Executable===
 
-Go to the directory `$SLR_INSTALL/example_data`, then issue at the commandline
+Go to the directory `$SLR_INSTALL/example_data`, then issue at the commandline (do you need to `rehash`?):
 {{{
 slr.csh lowext_stars3_fwhigh.ctab lowext_stars3_fwhigh.slr.ctab
 }}}
