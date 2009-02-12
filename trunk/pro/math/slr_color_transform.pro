@@ -194,7 +194,8 @@ if not keyword_set(M) then M=identity(n_dim)
 
 if keyword_set(inverse) then begin
 
-   M_use = imsl_inv(M)
+;   M_use = imsl_inv(M)
+   M_use = matrix_power(M,-1)
 
    x2_tr=x2/x2-1
    for ii=0,n_dat-1 do begin
