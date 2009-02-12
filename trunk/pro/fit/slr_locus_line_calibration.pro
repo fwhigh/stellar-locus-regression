@@ -214,11 +214,12 @@ pro slr_locus_line_calibration,$
         n_iter=n_bootstrap
         delvarx,p_bootstrap
         for i=0,n_iter-1 do begin
+           seed=i+1
            if ((i+1) mod 20) eq 0 and option.verbose ge 2 then $
               print,'Iteration ',i+1,'/',n_iter
 ;           IMSL_RANDOMOPT, Set = i+1
 ;           b1ind=imsl_random(n_data,/discrete_unif,parameters=n_data)-1
-           b1ind=floor(randomu(i,n_data)*n_data-)
+           b1ind=floor(randomu(seed,n_data)*n_data)
            b1ind=b1ind[sort(b1ind)]
            x1_dat=x1_orig[b1ind,*]
            x1_err=x1_err_orig[b1ind,*]
@@ -332,11 +333,12 @@ pro slr_locus_line_calibration,$
            n_iter=n_bootstrap
            delvarx,p_bootstrap
            for i=0,n_iter-1 do begin
+              seed=i+1
               if ((i+1) mod 100) eq 0 and option.verbose ge 2 then $
                  print,'Iteration ',i+1,'/',n_iter
 ;              IMSL_RANDOMOPT, Set = i+1
 ;              b1ind=imsl_random(n_data,/discrete_unif,parameters=n_data)-1
-              b1ind=floor(randomu(i,n_data)*n_data-)
+              b1ind=floor(randomu(seed,n_data)*n_data)
               b1ind=b1ind[sort(b1ind)]
               x1_dat=x1_orig[b1ind,*]
               x1_err=x1_err_orig[b1ind,*]
