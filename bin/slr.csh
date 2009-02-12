@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 
-if ($#argv < 2) then
+if ($#argv < 2 || $#argv > 3) then
     echo "Stellar Locus Regression 2.0"
     echo "High et al. 2009, AJ submitted"
     echo "fwhigh@gmail.com"
