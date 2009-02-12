@@ -1,6 +1,0 @@
-Go get only the 4096 E(B-V) maps from
-
-http://astro.berkeley.edu/~marc/dust/data/data.html
-
-and put them here.  Don't forget to get and install their IDL code,
-and to set the DUST_DIR environment variable, as they instruct.
