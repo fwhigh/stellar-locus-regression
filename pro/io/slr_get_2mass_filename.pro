@@ -1,4 +1,5 @@
-function slr_get_2mass_filename, field, out=out
+function slr_get_2mass_filename, field, $
+                                 out=out                                 
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -57,12 +58,22 @@ function slr_get_2mass_filename, field, out=out
 ;       
 ; HISTORY:
 ;       Written by:     FW High 2008
+;  2/09 FWH files must now contain path
 ;
 ;-
 
 if keyword_set(out) then out='_2mass_out' else out=''
 
-file=slr_datadir()+path_sep()+field+out+'.tbl'
+ext=strip_ext(field,/get)
+if ext eq 'ctab' then begin
+   file=strip_ext(field)+out+'.tbl'
+endif else begin
+   file=field+out+'.tbl'
+endelse
+ 
+;file=slr_datadir()+path_sep()+field+out+'.tbl'
+
+
 return,file
 
 end

@@ -1,6 +1,5 @@
-function slr_math_struct_to_colorterm_matrix,$
-   math, p,$
-   p_counter=p_counter
+function slr_fitpar_struct_to_kappa, fitpar, p,$
+                                     p_counter=p_counter
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -25,10 +24,10 @@ function slr_math_struct_to_colorterm_matrix,$
 ;
 ;+
 ; NAME:
-;  slr_math_struct_to_colorterm_matrix
+;  slr_fitpar_struct_to_kappa
 ;
 ; PURPOSE:
-;  Get a colorterm matrix from a math structure.
+;  Get the entries of the kappa vector from a fitpar structure.
 ;
 ; EXPLANATION:
 ;
@@ -53,18 +52,16 @@ function slr_math_struct_to_colorterm_matrix,$
 ;
 ;-
 
-m_out=replicate(0.,math.m.n)
-for ii=0,math.m.n-1 do begin
-    if math.m.fixed[ii] then begin
-        m_out[ii]=math.m.val[ii]
-    endif else begin
-        m_out[ii]=p[p_counter]
+  kappa_out=replicate(0.,fitpar.kappa.n)
+  for ii=0,fitpar.kappa.n-1 do begin
+     if fitpar.kappa.fixed[ii] then begin
+        kappa_out[ii]=fitpar.kappa.val[ii]
+     endif else begin
+        kappa_out[ii]=p[p_counter]
         p_counter=p_counter+1
-    endelse
- endfor
+     endelse
+  endfor
 
-matrix_out=slr_colorterm_matrix(m_out,type=math.type)
-
-return,matrix_out
+  return,kappa_out
 
 end

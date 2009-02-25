@@ -59,97 +59,84 @@ function slr_get_good_indices, cat, option, $
 ;       
 ; HISTORY:
 ;       Written by:     FW High 2008
-;
+;  2/09 FWH IR now integrated with the colortable data, much cleaner
+;           now
 ;-
 
-  compile_opt idl2, hidden
-  on_error, 2
+;  compile_opt idl2, hidden
+;  on_error, 2
 
-;;   if option.verbose ge 1 then begin
-;;      irtesti=where(finite(cat.locus.J_err) and $
-;;                    finite(cat.locus.J) and $
-;;                    finite(cat.locus.H_err) and $
-;;                    finite(cat.locus.H) and $
-;;                    finite(cat.locus.J_H) and $
-;;                    finite(cat.locus.H_K) and $
-;;                    finite(cat.locus.J_H) ne 0.,$
-;;                    testcount)
-;;      print,testcount,' good ir objs inside get_good_indices out of ',n_elements(cat.locus.J),' IR objs'
-;;   endif
+  ind=lindgen(n_elements(cat.ctab.ra))
 
-  if option.use_ir then begin
-     if keyword_set(in_ind) then begin
-;        ind=setintersection(cat.locus.obji,in_ind)
-        ind=setintersection(option.opti_ir,in_ind)
-     endif else begin
-        ind=cat.locus.obji
-     endelse
-     tmpi=setintersection(ind,cat.locus.tmassi)
-     delvarx,tind,sind
-     for jj=0,n_elements(tmpi)-1 do begin
-        here=where(cat.locus.tmassi eq tmpi[jj],count)
-        if count ne 1 then continue
-        tind=push_arr(tind,here)
-        sind=push_arr(sind,tmpi[jj])
-     endfor
+;;; Get the magnitudes
+  tags=tag_names(cat.ctab)
+  for ii=0,n_elements(option.bands)-1 do begin
+     if ~tag_exist(cat.ctab,option.bands[ii]) then begin
+        message,"Data for band "+option.bands[ii]+" not provided"
+     endif
+     tagi=where(strlowcase(tags) eq $
+                strlowcase(option.bands[ii]),$
+                count)
+     tagi_err=where(strlowcase(tags) eq $
+                    strlowcase(option.bands[ii])+'_err',$
+                    count)
+     if n_elements(option.mag_min) eq 1 then $
+        mag_min=option.mag_min[0] else $
+           mag_min=option.mag_min[ii]           
+     if n_elements(option.mag_max) eq 1 then $
+        mag_max=option.mag_max[0] else $
+           mag_max=option.mag_max[ii]           
+     ind=setintersection($
+         ind,$
+         where(1/cat.ctab.(tagi_err) gt option.snlow and $
+               cat.ctab.(tagi) gt mag_min and $
+               cat.ctab.(tagi) lt mag_max and $
+               finite(cat.ctab.(tagi)) and finite(cat.ctab.(tagi_err)) and $
+               cat.ctab.(tagi) ne -99 and cat.ctab.(tagi_err) ne -99,$
+               count))
+     if count eq 0 or ind[0] eq -1 then begin
+        message,'No good objects in '+option.bands[ii]
+     endif
+  endfor
 
-     goodi=where((cat.locus.g-cat.locus.r)[sind] ge option.grmin and $
-                 (cat.locus.g-cat.locus.r)[sind] le option.grmax and $
-                 (cat.locus.r-cat.locus.i)[sind] ge option.rimin and $
-                 (cat.locus.r-cat.locus.i)[sind] le option.rimax and $
-                 (cat.locus.i-cat.locus.z)[sind] ge option.izmin and $
-                 (cat.locus.i-cat.locus.z)[sind] le option.izmax and $
-                 (cat.locus.z[sind]-cat.locus.J[tind]) ge option.zJmin and $
-                 (cat.locus.z[sind]-cat.locus.J[tind]) le option.zJmax and $
-                 finite(cat.locus.g_err[sind]) and $
-                 finite(cat.locus.g[sind]) and $
-                 finite(cat.locus.r_err[sind]) and $
-                 finite(cat.locus.r[sind]) and $
-                 finite(cat.locus.i_err[sind]) and $
-                 finite(cat.locus.i[sind]) and $
-                 finite(cat.locus.z_err[sind]) and $
-                 finite(cat.locus.z[sind]) and $
-                 finite(cat.locus.J_err[tind]) and $
-                 finite(cat.locus.J[tind]) and $
-;                 finite(cat.locus.H_err[tind]) and $
-;                 finite(cat.locus.H[tind]) and $
-;                 finite(cat.locus.J_H[tind]) and $
-;                 finite(cat.locus.H_K[tind]) and $
-                 cat.locus.J_H[tind] ne 0.  ,$
-                 count)
+;;; Make further cuts
+  ind=setintersection($
+      ind,$
+      where(abs(cat.bee) gt option.beelow and $
+            (cat.ctab.type eq option.type and cat.ctab.tmixed eq option.tmixed), $
+            count))
+  if count eq 0 then begin
+     message,'No good objects 1'
+  endif
+  if option.cutdiskstars then begin
+     ind=setintersection($
+         ind,$
+         where(abs(cat.zee) gt option.zeelow,$
+               count))
      if count eq 0 then begin
-        message,'No good objects'
+        message,'No good objects 1'
      endif
-     ind=sind[goodi]
-  endif else begin
-     goodi=where((cat.locus.g-cat.locus.r) ge option.grmin and $
-                 (cat.locus.g-cat.locus.r) le option.grmax and $
-                 (cat.locus.r-cat.locus.i) ge option.rimin and $
-                 (cat.locus.r-cat.locus.i) le option.rimax and $
-;;                 (((cat.locus.g-cat.locus.i) ge option.gimin and $
-;;                   (cat.locus.g-cat.locus.i) le option.gimax) or $
-;;                  (cat.locus.r-cat.locus.i) ge 0.7 or $
-;;                  (cat.locus.g-cat.locus.r) le 0.35) and $
-                 finite(cat.locus.g_err) and finite(cat.locus.g) and $
-                 finite(cat.locus.r_err) and finite(cat.locus.r) and $
-                 finite(cat.locus.i_err) and finite(cat.locus.i) and $
-                 finite(cat.locus.z_err) and finite(cat.locus.z) )
-     ind=setintersection(cat.locus.obji,goodi)
-     if keyword_set(in_ind) then begin
-        ind=setintersection(ind,in_ind)
-     endif
-  endelse
+  endif
 
+;;; This will be obsolete soon
   if option.use_ir then begin
-     delvarx,tind,sind
-     for jj=0,n_elements(ind)-1 do begin
-        here=where(cat.locus.tmassi eq ind[jj],count)
-        if count ne 1 then continue
-        tind=push_arr(tind,here)
-        sind=push_arr(sind,ind[jj])
-     endfor
-     tmass_indices=tind
-     ind=sind
+     ind=setintersection(ind,$
+                         where((cat.ctab.z-cat.ctab.J) ge option.zJmin and $
+                               (cat.ctab.z-cat.ctab.J) le option.zJmax and $
+                               finite(cat.ctab.J_err) and cat.ctab.J_err ne -99 and $
+                               finite(cat.ctab.J) and cat.ctab.J ne -99, $
+                               count))
+     if count eq 0 or ind[0] eq -1 then begin
+        message,'No good objects 2'
+     endif
+  endif
+
+;;; Intersect with input indices
+  if keyword_set(in_ind) then begin
+     ind=setintersection(ind,in_ind)
+     if ind[0] eq -1 then begin
+        message,'No good objects 3'
+     endif
   endif
 
   return,ind

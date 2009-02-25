@@ -1,6 +1,8 @@
 function slr_get_data_array, cat, option, $
+                             alli=alli,$
                              err=err, $
                              mag=mag, $
+                             reddening=reddening,$
                              output_indices=ind, $
                              input_indices=in_ind
 
@@ -61,77 +63,77 @@ function slr_get_data_array, cat, option, $
 ;       
 ; HISTORY:
 ;       Written by:     FW High 2008
+;  2/09 FWH Now more general
 ;
 ;-
 
- compile_opt idl2, hidden
+  compile_opt idl2, hidden
 
-ind=slr_get_good_indices(cat,option,input_indices=in_ind,tmass_indices=tind)
+  if keyword_set(alli) then begin
+     ind=lindgen(n_elements(cat.ctab.ra))
+  endif else begin
+     ind=slr_get_good_indices(cat,option,input_indices=in_ind,tmass_indices=tind)
+  endelse
 
-if option.verbose ge 1 and option.deredden then begin
-   message,"Dereddening",/info
-endif
+  if option.verbose ge 1 and option.deredden then begin
+     message,"Dereddening",/info
+  endif
 
 
+;;; Get the colors
+  cat_tags=tag_names(cat)
+  ctab_tags=tag_names(cat.ctab)
+  for ii=0,n_elements(option.colors2calibrate)-1 do begin
+     band1=(strmid(option.colors2calibrate[ii],0,1))[0]
+     band2=(strmid(option.colors2calibrate[ii],1,1))[0]
+     if ~tag_exist(cat.ctab,band1) then begin
+        message,"Data for band "+option.use_bands[ii]+" not provided"
+     endif
+     if ~tag_exist(cat.ctab,band2) then begin
+        message,"Data for band "+option.use_bands[ii]+" not provided"
+     endif
+     mag1=where(strlowcase(ctab_tags) eq $
+                strlowcase(band1),$
+                count)
+     mag1_err=where(strlowcase(ctab_tags) eq $
+                    strlowcase(band1)+'_err',$
+                    count)
+     mag1_galext=where(strlowcase(cat_tags) eq $
+                       strlowcase(band1)+'_galext',$
+                       count)
+     mag2=where(strlowcase(ctab_tags) eq $
+                strlowcase(band2),$
+                count)
+     mag2_err=where(strlowcase(ctab_tags) eq $
+                    strlowcase(band2)+'_err',$
+                    count)
+     mag2_galext=where(strlowcase(cat_tags) eq $
+                       strlowcase(band2)+'_galext',$
+                       count)
+     print,'here ',band1,band2
+     if size(dat,/tname) eq 'UNDEFINED' then begin
+        dat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
+             (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
+        err=(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]
+        mag=(cat.ctab.(mag1))[ind]
+        reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
+     endif else begin
+        dat=[[dat],$
+             [(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
+               (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]]]
+        err=[[err],$
+             [(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]]]
+        mag=[[mag],$
+             [(cat.ctab.(mag1))[ind]]]
+        reddening=[[reddening],$
+                   [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]
+        if ii eq (n_elements(option.colors2calibrate)-1) then begin
+           mag=[[mag],$
+                [(cat.ctab.(mag2))[ind]]]
+        endif
+     endelse
+  endfor
 
-if option.use_ir then begin
-;;     for jj=0,n_elements(ind)-1 do begin
-;;         here=where(cat.locus.tmassi eq ind[jj],count)
-;;         if count eq 0 then continue
-;;         if count gt 1 then continue
-;;         tind=push_arr(tind,here)
-;;         sind=push_arr(sind,ind[jj])
-;;     endfor
-    dat=[[(cat.locus.g-cat.locus.r-(cat.locus.g_galext-cat.locus.r_galext)*option.deredden)[ind]],$
-         [(cat.locus.r-cat.locus.i-(cat.locus.r_galext-cat.locus.i_galext)*option.deredden)[ind]],$
-         [(cat.locus.i-cat.locus.z-(cat.locus.i_galext-cat.locus.z_galext)*option.deredden)[ind]],$
-         [(cat.locus.z[ind]-cat.locus.J[tind])],$
-         [(cat.locus.i[ind]-cat.locus.J[tind])],$
-         [(cat.locus.r[ind]-cat.locus.J[tind])],$
-         [(cat.locus.g[ind]-cat.locus.J[tind])]]
-    err=[[(sqrt(cat.locus.g_err^2+cat.locus.r_err^2))[ind]],$
-         [(sqrt(cat.locus.r_err^2+cat.locus.i_err^2))[ind]],$
-         [(sqrt(cat.locus.i_err^2+cat.locus.z_err^2))[ind]],$
-         [(sqrt(cat.locus.z_err[ind]^2+cat.locus.J_err[tind]^2))],$
-         [(sqrt(cat.locus.i_err[ind]^2+cat.locus.J_err[tind]^2))],$
-         [(sqrt(cat.locus.r_err[ind]^2+cat.locus.J_err[tind]^2))],$
-         [(sqrt(cat.locus.g_err[ind]^2+cat.locus.J_err[tind]^2))]]
-    mag=[[(cat.locus.g-(cat.locus.g_galext)*option.deredden)[ind]],$
-         [(cat.locus.r-(cat.locus.r_galext)*option.deredden)[ind]],$
-         [(cat.locus.i-(cat.locus.i_galext)*option.deredden)[ind]],$
-         [(cat.locus.z-(cat.locus.z_galext)*option.deredden)[ind]],$
-         [(cat.locus.J[tind])]]
-;;     ind=sind
-endif else begin
-    dat=[[(cat.locus.g-cat.locus.r-(cat.locus.g_galext-cat.locus.r_galext)*option.deredden)[ind]],$
-         [(cat.locus.r-cat.locus.i-(cat.locus.r_galext-cat.locus.i_galext)*option.deredden)[ind]],$
-         [(cat.locus.i-cat.locus.z-(cat.locus.i_galext-cat.locus.z_galext)*option.deredden)[ind]]]
-    err=[[(sqrt(cat.locus.g_err^2+cat.locus.r_err^2))[ind]],$
-         [(sqrt(cat.locus.r_err^2+cat.locus.i_err^2))[ind]],$
-         [(sqrt(cat.locus.i_err^2+cat.locus.z_err^2))[ind]]]
-    mag=[[(cat.locus.g-(cat.locus.g_galext)*option.deredden)[ind]],$
-         [(cat.locus.r-(cat.locus.r_galext)*option.deredden)[ind]],$
-         [(cat.locus.i-(cat.locus.i_galext)*option.deredden)[ind]],$
-         [(cat.locus.z-(cat.locus.z_galext)*option.deredden)[ind]]]
-    output_indices=ind
-endelse
-
-;; if option.simulate then begin
-;;    message,"Out of date!"
-;;     if option.dist_fittype eq 0 then begin
-;;         use_fittype=0
-;;         p_in=[gr_shift,ri_shift,iz_shift,z_zpt]
-;;     endif else if option.dist_fittype eq 1 or option.dist_fittype eq 2 then begin
-;;         use_fittype=1
-;;         p_in=[gr_shift,ri_shift,iz_shift,z_zpt,colcoeff_g,colcoeff_r,colcoeff_i,colcoeff_z]
-;;     endif else begin
-;;         message,"Huh?"
-;;     endelse
-;;     dat=slr_color_transform(dat,$
-;;                             p_in,$
-;;                             use_fittype,option.basis)
-;; endif
-
-return,dat
+  return,dat
 
 end

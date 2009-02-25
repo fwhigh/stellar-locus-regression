@@ -1,4 +1,4 @@
-pro slr_demo
+pro slr_demo, configfile=configfile
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -59,7 +59,7 @@ pro slr_demo
  start_time=systime(1)
 
 ;;; Get global default options, then set some yourself.
-option=slr_options()
+option=slr_options(file=configfile)
 option.plot=1
 option.postscript=0
 option.interactive=1
@@ -84,28 +84,25 @@ slr_get_data,$
 slr_locus_line_calibration,$
    data=low_dust_data,$
    option=option,$
+   colorterms=option.colorterms,$
    kappa=low_kappa,$
    kap_err=low_kappa_err,$
    galext_mean=low_galext_mean,$
    galext_stddev=low_galext_stddev,$
    bootstrap=(option.nbootstrap ne 0)
 
-
 print,'Best fit kappa'
-print,' kappa(g-r) = ',string(low_kappa[0],format='(F8.3)'),$
-   ' +/-',string(low_kappa_err[0],format='(F7.3)')
-print,' kappa(r-i) = ',string(low_kappa[1],format='(F8.3)'),$
-   ' +/-',string(low_kappa_err[1],format='(F7.3)')
-print,' kappa(i-z) = ',string(low_kappa[2],format='(F8.3)'),$
-   ' +/-',string(low_kappa_err[2],format='(F7.3)')
+for ii=0,n_elements(option.colors2calibrate)-1 do begin
+   print,' kappa ',option.colors2calibrate[ii],' = ',$
+         string(low_kappa[ii],format='(F8.3)'),$
+         ' +/-',string(low_kappa_err[ii],format='(F7.3)')
+endfor
 print,'Compare to predicted Galactic extinction values'
-print,' E(g-r) = ',string(low_galext_mean[0],format='(F8.3)'),$
-      ' +/-',string(low_galext_stddev[0],format='(F7.3)')
-print,' E(r-i) = ',string(low_galext_mean[1],format='(F8.3)'),$
-      ' +/-',string(low_galext_stddev[1],format='(F7.3)')
-print,' E(i-z) = ',string(low_galext_mean[2],format='(F8.3)'),$
-      ' +/-',string(low_galext_stddev[2],format='(F7.3)')
-      
+for ii=0,n_elements(option.colors2calibrate)-1 do begin
+   print,' E ',option.colors2calibrate[ii],' = ',$
+         string(low_galext_mean[ii],format='(F8.3)'),$
+         ' +/-',string(low_galext_stddev[ii],format='(F7.3)')
+endfor
 
 slr_write_data,$
    option=option,$
@@ -131,6 +128,7 @@ slr_get_data,$
 slr_locus_line_calibration,$
    data=high_dust_data,$
    option=option,$
+   colorterms=option.colorterms,$
    kappa=high_kappa,$
    kap_err=high_kappa_err,$
    galext_mean=high_galext_mean,$
@@ -138,19 +136,17 @@ slr_locus_line_calibration,$
    bootstrap=(option.nbootstrap ne 0)
 
 print,'Best fit kappa'
-print,' kappa(g-r) = ',string(high_kappa[0],format='(F8.3)'),$
-   ' +/-',string(high_kappa_err[0],format='(F7.3)')
-print,' kappa(r-i) = ',string(high_kappa[1],format='(F8.3)'),$
-   ' +/-',string(high_kappa_err[1],format='(F7.3)')
-print,' kappa(i-z) = ',string(high_kappa[2],format='(F8.3)'),$
-   ' +/-',string(high_kappa_err[2],format='(F7.3)')
+for ii=0,n_elements(option.colors2calibrate)-1 do begin
+   print,' kappa ',option.colors2calibrate[ii],' = ',$
+         string(high_kappa[ii],format='(F8.3)'),$
+         ' +/-',string(high_kappa_err[ii],format='(F7.3)')
+endfor
 print,'Compare to predicted Galactic extinction values'
-print,' E(g-r) = ',string(high_galext_mean[0],format='(F8.3)'),$
-      ' +/-',string(high_galext_stddev[0],format='(F7.3)')
-print,' E(r-i) = ',string(high_galext_mean[1],format='(F8.3)'),$
-      ' +/-',string(high_galext_stddev[1],format='(F7.3)')
-print,' E(i-z) = ',string(high_galext_mean[2],format='(F8.3)'),$
-      ' +/-',string(high_galext_stddev[2],format='(F7.3)')
+for ii=0,n_elements(option.colors2calibrate)-1 do begin
+   print,' E ',option.colors2calibrate[ii],' = ',$
+         string(high_galext_mean[ii],format='(F8.3)'),$
+         ' +/-',string(high_galext_stddev[ii],format='(F7.3)')
+endfor
 
 slr_write_data,$
    option=option,$

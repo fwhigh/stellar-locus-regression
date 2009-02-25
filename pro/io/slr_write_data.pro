@@ -57,11 +57,14 @@ pro slr_write_data, file=file,$
 ;
 ;-
 
-  compile_opt idl2, hidden
-  on_error,2
+;  compile_opt idl2, hidden
+;  on_error,2
 
   if not keyword_set(option) then begin
      message,"Must supply options"
+  endif
+  if not keyword_set(kappa) then begin
+     message,"Must supply kappa"
   endif
 
   ctab_in_file=data.filename
@@ -71,29 +74,27 @@ pro slr_write_data, file=file,$
      ctab_out_file=slr_get_ctab_filename(data.filename,/out)
   endelse
 
-  ctab=data.locus.ctab
+  ctab=data.ctab
 
-  data=[[ctab.g-ctab.r],$
-        [ctab.r-ctab.i],$
-        [ctab.i-ctab.z]]
-  if not keyword_set(kap_err) then kap_err=replicate(0.,3)
-  data_err=[[sqrt(ctab.g_err^2+ctab.r_err^2+kap_err[0]^2)],$
-            [sqrt(ctab.r_err^2+ctab.i_err^2+kap_err[0]^2)],$
-            [sqrt(ctab.i_err^2+ctab.z_err^2+kap_err[0]^2)]]
+  data=slr_get_data_array(data,option,$
+                          /alli,$
+                          err=data_err)
+  if not keyword_set(kap_err) then $
+     kap_err=replicate(0.,n_elements(ctab.ra))
+  for ii=0,n_elements(kappa)-1 do begin
+     data_err[*,ii]=sqrt(data_err[*,ii]^2+kap_err[ii]^2)
+  endfor
 
   message,'Not correcting for color terms',/info
   data_calib=slr_color_transform(data,$
                                  kappa=kappa,$
                                  /inverse)
-  
 
-
-  ctab_addendum=create_struct("gr"    ,data[*,0],$
-                              "gr_err",data_err[*,0],$
-                              "ri"    ,data[*,1],$
-                              "ri_err",data_err[*,1],$
-                              "iz"    ,data[*,2],$
-                              "iz_err",data_err[*,2])                              
+  for ii=0,n_elements(option.colors2calibrate)-1 do begin
+     ctab_addendum=create_struct($
+                   option.colors2calibrate[ii],data_calib[*,0],$
+                   option.colors2calibrate[ii]+"_err",data_err[*,0])
+  endfor
 
   if option.verbose ge 1 then $
      message,'Writing '+ctab_out_file,/info
