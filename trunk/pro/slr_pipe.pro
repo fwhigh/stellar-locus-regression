@@ -102,7 +102,6 @@ slr_get_data,$
 slr_locus_line_calibration,$
    data=data,$
    option=option,$
-   colorterms=option.colorterms,$
    kappa=kappa,$
    kap_err=kappa_err,$
    galext_mean=galext_mean,$

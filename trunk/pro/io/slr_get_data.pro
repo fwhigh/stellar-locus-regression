@@ -102,8 +102,8 @@ pro slr_get_data, file=file,$
   slr_log,data.logfile,$
           ["Stellar Locus Regression v"+option.version,$
            "High et al. 2009, AJ submitted",$
-           "Local time: "+systime()],$
-          /initialize
+           "This run started "+systime()],$
+          initialize=0
 
 
   if file_test(savefile) and not keyword_set(force) then begin

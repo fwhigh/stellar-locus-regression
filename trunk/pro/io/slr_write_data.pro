@@ -2,8 +2,7 @@ pro slr_write_data, file=file,$
                     option=option,$
                     data=data,$
                     kappa=kappa,$
-                    kap_err=kappa_err,$
-                    colorterms=colorterms
+                    kap_err=kappa_err
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -76,24 +75,29 @@ pro slr_write_data, file=file,$
 
   ctab=data.ctab
 
-  data=slr_get_data_array(data,option,$
-                          /alli,$
-                          err=data_err)
-  if not keyword_set(kap_err) then $
-     kap_err=replicate(0.,n_elements(ctab.ra))
+  colors=slr_get_data_array(data,option,$
+                            /alli,$
+                            err=colors_err)
+  if not keyword_set(kappa_err) then $
+     message,"Must provide kap_err"
+;     kappa_err=replicate(0.,n_elements(ctab.ra))
   for ii=0,n_elements(kappa)-1 do begin
-     data_err[*,ii]=sqrt(data_err[*,ii]^2+kap_err[ii]^2)
+     colors_err[*,ii]=sqrt(colors_err[*,ii]^2+kappa_err[ii]^2)
   endfor
 
-  message,'Not correcting for color terms',/info
-  data_calib=slr_color_transform(data,$
+;  message,'Not correcting for color terms',/info
+;  kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
+;  m_op =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
+  m_op=slr_colorterm_matrix(option.colorterms,data.fitpar0)
+  colors_calib=slr_color_transform(colors,$
                                  kappa=kappa,$
+                                 m_op=m_op,$
                                  /inverse)
 
   for ii=0,n_elements(option.colors2calibrate)-1 do begin
      ctab_addendum=create_struct($
-                   option.colors2calibrate[ii],data_calib[*,0],$
-                   option.colors2calibrate[ii]+"_err",data_err[*,0])
+                   option.colors2calibrate[ii],colors_calib[*,0],$
+                   option.colors2calibrate[ii]+"_err",colors_err[*,0])
   endfor
 
   if option.verbose ge 1 then $

@@ -306,7 +306,7 @@ pro slr_fit_curve, x_dat=x_dat,$
           title='!8INFO!6',$
           xtickname=replicate(' ',20),$
           ytickname=replicate(' ',20),$
-          xticks=1,yticks=1,xminor=1,yminor=1
+          xticks=1,yticks=1,xminor=1,yminor=1,xstyle=4,ystyle=4
      if ~keyword_set(weighted) then $
         prefix='Un-weighted' else $
            prefix='Weighted'
@@ -316,7 +316,7 @@ pro slr_fit_curve, x_dat=x_dat,$
      par_string=''
      for ii=0,n_elements(p)-1 do $
         par_string+=' '+strtrim(string(p[ii],format='(F10.3)'),2)
-     xyouts,0.1,0.9,$
+     xyouts,0.0,0.9,$
             'Fit completed in'+$
             ' '+strtrim(string(stop_time-start_time,format='(F10.3)'),2)+$
             ' seconds'+$
