@@ -1,4 +1,4 @@
-function slr_math_struct_to_guess, math
+function slr_fitpar_struct_to_guess_range, fitpar
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -23,10 +23,10 @@ function slr_math_struct_to_guess, math
 ;
 ;+
 ; NAME:
-;  slr_math_struct_to_guess
+;  slr_fitpar_struct_to_guess_range
 ;
 ; PURPOSE:
-;  Get the initial guess for parameters before numerical regression.
+;  Get the range of acceptable values for parameters before numerical regression.
 ;
 ; EXPLANATION:
 ;
@@ -51,15 +51,15 @@ function slr_math_struct_to_guess, math
 ;
 ;-
 
-  for ii=0,math.kappa.n-1 do begin
-     if ~math.kappa.fixed[ii] then p=push_arr(p,math.kappa.guess[ii])
+  for ii=0,fitpar.kappa.n-1 do begin
+     if ~fitpar.kappa.fixed[ii] then $
+        range=push_arr(range,fitpar.kappa.range[ii])
   endfor
-  for ii=0,math.m.n-1 do begin
-     if ~math.m.fixed[ii] then p=push_arr(p,math.m.guess[ii])
+  for ii=0,fitpar.b.n-1 do begin
+     if ~fitpar.b.fixed[ii] then $
+        range=push_arr(range,fitpar.b.range[ii])
   endfor
-  if size(p,/tname) eq 'UNDEFINED' then $
-     message,'No valid guess!'
 
-  return,p
+  return,range
 
 end

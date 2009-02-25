@@ -96,7 +96,7 @@ pro slr_locus_line_calibration,$
 ;
 ;-
 
- compile_opt idl2, hidden
+; compile_opt idl2, hidden
 
   if not keyword_set(colorterms) then $
      colorterms=replicate(0.,4)
@@ -114,17 +114,16 @@ pro slr_locus_line_calibration,$
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
                                output_indices=ind1,$
                                input_indices=obji_in)
-;     data.math1.m.val=colorterms
+     fitpar=slr_get_fitpar(data,option)
      slr_fit_curve,x_dat=x1_dat,$
                    x_err=x1_err,$
-                   math=data.math1,$
+                   fitpar=fitpar,$
                    colorterms=colorterms,$
                    max_locus_dist=option.max_locus_dist,$
                    max_weighted_locus_dist=option.max_weighted_locus_dist,$
                    weighted_residual=0,$
 ;                   weighted_residual=option.weighted_residual,$
                    fittype=0,$
-                   xtitles=data.locus.xtitles,$
                    field=data.field,$
                    interactive=option.interactive,$
                    debug=option.debug,$
@@ -139,25 +138,20 @@ pro slr_locus_line_calibration,$
      if option.verbose ge 2 then $
         print,'n stars used = ',n_elements(ind1)
      ind1_better=ind1[calibfit1.goodi]
-     data.math1.kappa.guess[0:2]=calibfit1.p
-     data.math1.kappa.val[0:2]=calibfit1.p
-     data.math2.kappa.guess[0:2]=calibfit1.p
-     data.math2.kappa.val[0:2]=calibfit1.p
-
 
      if option.verbose ge 1 then $
         message,"Cutting outliers, fitting again",/info
      x1_dat=slr_get_data_array(data,option,err=x1_err,$
                                input_indices=ind1_better,$
+                               reddening=reddening,$
                                output_indices=ind1)
      slr_fit_curve,x_dat=x1_dat,$
                    x_err=x1_err,$
-                   math=data.math1,$
+                   fitpar=fitpar,$
                    colorterms=colorterms,$
                    max_locus_dist=option.max_locus_dist,$
                    weighted_residual=option.weighted_residual,$
                    fittype=0,$
-                   xtitles=data.locus.xtitles,$
                    field=data.field,$
                    interactive=option.interactive,$
                    debug=option.debug,$
@@ -167,14 +161,8 @@ pro slr_locus_line_calibration,$
                    postscript=option.postscript,$
                    bestfit=calibfit1,$
                    /benchmark
-     data.math1.kappa.guess[0:2]=calibfit1.p
-     data.math1.kappa.val[0:2]=calibfit1.p
-     data.math2.kappa.guess[0:2]=calibfit1.p
-     data.math2.kappa.val[0:2]=calibfit1.p
-     data.math7.kappa.val[0:2]=calibfit1.p
-     data.math8.kappa.val[0:2]=calibfit1.p
 
-     if n_elements(ind1_better) lt 3 then begin
+     if n_elements(ind1_better) le 3 then begin
         message,"Not enough good ones"
         errflag=1
         return
@@ -186,23 +174,23 @@ pro slr_locus_line_calibration,$
         print,'n stars used = ',n_elements(ind1_better)
      nstars=n_elements(ind1_better)
 
-     kappa=calibfit1.p
-
-     slr_log,data.logfile,'kappa_gr '+string(kappa[0],format='(F)')
-     slr_log,data.logfile,'kappa_ri '+string(kappa[1],format='(F)')
-     slr_log,data.logfile,'kappa_iz '+string(kappa[2],format='(F)')
+     kappa=fitpar.kappa.val
+     for jj=0,n_elements(option.colors2calibrate)-1 do begin
+        print,'here ',jj
+        if option.kappa_fix[jj] then $
+           fixed='(fixed)' else $
+              fixed='(free) '
+        slr_log,data.logfile,$
+                'kappa '+option.colors2calibrate[jj]+$
+                ' '+fixed+' '+string(kappa[jj],format='(F)')
+        galext_mean=push_arr(galext_mean,mean(reddening[*,jj]))
+        galext_stddev=push_arr(galext_stddev,stddev(reddening[*,jj]))
+     endfor
 
      obji_out=ind1_better
-     galext_mean=[mean((data.locus.g_galext-data.locus.r_galext)[ind1_better]),$
-                  mean((data.locus.r_galext-data.locus.i_galext)[ind1_better]),$
-                  mean((data.locus.i_galext-data.locus.z_galext)[ind1_better])]
-     galext_stddev=[stddev((data.locus.g_galext-data.locus.r_galext)[ind1_better]),$
-                    stddev((data.locus.r_galext-data.locus.i_galext)[ind1_better]),$
-                    stddev((data.locus.i_galext-data.locus.z_galext)[ind1_better])]
-     
 
-;     kap_err=replicate(0.,n_elements(kappa))
      if bootstrap then begin
+        message,"Fix me"
         start_time=systime(1)
         if option.verbose ge 1 then begin
            message,"Bootstrapping "+strtrim(n_bootstrap,2)+" times to estimate errors.",/info
@@ -226,12 +214,11 @@ pro slr_locus_line_calibration,$
 
            slr_fit_curve,x_dat=x1_dat,$
                          x_err=x1_err,$
-                         math=data.math1,$
+                         fitpar=fitpar,$
                          colorterms=colorterms,$
                          max_locus_dist=option.max_locus_dist,$
                          weighted_residual=option.weighted_residual,$
                          fittype=0,$
-                         xtitles=data.locus.xtitles,$
                          field=data.field,$
                          interactive=option.interactive,$
                          debug=option.debug,$
@@ -241,8 +228,6 @@ pro slr_locus_line_calibration,$
                          postscript=option.postscript,$
                          bestfit=bootfit
            
-;           print,'p out',bootfit.p
-
            if i eq 0 then begin
               p_bootstrap=bootfit.p
            endif else begin
@@ -282,6 +267,7 @@ pro slr_locus_line_calibration,$
 
 
      if use_ir then begin
+        message,"Not working yet"
         option.use_ir=1
 
         if option.verbose ge 2 then $
@@ -294,14 +280,13 @@ pro slr_locus_line_calibration,$
         data.math8.kappa.val[0:2]=kappa
         slr_fit_curve,x_dat=x1_dat,$
                       x_err=x1_err,$
-;                      math=data.math7,$
-                      math=data.math8,$
+;                      fitpar=data.math7,$
+                      fitpar=data.math8,$
                       colorterms=colorterms,$
 ;                      max_locus_dist=data.max_locus_dist,$
 ;                      max_locus_dist=data.max_locus_dist,$
                       weighted_residual=option.weighted_residual,$
                       fittype=0,$
-                      xtitles=data.locus.xtitles,$
                       field=data.field,$
                       interactive=option.interactive,$
                       debug=option.debug,$
@@ -315,9 +300,9 @@ pro slr_locus_line_calibration,$
            print,'Final kappa = ',calibfit1.p
         kappa=push_arr(kappa,calibfit1.p)
         galext_mean=push_arr(galext_mean,$
-                             mean((data.locus.z_galext-data.locus.J_galext)[ind1_better]))
+                             mean((data.z_galext-data.J_galext)[ind1_better]))
         galext_stddev=push_arr(galext_stddev,$
-                               stddev((data.locus.z_galext-data.locus.J_galext)[ind1_better]))
+                               stddev((data.z_galext-data.J_galext)[ind1_better]))
 
 
 
@@ -345,13 +330,12 @@ pro slr_locus_line_calibration,$
 
               slr_fit_curve,x_dat=x1_dat,$
                             x_err=x1_err,$
-;                            math=data.math7,$
-                            math=data.math8,$
+;                            fitpar=data.math7,$
+                            fitpar=data.math8,$
                             colorterms=colorterms,$
 ;                            max_locus_dist=option.max_locus_dist,$
                             weighted_residual=option.weighted_residual,$
                             fittype=0,$
-                            xtitles=data.locus.xtitles,$
                             field=data.field,$
                             interactive=option.interactive,$
                             debug=option.debug,$

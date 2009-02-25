@@ -1,5 +1,6 @@
 function slr_get_ctab_filename, field,$
                                 out=out,$
+                                twomass=twomass,$
                                 dir=dir
 
 ;$Rev::               $:  Revision of last commit
@@ -66,10 +67,8 @@ function slr_get_ctab_filename, field,$
   on_error,2
 
   if keyword_set(out) then begin
-;     file=getenv('SLR_COLORTABLE_OUT')
-;     if file ne '' then return, file
-     ext=strip_ext(field,/get)+'.slr.ctab'
-     if ext eq '.ctab' then begin
+     ext=strip_ext(field,/get)
+     if ext eq 'ctab' then begin
         file=strip_ext(field)+'.slr.ctab'
      endif else begin
         file=field+'.slr.ctab'
@@ -77,8 +76,15 @@ function slr_get_ctab_filename, field,$
      return,file
   endif
 
-;dir=slr_datadir()
-;file=file_search(dir,field+'.ctab',count=count)
+  if keyword_set(twomass) then begin
+     ext=strip_ext(field,/get)
+     if ext eq 'ctab' then begin
+        file=strip_ext(field)+'.2mass.ctab'
+     endif else begin
+        file=field+'.2mass.ctab'
+     endelse
+     return,file
+  endif
 
   if not keyword_set(dir) then begin
      file=field+'.ctab'

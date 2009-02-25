@@ -56,8 +56,10 @@ pro slr_append_colortable, ctab_in_file, $
 ;
 ;-
 
-  compile_opt idl2, hidden
+;  compile_opt idl2, hidden
   on_error,2
+
+  fieldlength='8'
 
   tmptags=tag_names(ctab_add)
   delvarx,tags
@@ -76,7 +78,8 @@ pro slr_append_colortable, ctab_in_file, $
   openr,IN,ctab_in_file,/get_lun
   openw,OUT,ctab_out_file,/get_lun
   header='' & readf,IN,header
-  header+=' '+strjoin(tags,' ')
+  for ii=0,n_elements(tags)-1 do $
+     header+=strlowcase(string(tags[ii],format='(A'+fieldlength+')'))
   printf,OUT,header
 
   for j=0L,n_total-1 do begin
@@ -86,17 +89,17 @@ pro slr_append_colortable, ctab_in_file, $
         if tmptags[i] ne 'CATALOG_TYPE' and $
            tmptags[i] ne 'HEADER' then begin
            case size(ctab_add.(i)[j],/tname) of
-              'FLOAT':format='(F)'
-              'LONG':format='(I)'
-              'INT':format='(I)'
-              'STRING':format='(A)'
-              else:format='(A)'
+              'FLOAT':format='(F'+fieldlength+'.3)'
+              'LONG':format='(I'+fieldlength+')'
+              'INT':format='(I'+fieldlength+')'
+              'STRING':format='(A'+fieldlength+')'
+              else:format='(A'+fieldlength+')'
            endcase
            vals=push_arr(vals,string(ctab_add.(i)[j],format=format))
         endif
      endfor
      line='' &  readf,IN,line
-     line+=strjoin(vals,' ')
+     line+=strjoin(vals)
      printf,OUT,line
   endfor
   

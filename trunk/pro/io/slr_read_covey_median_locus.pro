@@ -202,7 +202,7 @@ function slr_read_covey_median_locus, $
      HK_width=sqrt((HK_err^2 - HK_photerr^2)>0)
 
      cat={gi:gi,$
-          num:num,$
+          num:n_elements(gi),$
           ug:ug,$
           ug_err:ug_err,$
           ug_width:ug_width,$
@@ -223,7 +223,21 @@ function slr_read_covey_median_locus, $
           JH_width:JH_width,$
           HK:HK,$
           HK_err:HK_err,$
-          HK_width:HK_width}
+          HK_width:HK_width,$
+          gz:gi+iz,$
+          gJ:gi+iz+zJ,$
+          gH:gi+iz+zJ+JH,$
+          gK:gi+iz+zJ+JH+HK,$
+          rz:ri+iz,$
+          rJ:ri+iz+zJ,$
+          rH:ri+iz+zJ+JH,$
+          rK:ri+iz+zJ+JH+HK,$
+          iJ:iz+zJ,$
+          iH:iz+zJ+JH,$
+          iK:iz+zJ+JH+HK,$
+          zH:zJ+JH,$
+          zK:zJ+JH+HK,$
+          JK:JH+HK}
 
      save,file=savefile,cat
 

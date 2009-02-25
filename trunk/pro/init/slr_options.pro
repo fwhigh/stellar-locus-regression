@@ -57,31 +57,51 @@ function slr_options, file=file
 ;
 ;-
 
-  compile_opt idl2, hidden
-
-  on_error,2
+;  compile_opt idl2, hidden
+;  on_error,2
 
   if not keyword_set(file) then begin
      file=getenv('SLR_INSTALL')+path_sep()+$
-                 'config'+path_sep()+'default_slr.config'
+          'config'+path_sep()+'default_slr.config'
 ;     message,"Using default config file "+file,/info
   endif
   if not file_test(file) then begin
      message,"Config file "+file+" not found"
   endif
 
-  readcol,file,$
-          par,val,$
-          /silent,$
-          delimiter=' ',$
-          comment='#',$
-          format='(A,A)'
+  if 0 then begin
+     readcol,file,$
+             par,val,$
+             /silent,$
+             delimiter=' ',$
+             comment='#',$
+             format='(A,A)'
+  endif else begin
+     lun=3
+     openr,lun,file
+     line=''
+     WHILE ~ EOF(lun) DO BEGIN 
+        READF, lun, line 
+        commenti=strpos(line,'#')
+        if commenti eq 0 then continue
+        if commenti eq -1 then commenti=strlen(line)
+        line=strmid(line,0,commenti)
+        pair=strsplit(line,/extract)
+        par=push_arr(par,pair[0])
+        val=push_arr(val,pair[1])
+     ENDWHILE 
 
-  option=create_struct(       "version",'2.0')
+
+     close,lun
+  endelse
+
+  option=create_struct(       "version",'2.2')
   for ii=0,n_elements(par)-1 do begin
      case par[ii] of 
         "use_ir":begin
            option=create_struct(option,par[ii],fix(val[ii]))
+           if option.use_ir then $
+              message,"Infrared regression not yet implemented",/info
         end
         "force":begin
            option=create_struct(option,par[ii],fix(val[ii]))
@@ -146,36 +166,6 @@ function slr_options, file=file
         "rmax":begin
            option=create_struct(option,par[ii],float(val[ii]))
         end
-        "gimin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "gimax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "grmin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "grmax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "rimin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "rimax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "izmin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "izmax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "zJmin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "zJmax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
         "magerr_floor":begin
            option=create_struct(option,par[ii],float(val[ii]))
         end
@@ -185,6 +175,29 @@ function slr_options, file=file
         "max_weighted_locus_dist":begin
            option=create_struct(option,par[ii],float(val[ii]))
         end
+        "use_fitpar":begin
+           option=create_struct(option,par[ii],fix(val[ii]))
+        end
+        "color_min":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "color_max":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "mag_min":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "mag_max":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "kappa_fix":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],fix(tmpval))
+        end
         "kappa_guess":begin
            tmpval=strsplit(val[ii],',',/extract)
            option=create_struct(option,par[ii],float(tmpval))
@@ -193,6 +206,33 @@ function slr_options, file=file
            tmpval=strsplit(val[ii],',',/extract)
            option=create_struct(option,par[ii],float(tmpval))
         end
+        "colorterms":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
+        "colortermbands":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],tmpval)
+        end
+        "colormult":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],tmpval)
+        end
+        "colors2calibrate":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],tmpval)
+        end
+;;         "bands":begin
+;;            tmpval=strsplit(val[ii],',',/extract)
+;;            option=create_struct(option,par[ii],tmpval)
+;;            bands=['u','g','r','i','z','J','H','K']
+;;            for jj=0,n_elements(option.bands)-1 do begin
+;;               if total(bands eq option.bands[jj]) eq 0 then begin
+;;                  message,"Band "+option.bands[jj]+" can't be used",/info
+;;                  message,"Must use g,r,i,z, and/or J"
+;;               endif
+;;            endfor
+;;         end
         else:begin
            message,"Input parameter "+par[ii]+" unknown"
         end
@@ -202,6 +242,69 @@ function slr_options, file=file
   if option.verbose ge 1 then begin
      message,"Using config file "+file,/info
   endif
+
+  if 0 then begin
+     for ii=0,n_elements(option.bands)-2 do begin
+        color_names=push_arr(color_names,$
+                             option.bands[ii]+option.bands[ii+1])
+     endfor
+     option=create_struct(option,'color_names',color_names)
+     
+  endif else begin
+     acceptable_bands=['u','g','r','i','z','J','H','K']
+     for ii=0,n_elements(option.colors2calibrate)-1 do begin
+        bands=push_arr(bands,$
+                       strmid(option.colors2calibrate[ii],0,1))
+        bands=push_arr(bands,$
+                       strmid(option.colors2calibrate[ii],1,1))
+     endfor
+     bands=bands[uniq(bands,sort(bands))]
+     delvarx,here
+     for ii=0,n_elements(acceptable_bands)-1 do begin
+        matchi=where(bands eq acceptable_bands[ii],count)
+        if count ne 1 then continue
+        here=push_arr(here,matchi)
+     endfor
+     bands=bands[here]
+     print,bands
+     option=create_struct(option,'bands',bands)
+  endelse
+  for jj=0,n_elements(option.bands)-1 do begin
+     if total(bands eq option.bands[jj]) eq 0 then begin
+        message,"Band "+option.bands[jj]+" can't be used",/info
+        message,"Must use g,r,i,z, and/or J"
+     endif
+  endfor
+
+;;; Do preliminary checks on inputs.
+  n_bands=n_elements(option.bands)
+  n_colors=n_elements(option.colors2calibrate)
+  if n_elements(option.kappa_fix) ne n_colors then $
+     message,"N(kappa_fix) must equal N(colors2calibrate)"
+  if n_elements(option.kappa_guess) ne n_colors then $
+     message,"N(kappa_guess must) must equal N(colors2calibrate)"
+  if n_elements(option.kappa_guess_range) ne n_colors then $
+     message,"N(kappa_guess_range) must equal N(colors2calibrate)"
+  if n_elements(option.kappa_guess_range) ne n_colors then $
+     message,"N(kappa_guess_range) must equal N(colors2calibrate)"
+  if n_elements(option.colorterms) ne n_elements(option.colortermbands) then $
+     message,"N(colortermbands) must equal N(colorterms)"
+  if n_elements(option.colorterms) ne n_elements(option.colormult) then $
+     message,"N(colormult) must equal N(colorterms)"
+
+  if n_elements(option.mag_min) ne n_bands and $
+     n_elements(option.mag_min) ne 1 then $
+     message,"N(mag_min) must equal N(bands)"
+  if n_elements(option.mag_max) ne n_bands and $
+     n_elements(option.mag_max) ne 1 then $
+     message,"N(mag_max) must equal N(bands)"
+
+  if option.colortermbands[0] eq 'none' then $
+     option.colorterms=0
+  if option.colortermbands[0] eq 'none' then $
+     option.colormult=''
+  if option.colortermbands[0] eq 'none' then $
+     option.colortermbands=''
 
   return,option
 

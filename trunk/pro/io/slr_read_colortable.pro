@@ -62,12 +62,16 @@ function colortable_column_format
         i              : 4 ,$
         z              : 4 ,$
         J              : 4 ,$
+        H              : 4 ,$
+        K              : 4 ,$
         u_err          : 4 ,$
         g_err          : 4 ,$
         r_err          : 4 ,$
         i_err          : 4 ,$
         z_err          : 4 ,$
         J_err          : 4 ,$
+        H_err          : 4 ,$
+        K_err          : 4 ,$
         g_r            : 4 ,$
         g_i            : 4 ,$
         g_z            : 4 ,$

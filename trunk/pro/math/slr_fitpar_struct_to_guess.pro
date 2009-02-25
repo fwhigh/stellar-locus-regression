@@ -1,5 +1,4 @@
-function slr_math_struct_to_kappa, math, p,$
-                               p_counter=p_counter
+function slr_fitpar_struct_to_guess, fitpar
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -24,10 +23,10 @@ function slr_math_struct_to_kappa, math, p,$
 ;
 ;+
 ; NAME:
-;  slr_math_struct_to_kappa
+;  slr_fitpar_struct_to_guess
 ;
 ; PURPOSE:
-;  Get the entries of the kappa vector from a math structure.
+;  Get the initial guess for parameters before numerical regression.
 ;
 ; EXPLANATION:
 ;
@@ -52,16 +51,15 @@ function slr_math_struct_to_kappa, math, p,$
 ;
 ;-
 
-kappa_out=replicate(0.,math.kappa.n)
-for ii=0,math.kappa.n-1 do begin
-    if math.kappa.fixed[ii] then begin
-        kappa_out[ii]=math.kappa.val[ii]
-    endif else begin
-        kappa_out[ii]=p[p_counter]
-        p_counter=p_counter+1
-    endelse
-endfor
+  for ii=0,fitpar.kappa.n-1 do begin
+     if ~fitpar.kappa.fixed[ii] then p=push_arr(p,fitpar.kappa.guess[ii])
+  endfor
+  for ii=0,fitpar.b.n-1 do begin
+     if ~fitpar.b.fixed[ii] then p=push_arr(p,fitpar.b.guess[ii])
+  endfor
+  if size(p,/tname) eq 'UNDEFINED' then $
+     message,'No valid guess!'
 
-return,kappa_out
+  return,p
 
 end
