@@ -63,15 +63,15 @@ pro slr_log, file, $
 ;
 ;-
 
- compile_opt idl2, hidden
- on_error,2
+; compile_opt idl2, hidden
+; on_error,2
 
 
-if not file_test(file) then begin
-   if not keyword_set(initialize) then begin
-      message,"You must initialize the log file with /initialize"
-   endif
-endif
+;if not file_test(file) then begin
+;   if not keyword_set(initialize) then begin
+;      message,"You must initialize the log file with /initialize"
+;   endif
+;endif
 
 if n_elements(lines) eq 0 then begin
    message,"You must supply text to write"

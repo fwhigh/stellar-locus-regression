@@ -9,7 +9,6 @@ pro slr_locus_line_calibration,$
    obji_in=obji_in, $
    obji_out=obji_out, $
    errflag=errflag, $
-   colorterms=colorterms, $
    tostd=tostd,$
    nstars=nstars
 
@@ -98,8 +97,7 @@ pro slr_locus_line_calibration,$
 
 ; compile_opt idl2, hidden
 
-  if not keyword_set(colorterms) then $
-     colorterms=replicate(0.,4)
+  colorterms=option.colorterms
 
   errflag=0
   use_ir=option.use_ir
@@ -189,6 +187,7 @@ pro slr_locus_line_calibration,$
 
      obji_out=ind1_better
 
+     kap_err=option.kappa_guess_err
      if bootstrap then begin
         message,"Fix me"
         start_time=systime(1)
@@ -234,14 +233,25 @@ pro slr_locus_line_calibration,$
               p_bootstrap=[[p_bootstrap],[bootfit.p]]
            endelse
         endfor
-        kap_err=[stddev(p_bootstrap[0,*]),$
-                 stddev(p_bootstrap[1,*]),$
-                 stddev(p_bootstrap[2,*])]
-;        kap_err=[robust_sigma(p_bootstrap[0,*]),$
-;                 robust_sigma(p_bootstrap[1,*]),$
-;                 robust_sigma(p_bootstrap[2,*])]
+
+        slr_log,data.logfile,$
+                'Number of bootstraps '+string(n_iter,format='(I)')
+        for jj=0,n_elements(kap_err)-1 do begin
+           slr_log,data.logfile,'kappa_gr_err '+string(kap_err[0],format='(F)')
+           if option.kappa_fixed[jj] then continue
+           kap_err[jj]=stddev(p_bootstrap[jj,*])
+;           kap_err[jj]=robust_sigma(p_bootstrap[jj,*])
+        endfor
 ;        save,file=slr_datadir()+path_sep()+data.field+'_bootstrap.sav',$
 ;             data,option,p_bootstrap
+
+
+        slr_log,data.logfile,$
+                'Number of bootstraps '+string(n_iter,format='(I)')
+        for jj=0,n_elements(kap_err)-1 do begin
+           slr_log,data.logfile,'kappa_gr_err '+string(kap_err[jj],format='(F)')
+        endfor
+
 
         if option.verbose ge 1 then begin
            message,"Bootstrap completed in "+$
@@ -251,16 +261,30 @@ pro slr_locus_line_calibration,$
         if option.verbose ge 2 then $
            print,'Bootstrap error ',kap_err
 
-        slr_log,data.logfile,$
-                'Number of bootstraps '+string(n_iter,format='(I)')
-        slr_log,data.logfile,'kappa_gr_err '+string(kap_err[0],format='(F)')
-        slr_log,data.logfile,'kappa_ri_err '+string(kap_err[1],format='(F)')
-        slr_log,data.logfile,'kappa_iz_err '+string(kap_err[2],format='(F)')
      endif else begin
         slr_log,data.logfile,$
                 'WARNING: Bootstrap not performed '
-        kap_err=[0.0,0.0,0.0]
      endelse
+
+
+
+  endif
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

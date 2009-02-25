@@ -1,4 +1,6 @@
-function slr_colorterm_matrix, m_out,type=type, inverse=inverse
+function slr_colorterm_matrix, coltrm,$
+                               fitpar,$
+                               type=type, inverse=inverse
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -51,46 +53,77 @@ function slr_colorterm_matrix, m_out,type=type, inverse=inverse
 ;
 ;-
 
-  if not keyword_set(type) then type=0
+  matrix_out=identity(fitpar.n_colors)
 
+  for ii=0,n_elements(fitpar.colornames)-1 do begin
+     lhs_color=fitpar.colornames[ii]
+     lhs_band1=(strmid(lhs_color,0,1))[0]
+     lhs_band2=(strmid(lhs_color,1,1))[0]
 
-  message,"I'm obsolete"
+     bandi1=where(fitpar.b.bands eq lhs_band1,$
+                  count1)
+     if count1 eq 1 then begin
+        rhs_color=(fitpar.b.mult[bandi1])[0]
+        colori1=where(fitpar.colornames eq rhs_color)
+        if colori1[0] eq -1 then begin
+           message,"Color "+rhs_color+" doesn't live in this color space"
+        endif
+        matrix_out[ii,colori1]+=coltrm[bandi1]
+     endif
+     bandi2=where(fitpar.b.bands eq lhs_band2,$
+                  count2)
+     if count2 eq 1 then begin
+        rhs_color=(fitpar.b.mult[bandi2])[0]
+        colori2=where(fitpar.colornames eq rhs_color)
+        if colori2[0] eq -1 then begin
+           message,"Color "+rhs_color+" doesn't live in this color space"
+        endif
+        matrix_out[ii,colori2]-=coltrm[bandi2]
+     endif
+  endfor
 
   return,matrix_out
 
 
+
+
+  message,"I'm obsolete"
+
+
+  if not keyword_set(type) then type=0
+
   case type of
      0:begin
         matrix_out=identity(3)+$
-                   [[ m_out[0],        0,                0],$
-                    [-m_out[1], m_out[1],                0],$
-                    [        0,-m_out[2],m_out[2]-m_out[3]]]
+                   [[ coltrm[0],        0,                0],$
+                    [-coltrm[1], coltrm[1],                0],$
+                    [        0,-coltrm[2],coltrm[2]-coltrm[3]]]
      end
      3:begin
         matrix_out=identity(4)+$
-                   [[ m_out[0],        0,                0,        0],$
-                    [-m_out[1], m_out[1],                0,        0],$
-                    [        0,-m_out[2],m_out[2]-m_out[3], m_out[3]],$
+                   [[ coltrm[0],        0,                0,        0],$
+                    [-coltrm[1], coltrm[1],                0,        0],$
+                    [        0,-coltrm[2],coltrm[2]-coltrm[3], coltrm[3]],$
                     [        0,        0,                0,        0]]
      end
      5:begin
         matrix_out=identity(3)+$
-                   [[ m_out[0],        0,       0],$
-                    [        0, m_out[1],       0],$
-                    [        0,        0,m_out[2]]]
+                   [[ coltrm[0],        0,       0],$
+                    [        0, coltrm[1],       0],$
+                    [        0,        0,coltrm[2]]]
      end
      6:begin
         matrix_out=identity(4)+$
-                   [[ m_out[0],        0,       0,       0],$
-                    [        0, m_out[1],       0,       0],$
-                    [        0,        0,m_out[2],       0],$
+                   [[ coltrm[0],        0,       0,       0],$
+                    [        0, coltrm[1],       0,       0],$
+                    [        0,        0,coltrm[2],       0],$
                     [        0,        0,       0,       0]]
      end
      7:begin
         matrix_out=identity(7)+$
-                   [[ m_out[0],        0,                0,       0,       0,       0,m_out[0]],$
-                    [-m_out[1], m_out[1],                0,       0,       0,m_out[1],       0],$
-                    [        0,-m_out[2],m_out[2]-m_out[3],m_out[3],m_out[2],       0,       0],$
+                   [[ coltrm[0],        0,                0,       0,       0,       0,coltrm[0]],$
+                    [-coltrm[1], coltrm[1],                0,       0,       0,coltrm[1],       0],$
+                    [        0,-coltrm[2],coltrm[2]-coltrm[3],coltrm[3],coltrm[2],       0,       0],$
                     [        0,        0,                0,       0,0,0,0],$
                     [        0,        0,                0,       0,0,0,0],$
                     [        0,        0,                0,       0,0,0,0],$

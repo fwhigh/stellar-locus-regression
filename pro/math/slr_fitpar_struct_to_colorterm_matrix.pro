@@ -54,7 +54,6 @@ function slr_fitpar_struct_to_colorterm_matrix,$
 ;-
 
   m_out=replicate(0.,fitpar.b.n)
-  matrix_out=identity(fitpar.n_colors)
 
   for ii=0,fitpar.b.n-1 do begin
      if fitpar.b.fixed[ii] then begin
@@ -65,34 +64,7 @@ function slr_fitpar_struct_to_colorterm_matrix,$
      endelse
   endfor
 
-  for ii=0,n_elements(fitpar.colornames)-1 do begin
-     lhs_color=fitpar.colornames[ii]
-     lhs_band1=(strmid(lhs_color,0,1))[0]
-     lhs_band2=(strmid(lhs_color,1,1))[0]
-
-     bandi1=where(fitpar.b.bands eq lhs_band1,$
-                  count1)
-     if count1 eq 1 then begin
-        rhs_color=(fitpar.b.mult[bandi1])[0]
-        colori1=where(fitpar.colornames eq rhs_color)
-        if colori1[0] eq -1 then begin
-           message,"Color "+rhs_color+" doesn't live in this color space"
-        endif
-        matrix_out[ii,colori1]+=m_out[bandi1]
-     endif
-     bandi2=where(fitpar.b.bands eq lhs_band2,$
-                  count2)
-     if count2 eq 1 then begin
-        rhs_color=(fitpar.b.mult[bandi2])[0]
-        colori2=where(fitpar.colornames eq rhs_color)
-        if colori2[0] eq -1 then begin
-           message,"Color "+rhs_color+" doesn't live in this color space"
-        endif
-        matrix_out[ii,colori2]-=m_out[bandi2]
-     endif
-  endfor
-
-;matrix_out=slr_colorterm_matrix(m_out)
+  matrix_out=slr_colorterm_matrix(m_out,fitpar)
 
   return,matrix_out
 

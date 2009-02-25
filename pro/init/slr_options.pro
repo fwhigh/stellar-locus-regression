@@ -202,6 +202,10 @@ function slr_options, file=file
            tmpval=strsplit(val[ii],',',/extract)
            option=create_struct(option,par[ii],float(tmpval))
         end
+        "kappa_guess_err":begin
+           tmpval=strsplit(val[ii],',',/extract)
+           option=create_struct(option,par[ii],float(tmpval))
+        end
         "kappa_guess_range":begin
            tmpval=strsplit(val[ii],',',/extract)
            option=create_struct(option,par[ii],float(tmpval))
@@ -282,7 +286,9 @@ function slr_options, file=file
   if n_elements(option.kappa_fix) ne n_colors then $
      message,"N(kappa_fix) must equal N(colors2calibrate)"
   if n_elements(option.kappa_guess) ne n_colors then $
-     message,"N(kappa_guess must) must equal N(colors2calibrate)"
+     message,"N(kappa_guess) must must equal N(colors2calibrate)"
+  if n_elements(option.kappa_guess_err) ne n_colors then $
+     message,"N(kappa_guess_err) must must equal N(colors2calibrate)"
   if n_elements(option.kappa_guess_range) ne n_colors then $
      message,"N(kappa_guess_range) must equal N(colors2calibrate)"
   if n_elements(option.kappa_guess_range) ne n_colors then $
