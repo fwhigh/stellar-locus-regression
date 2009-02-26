@@ -8,9 +8,9 @@ function curve_dist_func, p
 
   p_counter=0
   kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
-;  m_op =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
-  m_op =identity(n_dim)
-  x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
+;  B =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
+  unit_matrix =identity(n_dim)
+  x_transform=slr_color_transform(x,kappa=kappa,B=unit_matrix,/inverse)
 
   if size(y,/tname) eq 'UNDEFINED' then begin
 
@@ -22,8 +22,9 @@ function curve_dist_func, p
      if n_elements(y[0,*]) ne n_dim then $
         message,"Standard locus dimensionality not equal to instrumental locus"
 
-     color_matrix=slr_fitpar_struct_to_colorterm_matrix($
-                  fitpar,p,p_counter=p_counter)
+;     color_matrix=slr_fitpar_struct_to_colorterm_matrix($
+;                  fitpar,p,p_counter=p_counter)
+     color_matrix=fitpar.b.matrix
 
      if 1 then begin
         print,'Transforming Covey'
@@ -34,7 +35,7 @@ function curve_dist_func, p
         print,transpose(kappa)
      endif
      y=slr_color_transform(y,kappa=replicate(0.,n_dim),$
-                           m_op=color_matrix)
+                           B=color_matrix)
      
   endif
 
@@ -52,7 +53,8 @@ function curve_dist_func, p
      
      loadct,12,/silent
 
-     erase & multiplot,[(n_dim-1)>2,2],/dox,/doy,gap=0.05
+     erase & multiplot,[(n_dim-1)>2,2],/dox,/doy,gap=0.05,$
+                       mtitle='!6Regressing data'
      for ii=0,n_dim-2 do begin
         plot,y[*,ii],y[*,ii+1],/nodata,$
              xtitle=fitpar.colornames[ii],ytitle=fitpar.colornames[ii+1],$
@@ -235,8 +237,10 @@ pro slr_fit_curve, x_dat=x_dat,$
 ;print,'result p',p
   p_counter=0
   kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
-  m_op =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
-  x_transform=slr_color_transform(x,kappa=kappa,m_op=m_op,/inverse)
+;  colorterm_matrix=slr_fitpar_struct_to_colorterm_matrix($
+;                   fitpar,p,p_counter=p_counter)
+  colorterm_matrix=fitpar.b.matrix
+  x_transform=slr_color_transform(x,kappa=kappa,B=colorterm_matrix,/inverse)
   fitpar.kappa.val=kappa
   fitpar.kappa.guess=kappa
 
@@ -271,7 +275,8 @@ pro slr_fit_curve, x_dat=x_dat,$
 
      loadct,12,/silent
 
-     erase & multiplot,[(n_dim-1)>2,2],/dox,/doy,gap=0.05
+     erase & multiplot,[(n_dim-1)>2,2],/dox,/doy,gap=0.05,$
+                       mtitle='!6Regression Results'
      for ii=0,n_dim-2 do begin
         plot,y[*,ii],y[*,ii+1],/nodata,$
              xtitle=fitpar.colornames[ii],$
@@ -323,7 +328,7 @@ pro slr_fit_curve, x_dat=x_dat,$
             '!c!c'+$
             prefix+' fit was performed'+$
             '!c!c'+$
-            '!6Color terms applied:!c'+$
+            '!6Color terms applied (fixed):!c'+$
             ' '+ct_string+$
             '!c!c'+$
             'Best fit parameters:!c'+$

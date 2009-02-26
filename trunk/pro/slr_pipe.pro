@@ -70,75 +70,102 @@ pro slr_pipe, infile=infile,$
 ;       Written by:     FW High Jan 2009
 ;-
 
-COMPILE_OPT idl2, HIDDEN
+  COMPILE_OPT idl2, HIDDEN
 ;on_error, 2
 
-start_time=systime(1)
+  start_time=systime(1)
 
 ;;; Get global default options, then set some of your own.
-if not keyword_set(configfile) then begin
-   configfile=getenv('SLR_CONFIG_FILE')
-endif
-option=slr_options(file=configfile)
+  if not keyword_set(configfile) then begin
+     configfile=getenv('SLR_CONFIG_FILE')
+  endif
+  option=slr_options(file=configfile)
 
-if not keyword_set(infile) then begin
-   infile=getenv('SLR_COLORTABLE_IN')
-endif
-if infile eq '' then begin
-   message,"You must specify an input colortable with the "+$
-           "environment variable SLR_COLORTABLE_IN"
-endif
+  if not keyword_set(infile) then begin
+     infile=getenv('SLR_COLORTABLE_IN')
+  endif
+  if infile eq '' then begin
+     message,"You must specify an input colortable with the "+$
+             "environment variable SLR_COLORTABLE_IN"
+  endif
 
-message,'Regressing data',/info
+  message,'Regressing data',/info
 
 ;;; Initialize data with low Galactic dust extinction
-slr_get_data,$
-   file=infile,$
-   force=option.force,$
-   option=option,$
-   data=data
-   
+  slr_get_data,$
+     file=infile,$
+     force=option.force,$
+     option=option,$
+     data=data
+
+  fits2do=[0]
+  if option.abs_colors2calibrate[0] then begin
+     fits2do=push_arr(fits2do,1)
+  endif
+  for ii=0,n_elements(fits2do)-1 do begin
+     case fits2do[ii] of 
+        0:begin
+           fitpar=data.fitpar0
+           message,"Calibrating colors",/info
+        end
+        1:begin
+           for jj=0,n_elements(fitpar.colornames)-1 do begin
+              here=where(data.fitpar1.colornames eq fitpar.colornames[jj],$
+                         count)
+              if count eq 0 then continue
+              data.fitpar1.kappa.val[here]=fitpar.kappa.val[jj]
+              data.fitpar1.kappa.guess[here]=fitpar.kappa.val[jj]
+              data.fitpar1.kappa.err[here]=fitpar.kappa.err[jj]
+           endfor
+           fitpar=data.fitpar1
+           message,"Calibrating abs colors",/info
+        end
+        else:message,"Can only do 2 kinds of fits"
+     endcase
+
 ;;; Regress the data to the Covey median locus
-slr_locus_line_calibration,$
-   data=data,$
-   option=option,$
-   kappa=kappa,$
-   kap_err=kappa_err,$
-   galext_mean=galext_mean,$
-   galext_stddev=galext_stddev,$
-   bootstrap=(option.nbootstrap ne 0)
+     slr_locus_line_calibration,$
+        data=data,$
+        option=option,$
+        fitpar=fitpar,$
+        galext_mean=galext_mean,$
+        galext_stddev=galext_stddev,$
+        bootstrap=(option.nbootstrap ne 0)
 
 
-print,'Best fit kappa'
-for ii=0,n_elements(option.colors2calibrate)-1 do begin
-   print,' kappa ',option.colors2calibrate[ii],' = ',$
-         string(kappa[ii],format='(F8.3)'),$
-         ' +/-',string(kappa_err[ii],format='(F7.3)')
-endfor
-print,'Compare to predicted Galactic extinction values'
-for ii=0,n_elements(option.colors2calibrate)-1 do begin
-   print,' E ',option.colors2calibrate[ii],' = ',$
-         string(galext_mean[ii],format='(F8.3)'),$
-         ' +/-',string(galext_stddev[ii],format='(F7.3)')
-endfor
-      
-if not keyword_set(outfile) then begin
-   outfile=getenv('SLR_COLORTABLE_OUT')
-endif
-if outfile eq '' then begin
-   outfile=slr_get_ctab_filename(infile,/out)
-endif
+     print,'Best fit kappa'
+     for jj=0,n_elements(fitpar.colornames)-1 do begin
+        print,' kappa ',fitpar.colornames[jj],' = ',$
+              string(fitpar.kappa.val[jj],format='(F8.3)'),$
+              ' +/-',string(fitpar.kappa.err[jj],format='(F7.3)')
+     endfor
+;     print,'Compare to predicted Galactic extinction values'
+;     for jj=0,n_elements(fitpar.colornames)-1 do begin
+;        print,' E ',fitpar.colornames[jj],' = ',$
+;              string(galext_mean[jj],format='(F8.3)'),$
+;              ' +/-',string(galext_stddev[jj],format='(F7.3)')
+;     endfor
 
-slr_write_data,$
-   option=option,$
-   kappa=kappa,$
-   kap_err=kappa_err,$
-   data=data,$
-   file=outfile
-   
+  if not keyword_set(outfile) then begin
+     outfile=getenv('SLR_COLORTABLE_OUT')
+  endif
+  if outfile eq '' then begin
+     outfile=slr_get_ctab_filename(infile,/out)
+  endif
 
-message,"SLR successfully completed in "+$
-        strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
-        ' seconds',/info
+  slr_write_data,$
+     option=option,$
+     fitpar=fitpar,$
+     data=data,$
+     file=outfile
+
+  endfor
+  
+
+  
+
+  message,"SLR successfully completed in "+$
+          strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
+          ' seconds',/info
 
 end

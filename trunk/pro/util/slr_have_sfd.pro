@@ -1,4 +1,4 @@
-pro slr_demo, configfile=configfile
+function slr_have_sfd
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -23,17 +23,16 @@ pro slr_demo, configfile=configfile
 ;
 ;+
 ; NAME:
-;  slr_demo
+;  slr_have_sfd
 ;
 ; PURPOSE:
-;  Demonstrate the SLR package out of the box.
+;  Simple test on whether SLR can find the SFD dust maps.
 ;
 ; EXPLANATION:
-;  Uses data in example_data.  Requires a proper installation to run
-;  successfully. 
+;  Some functionality of SLR requires the SFD maps.
 ;
 ; CALLING SEQUENCE:
-;  slr_demo
+;  result=slr_have_sfd()
 ;
 ; INPUTS:
 ;
@@ -46,26 +45,20 @@ pro slr_demo, configfile=configfile
 ; NOTES:
 ;
 ; EXAMPLES:
+;  if slr_have_sfd() then ...
 ;
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
-;       Written by:     FW High Jan 2009
+;       Written by:     FW High 2009
 ;
 ;-
 
 ; compile_opt idl2, hidden
+; on_error, 2
 
- start_time=systime(1)
+have=file_test(getenv('DUST_DIR')+path_sep()+'maps')
 
- slr_pipe,infile='low_reddening.ctab',$
-          outfile='low_reddening.slr.ctab'
-
- slr_pipe,infile='high_reddening.ctab',$
-          outfile='high_reddening.slr.ctab'
-
- message,"SLR demo successfully completed in "+$
-         strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$
-         ' seconds',/info
+return,have
 
 end

@@ -1,8 +1,7 @@
 pro slr_write_data, file=file,$
                     option=option,$
                     data=data,$
-                    kappa=kappa,$
-                    kap_err=kappa_err
+                    fitpar=fitpar
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -62,9 +61,12 @@ pro slr_write_data, file=file,$
   if not keyword_set(option) then begin
      message,"Must supply options"
   endif
-  if not keyword_set(kappa) then begin
-     message,"Must supply kappa"
+  if not keyword_set(fitpar) then begin
+     message,"Must supply fitpar"
   endif
+
+  kappa=fitpar.kappa.val
+  kappa_err=fitpar.kappa.err
 
   ctab_in_file=data.filename
   if keyword_set(file) then begin
@@ -75,29 +77,26 @@ pro slr_write_data, file=file,$
 
   ctab=data.ctab
 
-  colors=slr_get_data_array(data,option,$
+  colors=slr_get_data_array(data,option,fitpar,$
                             /alli,$
                             err=colors_err)
-  if not keyword_set(kappa_err) then $
-     message,"Must provide kap_err"
-;     kappa_err=replicate(0.,n_elements(ctab.ra))
   for ii=0,n_elements(kappa)-1 do begin
      colors_err[*,ii]=sqrt(colors_err[*,ii]^2+kappa_err[ii]^2)
   endfor
 
-;  message,'Not correcting for color terms',/info
-;  kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
-;  m_op =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
-  m_op=slr_colorterm_matrix(option.colorterms,data.fitpar0)
+  B=slr_colorterm_matrix(fitpar.b.val,fitpar)
   colors_calib=slr_color_transform(colors,$
-                                 kappa=kappa,$
-                                 m_op=m_op,$
-                                 /inverse)
+                                   kappa=kappa,$
+                                   B=B,$
+                                   /inverse)
+  here=where(~finite(colors_calib),count)
+  if count ge 1 then $
+     colors_err[here]=!values.f_nan
 
-  for ii=0,n_elements(option.colors2calibrate)-1 do begin
+  for ii=0,n_elements(fitpar.colornames)-1 do begin
      ctab_addendum=create_struct($
-                   option.colors2calibrate[ii],colors_calib[*,0],$
-                   option.colors2calibrate[ii]+"_err",colors_err[*,0])
+                   fitpar.colornames[ii],colors_calib[*,0],$
+                   fitpar.colornames[ii]+"_err",colors_err[*,0])
   endfor
 
   if option.verbose ge 1 then $
@@ -108,11 +107,11 @@ pro slr_write_data, file=file,$
 
 
 
-  for ii=0,n_elements(option.colors2calibrate)-1 do begin
+  for ii=0,n_elements(fitpar.colornames)-1 do begin
      ctab=create_struct($
           ctab,$
-          option.colors2calibrate[ii],colors_calib[*,ii],$
-          option.colors2calibrate[ii]+'_err',colors_err[*,ii])
+          fitpar.colornames[ii],colors_calib[*,ii],$
+          fitpar.colornames[ii]+'_err',colors_err[*,ii])
   endfor
 
 
@@ -122,37 +121,50 @@ pro slr_write_data, file=file,$
 
   id_length=max([3,strlen(ctab.id)])+1
 
-  outctab={header:['ID','RA','Dec',$
+  frmt_struct={header:['ID','RA','Dec',$
 ;                   option.bands,$
 ;                   option.bands+'_err',$
-                   option.colors2calibrate,$
-                   option.colors2calibrate+'_err'],$
+                   fitpar.colornames,$
+                   fitpar.colornames+'_err'],$
            headerformat:['A'+strtrim(id_length-1,2),$
                          'A10','A10',$
 ;                       replicate('A8',2*n_elements(option.bands)),$
-                       replicate('A8',2*n_elements(option.colors2calibrate))],$
+                       replicate('A8',2*n_elements(fitpar.colornames))],$
            format:['A'+strtrim(id_length,2),$
                    'F10.5','F10.5',$
 ;                   replicate('F8.3',2*n_elements(option.bands)),$
-                   replicate('F8.3',2*n_elements(option.colors2calibrate))]$
+                   replicate('F8.3',2*n_elements(fitpar.colornames))]$
           }
+
+if 1 then begin
+
+  slr_append_colortable,ctab_out_file,$
+                        ctab,$
+                        frmt_struct,$
+                        infile=infile
+
+
+endif else begin
+
                   
   openw,lun,ctab_out_file,/get_lun
-  format='("#",'+strjoin(outctab.headerformat,',')+')'
-  printf,lun,outctab.header,format=format
+  format='("#",'+strjoin(frmt_struct.headerformat,',')+')'
+  printf,lun,frmt_struct.header,format=format
 
   n_total=n_elements(ctab.ra)
   tags=tag_names(ctab)
   for ii=0L,n_total-1 do begin
      delvarx,line
-     for jj=0,n_elements(outctab.header)-1 do begin
-        here=where(strlowcase(tags) eq strlowcase(outctab.header[jj]))
-        val=string(ctab.(here)[ii],format='('+outctab.format[jj]+')')
+     for jj=0,n_elements(frmt_struct.header)-1 do begin
+        here=where(strlowcase(tags) eq strlowcase(frmt_struct.header[jj]))
+        val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
         if ~finite(val) then val=string('-',format='(A8)')
         line=push_arr(line,val)
      endfor
      printf,lun,strjoin(line)
   endfor
   close,lun
+
+endelse
 
 end
