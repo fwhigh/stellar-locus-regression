@@ -51,7 +51,7 @@ function colortable_column_format
         isstar         : 3 ,$
         dither         : 7 ,$
         dophotfwhm     : 4 ,$
-        ID             : 3 ,$
+        ID             : 7 ,$
         X              : 5 ,$
         Y              : 5 ,$
         X_err          : 5 ,$

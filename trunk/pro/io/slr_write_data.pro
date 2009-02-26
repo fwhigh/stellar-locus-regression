@@ -102,8 +102,57 @@ pro slr_write_data, file=file,$
 
   if option.verbose ge 1 then $
      message,'Writing '+ctab_out_file,/info
-  slr_append_colortable,ctab_in_file,$
-                        ctab_out_file,$
-                        ctab_addendum
-                        
+;  slr_append_colortable,ctab_in_file,$
+;                        ctab_out_file,$
+;                        ctab_addendum
+
+
+
+  for ii=0,n_elements(option.colors2calibrate)-1 do begin
+     ctab=create_struct($
+          ctab,$
+          option.colors2calibrate[ii],colors_calib[*,ii],$
+          option.colors2calibrate[ii]+'_err',colors_err[*,ii])
+  endfor
+
+
+
+
+
+
+  id_length=max([3,strlen(ctab.id)])+1
+
+  outctab={header:['ID','RA','Dec',$
+;                   option.bands,$
+;                   option.bands+'_err',$
+                   option.colors2calibrate,$
+                   option.colors2calibrate+'_err'],$
+           headerformat:['A'+strtrim(id_length-1,2),$
+                         'A10','A10',$
+;                       replicate('A8',2*n_elements(option.bands)),$
+                       replicate('A8',2*n_elements(option.colors2calibrate))],$
+           format:['A'+strtrim(id_length,2),$
+                   'F10.5','F10.5',$
+;                   replicate('F8.3',2*n_elements(option.bands)),$
+                   replicate('F8.3',2*n_elements(option.colors2calibrate))]$
+          }
+                  
+  openw,lun,ctab_out_file,/get_lun
+  format='("#",'+strjoin(outctab.headerformat,',')+')'
+  printf,lun,outctab.header,format=format
+
+  n_total=n_elements(ctab.ra)
+  tags=tag_names(ctab)
+  for ii=0L,n_total-1 do begin
+     delvarx,line
+     for jj=0,n_elements(outctab.header)-1 do begin
+        here=where(strlowcase(tags) eq strlowcase(outctab.header[jj]))
+        val=string(ctab.(here)[ii],format='('+outctab.format[jj]+')')
+        if ~finite(val) then val=string('-',format='(A8)')
+        line=push_arr(line,val)
+     endfor
+     printf,lun,strjoin(line)
+  endfor
+  close,lun
+
 end
