@@ -1,6 +1,8 @@
-pro slr_append_colortable, ctab_in_file, $
-                           ctab_out_file,$
-                           ctab_add
+pro slr_append_colortable, ctab_out_file,$
+                           ctab, $
+                           frmt_struct, $
+                           infile=ctab_in_file, $
+                           append=append
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -57,53 +59,52 @@ pro slr_append_colortable, ctab_in_file, $
 ;-
 
 ;  compile_opt idl2, hidden
-  on_error,2
+;  on_error,2
 
   fieldlength='8'
 
-  tmptags=tag_names(ctab_add)
+  tmptags=tag_names(ctab)
   delvarx,tags
   for i=0L,n_elements(tmptags)-1 do begin
      if tmptags[i] ne 'CATALOG_TYPE' and $
         tmptags[i] ne 'HEADER' then begin
         tags=push_arr(tags,tmptags[i])
         if size(n_total,/tname) eq 'UNDEFINED' then $
-           n_total=n_elements(ctab_add.(i))
+           n_total=n_elements(ctab.(i))
      endif
   endfor
 
   if n_elements(tags) eq 0 then $
      message,'No good tags to append'
 
-  openr,IN,ctab_in_file,/get_lun
-  openw,OUT,ctab_out_file,/get_lun
-  header='' & readf,IN,header
-  for ii=0,n_elements(tags)-1 do $
-     header+=strlowcase(string(tags[ii],format='(A'+fieldlength+')'))
+  IN=5
+  OUT=6
+  if keyword_set(append) then openr,IN,ctab_in_file
+  openw,OUT,ctab_out_file
+  header=''
+  if keyword_set(append) then readf,IN,header
+  format='('+strjoin(frmt_struct.headerformat,',')+')'
+  header+=string(frmt_struct.header,format=format)
+;  for ii=0,n_elements(tags)-1 do $
+;     header+=strlowcase(string(tags[ii],format='(A'+fieldlength+')'))
   printf,OUT,header
 
-  for j=0L,n_total-1 do begin
-;     if total(subscript eq j) ne 1 then continue
+  for ii=0L,n_total-1 do begin
      delvarx,vals,format,line
-     for i=0L,n_elements(tmptags)-1 do begin
-        if tmptags[i] ne 'CATALOG_TYPE' and $
-           tmptags[i] ne 'HEADER' then begin
-           case size(ctab_add.(i)[j],/tname) of
-              'FLOAT':format='(F'+fieldlength+'.3)'
-              'LONG':format='(I'+fieldlength+')'
-              'INT':format='(I'+fieldlength+')'
-              'STRING':format='(A'+fieldlength+')'
-              else:format='(A'+fieldlength+')'
-           endcase
-           vals=push_arr(vals,string(ctab_add.(i)[j],format=format))
-        endif
+     line=''
+     if keyword_set(append) then readf,IN,line
+     for jj=0,n_elements(frmt_struct.header)-1 do begin
+        here=where(strlowcase(tmptags) eq strlowcase(frmt_struct.header[jj]))
+        val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
+        if ~finite(val) then val=string('-',format='(A8)')
+        line+=val
      endfor
-     line='' &  readf,IN,line
-     line+=strjoin(vals)
+;     line='' &  readf,IN,line
+;     line+=strjoin(vals)
      printf,OUT,line
   endfor
   
-  close,IN
+  if keyword_set(append) then close,IN
   close,OUT
 
 end

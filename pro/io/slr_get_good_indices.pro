@@ -1,4 +1,4 @@
-function slr_get_good_indices, cat, option, $
+function slr_get_good_indices, cat, option, fitpar, $
                                input_indices=in_ind, $
                                tmass_indices=tmass_indices
 
@@ -66,19 +66,22 @@ function slr_get_good_indices, cat, option, $
 ;  compile_opt idl2, hidden
 ;  on_error, 2
 
+  if not keyword_set(fitpar) then $
+     message,"Must provide fitpar"
+
   ind=lindgen(n_elements(cat.ctab.ra))
 
 ;;; Get the magnitudes
   tags=tag_names(cat.ctab)
-  for ii=0,n_elements(option.bands)-1 do begin
-     if ~tag_exist(cat.ctab,option.bands[ii]) then begin
-        message,"Data for band "+option.bands[ii]+" not provided"
+  for ii=0,n_elements(fitpar.bandnames)-1 do begin
+     if ~tag_exist(cat.ctab,fitpar.bandnames[ii]) then begin
+        message,"Data for band "+fitpar.bandnames[ii]+" not provided"
      endif
      tagi=where(strlowcase(tags) eq $
-                strlowcase(option.bands[ii]),$
+                strlowcase(fitpar.bandnames[ii]),$
                 count)
      tagi_err=where(strlowcase(tags) eq $
-                    strlowcase(option.bands[ii])+'_err',$
+                    strlowcase(fitpar.bandnames[ii])+'_err',$
                     count)
      if n_elements(option.mag_min) eq 1 then $
         mag_min=option.mag_min[0] else $
@@ -95,7 +98,7 @@ function slr_get_good_indices, cat, option, $
                cat.ctab.(tagi) ne -99 and cat.ctab.(tagi_err) ne -99,$
                count))
      if count eq 0 or ind[0] eq -1 then begin
-        message,'No good objects in '+option.bands[ii]
+        message,'No good objects in '+fitpar.bandnames[ii]
      endif
   endfor
 
@@ -115,19 +118,6 @@ function slr_get_good_indices, cat, option, $
                count))
      if count eq 0 then begin
         message,'No good objects 1'
-     endif
-  endif
-
-;;; This will be obsolete soon
-  if option.use_ir then begin
-     ind=setintersection(ind,$
-                         where((cat.ctab.z-cat.ctab.J) ge option.zJmin and $
-                               (cat.ctab.z-cat.ctab.J) le option.zJmax and $
-                               finite(cat.ctab.J_err) and cat.ctab.J_err ne -99 and $
-                               finite(cat.ctab.J) and cat.ctab.J ne -99, $
-                               count))
-     if count eq 0 or ind[0] eq -1 then begin
-        message,'No good objects 2'
      endif
   endif
 

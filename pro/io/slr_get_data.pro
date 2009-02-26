@@ -115,31 +115,33 @@ pro slr_get_data, file=file,$
 
      euler_2000_fast, ctab.ra, ctab.dec, $
                       ell, bee, 1
-     extinction_a=dust_getval(ell,bee,/interp)
-     k_ext=slr_sfd_coeff()
+     if slr_have_sfd() then begin
+        extinction_a=dust_getval(ell,bee,/interp)
+        k_ext=slr_sfd_coeff()
 
-     if option.verbose ge 1 then begin
-        print,'Galactic latitude',$
-              mean(bee),'+/-',stddev(bee)
-        print,'Galactic longitude',$
-              mean(ell),'+/-',stddev(ell)
-        print,'cal mean galext in g-r',$
-              mean((extinction_a*k_ext[1]-extinction_a*k_ext[2])),$
-              '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[2]))
-        print,'cal mean galext in r-i',$
-              mean((extinction_a*k_ext[2]-extinction_a*k_ext[3])),$
-              '+/-',stddev((extinction_a*k_ext[2]-extinction_a*k_ext[3]))
-        print,'cal mean galext in i-z',$
-              mean((extinction_a*k_ext[3]-extinction_a*k_ext[4])),$
-              '+/-',stddev((extinction_a*k_ext[3]-extinction_a*k_ext[4]))
-        if option.use_ir  then begin
-           print,'cal mean galext in z-J',$
-                 mean((extinction_a*k_ext[4]-extinction_a*k_ext[5])),$
-                 '+/-',stddev((extinction_a*k_ext[4]-extinction_a*k_ext[5]))
+        if option.verbose ge 1 then begin
+           print,'Galactic latitude',$
+                 mean(bee),'+/-',stddev(bee)
+           print,'Galactic longitude',$
+                 mean(ell),'+/-',stddev(ell)
+           print,'cal mean galext in g-r',$
+                 mean((extinction_a*k_ext[1]-extinction_a*k_ext[2])),$
+                 '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[2]))
+           print,'cal mean galext in r-i',$
+                 mean((extinction_a*k_ext[2]-extinction_a*k_ext[3])),$
+                 '+/-',stddev((extinction_a*k_ext[2]-extinction_a*k_ext[3]))
+           print,'cal mean galext in i-z',$
+                 mean((extinction_a*k_ext[3]-extinction_a*k_ext[4])),$
+                 '+/-',stddev((extinction_a*k_ext[3]-extinction_a*k_ext[4]))
+           if option.use_ir  then begin
+              print,'cal mean galext in z-J',$
+                    mean((extinction_a*k_ext[4]-extinction_a*k_ext[5])),$
+                    '+/-',stddev((extinction_a*k_ext[4]-extinction_a*k_ext[5]))
+           endif
+           print,'cal mean galext in g-i',$
+                 mean((extinction_a*k_ext[1]-extinction_a*k_ext[3])),$
+                 '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[3]))
         endif
-        print,'cal mean galext in g-i',$
-              mean((extinction_a*k_ext[1]-extinction_a*k_ext[3])),$
-              '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[3]))
      endif
 
 ;;;  Photometric parallax, Juric et al 2008
@@ -155,8 +157,9 @@ pro slr_get_data, file=file,$
 
      if option.cutdiskstars then begin
         print,"Cutting disk stars"
-        obji=setintersection(obji,$
-                             setdifference(lindgen(n_elements(r)),disti))
+        obji=setintersection($
+             obji,$
+             setdifference(lindgen(n_elements(r)),disti))
      endif
 
      data=create_struct(data,"ctabfile",file)
@@ -164,19 +167,21 @@ pro slr_get_data, file=file,$
      data=create_struct(data,"ell",ell)
      data=create_struct(data,"bee",bee)
      data=create_struct(data,"zee",zee)
-     data=create_struct(data,"u_galext",extinction_a*k_ext[0])
-     data=create_struct(data,"g_galext",extinction_a*k_ext[1])
-     data=create_struct(data,"r_galext",extinction_a*k_ext[2])
-     data=create_struct(data,"i_galext",extinction_a*k_ext[3])
-     data=create_struct(data,"z_galext",extinction_a*k_ext[4])
-     data=create_struct(data,"J_galext",extinction_a*k_ext[5])
-     data=create_struct(data,"H_galext",extinction_a*k_ext[6])
-     data=create_struct(data,"K_galext",extinction_a*k_ext[7])
-     data=create_struct(data,"ebv_galext",extinction_a)
+     if slr_have_sfd() then begin
+        data=create_struct(data,"u_galext",extinction_a*k_ext[0])
+        data=create_struct(data,"g_galext",extinction_a*k_ext[1])
+        data=create_struct(data,"r_galext",extinction_a*k_ext[2])
+        data=create_struct(data,"i_galext",extinction_a*k_ext[3])
+        data=create_struct(data,"z_galext",extinction_a*k_ext[4])
+        data=create_struct(data,"J_galext",extinction_a*k_ext[5])
+        data=create_struct(data,"H_galext",extinction_a*k_ext[6])
+        data=create_struct(data,"K_galext",extinction_a*k_ext[7])
+        data=create_struct(data,"ebv_galext",extinction_a)
+     endif
 
 
 ;;; Define the math default structures
-     fitpar={type:0,$
+     fitpar0={type:0,$
              dim:n_elements(option.colors2calibrate),$
              n_colors:n_elements(option.colors2calibrate),$
              n_bands:n_elements(option.bands),$
@@ -187,151 +192,48 @@ pro slr_get_data, file=file,$
                     guess:option.kappa_guess,$
                     range:option.kappa_guess_range,$
                     val  :option.kappa_guess,$
+                    err  :option.kappa_guess_err,$
                     fixed:option.kappa_fix},$
              b:{n:n_elements(option.colormult),$
+                matrix:identity(n_elements(option.colors2calibrate)),$
                 bands:option.colortermbands,$
                 mult :option.colormult,$
                 guess:replicate(0,n_elements(option.colormult)),$
                 range:replicate(0,n_elements(option.colormult)),$
                 val  :option.colorterms,$
+                err  :replicate(0.001,n_elements(option.colorterms)),$
                 fixed:replicate(1,n_elements(option.colormult))}$
             }
+     fitpar0.b.matrix=slr_colorterm_matrix(fitpar0.b.val,$
+                                           fitpar0)
+     fitpar1={type:0,$
+              dim:n_elements(option.abs_colors2calibrate),$
+              n_colors:n_elements(option.abs_colors2calibrate),$
+              n_bands:n_elements(option.abs_bands),$
+              colornames:option.abs_colors2calibrate,$
+              bandnames:option.abs_bands,$
+              kappa:{n:n_elements(option.abs_colors2calibrate),$
+                     names:option.abs_colors2calibrate,$
+                     guess:option.abs_kappa_guess,$
+                     range:option.abs_kappa_guess_range,$
+                     val  :option.abs_kappa_guess,$
+                     err  :option.abs_kappa_guess_err,$
+                     fixed:option.abs_kappa_fix},$
+              b:{n:n_elements(option.abs_colormult),$
+                 matrix:identity(n_elements(option.abs_colors2calibrate)),$
+                 bands:option.abs_colortermbands,$
+                 mult :option.abs_colormult,$
+                 guess:replicate(0,n_elements(option.abs_colormult)),$
+                 range:replicate(0,n_elements(option.abs_colormult)),$
+                 val  :option.abs_colorterms,$
+                 err  :replicate(0.001,n_elements(option.colorterms)),$
+                 fixed:replicate(1,n_elements(option.abs_colormult))}$
+             }
+     fitpar1.b.matrix=slr_colorterm_matrix(fitpar1.b.val,$
+                                           fitpar1)
 
-     if 0 then begin
-        math_step1={type:0,$
-                    dim:3,$
-                    kappa:{n:3,$
-                           names:['k1','k2','k3'],$
-                           guess:option.kappa_guess[0:2],$
-                           range:option.kappa_guess_range[0:2],$
-                           val  :option.kappa_guess[0:2],$
-                           fixed:[   0,   0,   0]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  1.,  1.,  1.,  1.],$
-                       val  :[  0.,  0.,  0.,  0.],$
-                       fixed:[   1,   1,   1,   1]}$
-                   }
-        math_step2={type:3,$
-                    dim:4,$
-                    kappa:{n:4,$
-                           names:['k1','k2','k3','k4'],$
-                           guess:option.kappa_guess[0:3],$
-                           range:option.kappa_guess_range[0:3],$
-                           val  :option.kappa_guess[0:3],$
-                           fixed:[   1,   1,   1,   0]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  1.,  1.,  1.,  1.],$
-                       val  :[  0.,  0.,  0.,  0.],$
-                       fixed:[   1,   1,   1,   1]}$
-                   }
-        math_step3={type:0,$
-                    dim:3,$
-                    kappa:{n:3,$
-                           names:['k1','k2','k3'],$
-                           guess:option.kappa_guess[0:2],$
-                           range:option.kappa_guess_range[0:2],$
-                           val  :option.kappa_guess[0:2],$
-                           fixed:[   1,   1,   1]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  0.1,  0.1,  0.1,  0.1],$
-                       val  :[  0.,  0.,  0.,  0.],$
-                       fixed:[   0,   0,   0,   0]}$
-                   }
-        math_step4={type:0,$
-                    dim:3,$
-                    kappa:{n:3,$
-                           names:['k1','k2','k3'],$
-                           guess:option.kappa_guess[0:2],$
-                           range:option.kappa_guess_range[0:2],$
-                           val  :option.kappa_guess[0:2],$
-                           fixed:[   0,   0,   0]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  0.3,  0.3,  0.3,  0.3],$
-                       val  :[  0.,  0.,  0.,   0],$
-                       fixed:[   0,   0,   0,   0]}$
-                   }
-        math_step5={type:5,$
-                    dim:3,$
-                    kappa:{n:3,$
-                           names:['k1','k2','k3'],$
-                           guess:option.kappa_guess[0:2],$
-                           range:option.kappa_guess_range[0:2],$
-                           val  :option.kappa_guess[0:2],$
-                           fixed:[   0,   0,   0]},$
-                    m:{n:3,$
-                       names:['bg','br','bi'],$
-                       guess:[  0.,  0.,  0.],$
-                       range:[  0.3,  0.3,  0.3],$
-                       val  :[  0.,  0.,  0.],$
-                       fixed:[   0,   0,   0]}$
-                   }
-        math_step6={type:5,$
-                    dim:3,$
-                    kappa:{n:3,$
-                           names:['k1','k2','k3'],$
-                           guess:option.kappa_guess[0:2],$
-                           range:option.kappa_guess_range[0:2],$
-                           val  :option.kappa_guess[0:2],$
-                           fixed:[   0,   0,   0]},$
-                    m:{n:3,$
-                       names:['bg','br','bi'],$
-                       guess:[  0.,  0.,  0.],$
-                       range:[  0.3,  0.3,  0.3],$
-                       val  :[  0.,  0.,  0.],$
-                       fixed:[   1,   1,   1]}$
-                   }
-        math_step7={type:6,$
-                    dim:4,$
-                    kappa:{n:4,$
-                           names:['k1','k2','k3','k4'],$
-                           guess:option.kappa_guess[0:3],$
-                           range:option.kappa_guess_range[0:3],$
-                           val  :option.kappa_guess[0:3],$
-                           fixed:[   1,   1,   1,   0]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  1.,  1.,  1.,  1.],$
-                       val  :[  0.,  0.,  0.,  0.],$
-                       fixed:[   1,   1,   1,   1]}$
-                   }
-        math_step8={type:7,$
-                    dim:7,$
-                    kappa:{n:7,$
-                           names:['k1','k2','k3','k4','k5','k6','k7'],$
-                           guess:option.kappa_guess[0:6],$
-                           range:option.kappa_guess_range[0:6],$
-                           val  :option.kappa_guess[0:6],$
-                           fixed:[   1,   1,   1,   0,0,0,0]},$
-                    m:{n:4,$
-                       names:['bg','br','bi','bz'],$
-                       guess:[  0.,  0.,  0.,  0.],$
-                       range:[  1.,  1.,  1.,  1.],$
-                       val  :[  0.,  0.,  0.,  0.],$
-                       fixed:[   1,   1,   1,   1]}$
-                   }
-     endif
-
-     data=create_struct(data,'fitpar0',fitpar)
-
-     if 0 then begin
-        data=create_struct(data,"math1",math_step1)
-        data=create_struct(data,"math2",math_step2)
-        data=create_struct(data,"math3",math_step3)
-        data=create_struct(data,"math4",math_step4)
-        data=create_struct(data,"math5",math_step5)
-        data=create_struct(data,"math6",math_step6)
-        data=create_struct(data,"math7",math_step7)
-        data=create_struct(data,"math8",math_step8)
-     endif
+     data=create_struct(data,'fitpar0',fitpar0)
+     data=create_struct(data,'fitpar1',fitpar1)
 
      if option.use_ir then begin
         goodi=slr_get_good_indices(data,option)
@@ -344,7 +246,7 @@ pro slr_get_data, file=file,$
   endif                         ; Savefile exists
 
   if option.plot then begin
-     goodi=slr_get_good_indices(data,option)
+     goodi=slr_get_good_indices(data,option,data.fitpar0)
      if n_elements(goodi) lt 5e3 then begin
         if 0 then begin
            slr_locus_cubes,field=data.field,$
@@ -354,7 +256,8 @@ pro slr_get_data, file=file,$
                            interactive=option.interactive,$
                            postscript=option.postscript
         endif else begin
-           datarr=slr_get_data_array(data,option,err=datarr_err,$
+           datarr=slr_get_data_array(data,option,data.fitpar0,$
+                                     err=datarr_err,$
                                      output_indices=ind)
            covey=slr_read_covey_median_locus()
 
@@ -367,7 +270,9 @@ pro slr_get_data, file=file,$
            n_dim=n_elements(option.colors2calibrate)
            y=slr_get_covey_data(option.colors2calibrate)
 
-           erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],/dox,/doy,gap=0.05
+           erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],$
+                             /dox,/doy,gap=0.05,$
+                             mtitle='!6Input data'
 
            for ii=0,n_dim-2 do begin
               xrange=minmax([datarr[*,ii],y[*,ii]])

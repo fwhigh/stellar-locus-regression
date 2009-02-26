@@ -1,4 +1,4 @@
-function slr_get_data_array, cat, option, $
+function slr_get_data_array, cat, option, fitpar, $
                              alli=alli,$
                              err=err, $
                              mag=mag, $
@@ -67,12 +67,16 @@ function slr_get_data_array, cat, option, $
 ;
 ;-
 
-  compile_opt idl2, hidden
+;  compile_opt idl2, hidden
+
+  if not keyword_set(fitpar) then $
+     message,"Must provide fitpar"
 
   if keyword_set(alli) then begin
      ind=lindgen(n_elements(cat.ctab.ra))
   endif else begin
-     ind=slr_get_good_indices(cat,option,input_indices=in_ind,tmass_indices=tind)
+     ind=slr_get_good_indices(cat,option,fitpar,$
+                              input_indices=in_ind,tmass_indices=tind)
   endelse
 
   if option.verbose ge 1 and option.deredden then begin
@@ -83,14 +87,14 @@ function slr_get_data_array, cat, option, $
 ;;; Get the colors
   cat_tags=tag_names(cat)
   ctab_tags=tag_names(cat.ctab)
-  for ii=0,n_elements(option.colors2calibrate)-1 do begin
-     band1=(strmid(option.colors2calibrate[ii],0,1))[0]
-     band2=(strmid(option.colors2calibrate[ii],1,1))[0]
+  for ii=0,n_elements(fitpar.colornames)-1 do begin
+     band1=(strmid(fitpar.colornames[ii],0,1))[0]
+     band2=(strmid(fitpar.colornames[ii],1,1))[0]
      if ~tag_exist(cat.ctab,band1) then begin
-        message,"Data for band "+option.use_bands[ii]+" not provided"
+        message,"Data for band "+band1+" not provided"
      endif
      if ~tag_exist(cat.ctab,band2) then begin
-        message,"Data for band "+option.use_bands[ii]+" not provided"
+        message,"Data for band "+band2+" not provided"
      endif
      mag1=where(strlowcase(ctab_tags) eq $
                 strlowcase(band1),$
@@ -110,13 +114,14 @@ function slr_get_data_array, cat, option, $
      mag2_galext=where(strlowcase(cat_tags) eq $
                        strlowcase(band2)+'_galext',$
                        count)
-     print,'here ',band1,band2
      if size(dat,/tname) eq 'UNDEFINED' then begin
         dat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
              (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
         err=(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]
         mag=(cat.ctab.(mag1))[ind]
-        reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
+        if option.have_sfd then begin
+           reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
+        endif
      endif else begin
         dat=[[dat],$
              [(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
@@ -125,9 +130,11 @@ function slr_get_data_array, cat, option, $
              [(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]]]
         mag=[[mag],$
              [(cat.ctab.(mag1))[ind]]]
-        reddening=[[reddening],$
-                   [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]
-        if ii eq (n_elements(option.colors2calibrate)-1) then begin
+        if option.have_sfd then begin
+           reddening=[[reddening],$
+                      [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]
+        endif
+        if ii eq (n_elements(fitpar.colornames)-1) then begin
            mag=[[mag],$
                 [(cat.ctab.(mag2))[ind]]]
         endif
