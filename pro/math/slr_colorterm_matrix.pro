@@ -58,8 +58,8 @@ function slr_colorterm_matrix, coltrm,$
   if fitpar.b.bands[0] ne 'none' then begin
      for ii=0,n_elements(fitpar.colornames)-1 do begin
         lhs_color=fitpar.colornames[ii]
-        lhs_band1=(strmid(lhs_color,0,1))[0]
-        lhs_band2=(strmid(lhs_color,1,1))[0]
+        lhs_band1=(strsplit(lhs_color,'_',/extract))[0]
+        lhs_band2=(strsplit(lhs_color,'_',/extract))[1]
 
         bandi1=where(fitpar.b.bands eq lhs_band1,$
                      count1)

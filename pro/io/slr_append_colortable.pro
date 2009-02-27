@@ -88,11 +88,16 @@ pro slr_append_colortable, ctab_out_file,$
   if keyword_set(append) then openr,IN,ctab_in_file
   openw,OUT,ctab_out_file
   header=''
-  if keyword_set(append) then readf,IN,header
-  format='('+strjoin(frmt_struct.headerformat,',')+')'
-  header+=string(frmt_struct.header,format=format)
-;  for ii=0,n_elements(tags)-1 do $
-;     header+=strlowcase(string(tags[ii],format='(A'+fieldlength+')'))
+  if keyword_set(append) then begin 
+     readf,IN,header
+     comment=''
+  endif else comment='"#",'
+  format='('+comment+strjoin(frmt_struct.headerformat,',')+')'
+  header+=string($
+          slr_struct_tag_to_band_string($
+          slr_struct_tag_to_color_string($
+          frmt_struct.header)),$
+          format=format)
   printf,OUT,header
 
   for ii=0L,n_total-1 do begin
@@ -114,10 +119,9 @@ pro slr_append_colortable, ctab_out_file,$
   close,OUT
 
   if keyword_set(append) then begin
-     if ctab_in_file eq ctab_out_file then begin
-        file_move,ctab_out_file,strip_ext(ctab_out_file)
+     if ctab_in_file+'.tmp' eq ctab_out_file then begin
+        file_move,ctab_out_file,strip_ext(ctab_out_file),/overwrite
      endif
   endif
-
 
 end

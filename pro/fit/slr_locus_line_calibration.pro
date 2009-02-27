@@ -112,7 +112,7 @@ pro slr_locus_line_calibration,$
   if option.verbose ge 1 then $
      message,"Fitting",/info
   x1_dat=slr_get_data_array(data,option,fitpar,$
-                            err=x1_err,$
+                            color_err=x1_err,$
                             output_indices=ind1,$
                             input_indices=obji_in)
 
@@ -143,7 +143,7 @@ pro slr_locus_line_calibration,$
   if option.verbose ge 1 then $
      message,"Cutting outliers, fitting again",/info
   x1_dat=slr_get_data_array(data,option,fitpar,$
-                            err=x1_err,$
+                            color_err=x1_err,$
                             input_indices=ind1_better,$
                             reddening=reddening,$
                             output_indices=ind1)
@@ -182,7 +182,7 @@ pro slr_locus_line_calibration,$
         fixed='(fixed)' else $
            fixed='(free) '
      slr_log,data.logfile,$
-             'kappa '+fitpar.colornames[jj]+$
+             'kappa '+slr_struct_tag_to_color_string(fitpar.colornames[jj])+$
              ' '+fixed+' '+string(kappa[jj],format='(F)')
      if keyword_set(reddening) then begin
         galext_mean=push_arr(galext_mean,mean(reddening[*,jj]))
@@ -269,7 +269,9 @@ pro slr_locus_line_calibration,$
 
   for jj=0,n_elements(fitpar.colornames)-1 do begin
      slr_log,data.logfile,$
-             'kappa '+fitpar.colornames[jj]+' uncertainty '+$
+             'kappa '+$
+             slr_struct_tag_to_color_string(fitpar.colornames[jj])+$
+             ' uncertainty '+$
              string(fitpar.kappa.err[jj],format='(F)')
   endfor
 
@@ -278,11 +280,11 @@ pro slr_locus_line_calibration,$
      for ii=0,n_elements(fitpar.b.val)-1 do begin
         lines=push_arr($
               lines,$
-              fitpar.b.bands[ii]+' = (...) +'+$
+              slr_struct_tag_to_band_string(fitpar.b.bands[ii])+' = (...) +'+$
               string(fitpar.b.val[ii],format='(F7.3)')+$
               ' ('+$
-              strmid(fitpar.b.mult[ii],0,1)+'-'+$
-              strmid(fitpar.b.mult[ii],1,1)+')')
+              slr_struct_tag_to_color_string(fitpar.b.mult[ii],join='-')+$
+              ')')
      endfor
   endif else begin
      lines='No color terms used'
@@ -327,13 +329,13 @@ end
      if 1 then begin
         x1_dat=slr_get_data_array(data,option,$
                                   fitpar,$
-                                  err=x1_err,$
+                                  color_err=x1_err,$
                                   output_indices=ind1,$
                                   input_indices=ind1_better)
      endif else begin
         x1_dat=slr_get_data_array(data,option,$
                                   fitpar,$
-                                  err=x1_err,$
+                                  color_err=x1_err,$
                                   output_indices=ind1)
      endelse
      for ii=0,n_elements(fitpar.colornames)-1 do begin

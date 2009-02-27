@@ -313,7 +313,7 @@ function slr_options, file=file
   endelse
 
 
-;;; Initialize abs stuff
+;;; Initialize abs colors and bands.
   if option.abs_colors2calibrate[0] eq 'none' then begin
      option.abs_colors2calibrate=''
      option=create_struct(option,'abs_bands','')
@@ -336,6 +336,51 @@ function slr_options, file=file
                           option.abs_colormult)
   endelse
 
+;;; Initialize all colors and bands.
+  all_colors2calibrate=[option.colors2calibrate,$
+                        option.abs_colors2calibrate]
+  sorti=uniq(all_colors2calibrate,sort(all_colors2calibrate))
+  all_colors2calibrate=$
+     all_colors2calibrate[sorti]
+  all_kappa_guess=[option.kappa_guess,$
+                   option.abs_kappa_guess]
+  all_kappa_guess=all_kappa_guess[sorti]
+  all_kappa_guess_range=[option.kappa_guess_range,$
+                   option.abs_kappa_guess_range]
+  all_kappa_guess_range=all_kappa_guess_range[sorti]
+  all_kappa_guess_err=[option.kappa_guess_err,$
+                   option.abs_kappa_guess_err]
+  all_kappa_guess_err=all_kappa_guess_err[sorti]
+  all_kappa_fix=[option.kappa_fix,$
+                   option.abs_kappa_fix]
+  all_kappa_fix=all_kappa_fix[sorti]
+
+  all_bands=[option.bands,$
+             option.abs_bands]
+  all_bands=$
+     all_bands[uniq(all_bands,sort(all_bands))]
+
+  all_colortermbands=[option.colortermbands,$
+                      option.abs_colortermbands]
+  sorti=uniq(all_colortermbands,sort(all_colortermbands))
+  all_colortermbands=all_colortermbands[sorti]
+  all_colorterms=[option.colorterms,$
+                  option.abs_colorterms]
+  all_colorterms=all_colorterms[sorti]
+  all_colormult=[option.colormult,$
+                 option.abs_colormult]
+  all_colormult=all_colormult[sorti]
+  
+  option=create_struct(option,$
+                       'all_colors2calibrate',all_colors2calibrate,$
+                       'all_kappa_guess',all_kappa_guess,$
+                       'all_kappa_guess_range',all_kappa_guess_range,$
+                       'all_kappa_guess_err',all_kappa_guess_err,$
+                       'all_kappa_fix',all_kappa_fix,$
+                       'all_bands',all_bands,$
+                       'all_colortermbands',all_colortermbands,$
+                       'all_colorterms',all_colorterms,$
+                       'all_colormult',all_colormult)
 ;;;
 ;;; Do preliminary checks on inputs.
 ;;;
@@ -348,8 +393,6 @@ function slr_options, file=file
      message,"N(kappa_guess) must must equal N(colors2calibrate)"
   if n_elements(option.kappa_guess_err) ne n_colors then $
      message,"N(kappa_guess_err) must must equal N(colors2calibrate)"
-  if n_elements(option.kappa_guess_range) ne n_colors then $
-     message,"N(kappa_guess_range) must equal N(colors2calibrate)"
   if n_elements(option.kappa_guess_range) ne n_colors then $
      message,"N(kappa_guess_range) must equal N(colors2calibrate)"
   if n_elements(option.colorterms) ne n_elements(option.colortermbands) then $

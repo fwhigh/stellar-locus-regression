@@ -57,36 +57,38 @@ function slr_struct_tag_to_band_string, $
 ; compile_opt idl2, hidden
 ; on_error, 2
 
-  if n_elements(string) ne 1 then $
-     message,"Supply only one scalar string"
-
   acceptable_bands=slr_acceptable_bands($
                    john_bands=john_bands,$
                    sdss_bands=sdss_bands,$
                    tmass_bands=tmass_bands)
 
-  isknown=1
-  iserror=0
-  if total(john_bands+'john' eq string) eq 1 then begin
-     tag=john_bands[where(john_bands+'john' eq string)]
-  endif else if total(sdss_bands+'sdss' eq string) eq 1 then begin
-     tag=sdss_bands[where(sdss_bands+'sdss' eq string)]
-  endif else if total(tmass_bands+'tmass' eq string) eq 1 then begin
-     tag=tmass_bands[where(tmass_bands+'tmass' eq string)]
-  endif else if total(john_bands+'john_err' eq string) then begin
-     tag=john_bands[where(john_bands+'john_err' eq string)]+'_err'
-     iserror=1
-  endif else if total(sdss_bands+'sdss_err' eq string) then begin
-     tag=sdss_bands[where(sdss_bands+'sdss_err' eq string)]+'_err'
-     iserror=1
-  endif else if total(tmass_bands+'tmass_err' eq string) then begin
-     tag=tmass_bands[where(tmass_bands+'tmass_err' eq string)]+'_err'
-     iserror=1
-  endif else begin
-     tag=string
-     isknown=0
-  endelse
+  delvarx,isknown1,isknown2
+  for ii=0,n_elements(string)-1 do begin
+     if total(john_bands+'john' eq string[ii]) eq 1 then begin
+        tmptag=john_bands[where(john_bands+'john' eq string[ii])]
+        isknown=push_arr(isknown,1)
+     endif else if total(sdss_bands+'sdss' eq string[ii]) eq 1 then begin
+        tmptag=sdss_bands[where(sdss_bands+'sdss' eq string[ii])]
+        isknown=push_arr(isknown,1)
+     endif else if total(tmass_bands+'tmass' eq string[ii]) eq 1 then begin
+        tmptag=tmass_bands[where(tmass_bands+'tmass' eq string[ii])]
+        isknown=push_arr(isknown,1)
+     endif else if total(john_bands+'john_err' eq string[ii]) then begin
+        tmptag=john_bands[where(john_bands+'john_err' eq string[ii])]+'_err'
+        isknown=push_arr(isknown,1)
+     endif else if total(sdss_bands+'sdss_err' eq string[ii]) then begin
+        tmptag=sdss_bands[where(sdss_bands+'sdss_err' eq string[ii])]+'_err'
+        isknown=push_arr(isknown,1)
+     endif else if total(tmass_bands+'tmass_err' eq string[ii]) then begin
+        tmptag=tmass_bands[where(tmass_bands+'tmass_err' eq string[ii])]+'_err'
+        isknown=push_arr(isknown,1)
+     endif else begin
+        tmptag=string[ii]
+        isknown=push_arr(isknown,0)
+     endelse
+     tag=push_arr(tag,tmptag)
+  endfor
 
-return,tag
+  return,tag
 
 end
