@@ -78,7 +78,7 @@ function slr_read_covey_median_locus, $
 ;
 ;-
 
-  k0 = [0.,0.,0.]
+;  k0 = [0.,0.,0.]
 ;  k0 = [0.00417681,-0.00824140,0.000667928] & $
 ;   print,'Shifting median locus'
 ;  k0 = [0.01,0.005,0.005] & print,'Shifting median locus'
@@ -136,43 +136,82 @@ function slr_read_covey_median_locus, $
 ;;      HK=imsl_smoothdata1d(gi,HK,dist=0.2)
      endelse
 
+
+     if 0 then begin
 ;;; Re-estimate error of locus as intrinsic width due to metallicity,
 ;;; ie, do not include photometric error.  Is this right?  Gives wonky
 ;;; errors.
-     locus=slr_read_covey_locus(force=force)
-     nbins=n_elements(gi)
-     large_bins=[0,1,nbins-2,nbins-1]
-     for ii = 0,nbins-1 do begin
-        binsize=0.02
-        for jj=0,n_elements(large_bins)-1 do begin
-           if ii eq large_bins[jj] then $
-              binsize=0.10
-        endfor
-        obji=where(locus.gi ge (gi[ii] - binsize/2.0) and $
-                   locus.gi le (gi[ii] + binsize/2.0), $
-                   count)
-        if verbose ge 2 then begin
-           print
-           print,"count ",count," ",fix(num[ii])," in gi bin ",gi[ii]
-           if count ne num[ii] then message,"Not equal!",/info
-           print,"ug ",median(locus[obji].ug)," ",ug[ii]
-           print,"gr ",median(locus[obji].gr)," ",gr[ii]
-           print,"ri ",median(locus[obji].ri)," ",ri[ii]
-           print,"iz ",median(locus[obji].iz)," ",iz[ii]
-           print,"zJ ",median(locus[obji].zJ)," ",zJ[ii]
-           print,"JH ",median(locus[obji].JH)," ",JH[ii]
-           print,"HK ",median(locus[obji].HK)," ",HK[ii]
-        endif
-        if count lt 2 then message,"Only "+strtrim(count,2)+" matches"
-        ug_photerr=push_arr(ug_photerr,median(locus[obji].ugerr)>0.03)
-        gr_photerr=push_arr(gr_photerr,median(locus[obji].grerr)>0.03)
-        ri_photerr=push_arr(ri_photerr,median(locus[obji].rierr)>0.03)
-        iz_photerr=push_arr(iz_photerr,median(locus[obji].izerr)>0.03)
-        zJ_photerr=push_arr(zJ_photerr,median(locus[obji].zJerr)>0.03)
-        JH_photerr=push_arr(JH_photerr,median(locus[obji].JHerr)>0.03)
-        HK_photerr=push_arr(HK_photerr,median(locus[obji].HKerr)>0.03)
+        locus=slr_read_covey_locus(force=force)
+        nbins=n_elements(gi)
+        large_bins=[0,1,nbins-2,nbins-1]
+        for ii = 0,nbins-1 do begin
+           binsize=0.02
+           for jj=0,n_elements(large_bins)-1 do begin
+              if ii eq large_bins[jj] then $
+                 binsize=0.10
+           endfor
+           obji=where(locus.gi ge (gi[ii] - binsize/2.0) and $
+                      locus.gi le (gi[ii] + binsize/2.0), $
+                      count)
+           if verbose ge 2 then begin
+              print
+              print,"count ",count," ",fix(num[ii])," in gi bin ",gi[ii]
+              if count ne num[ii] then message,"Not equal!",/info
+              print,"ug ",median(locus[obji].ug)," ",ug[ii]
+              print,"gr ",median(locus[obji].gr)," ",gr[ii]
+              print,"ri ",median(locus[obji].ri)," ",ri[ii]
+              print,"iz ",median(locus[obji].iz)," ",iz[ii]
+              print,"zJ ",median(locus[obji].zJ)," ",zJ[ii]
+              print,"JH ",median(locus[obji].JH)," ",JH[ii]
+              print,"HK ",median(locus[obji].HK)," ",HK[ii]
+           endif
+           if count lt 2 then message,"Only "+strtrim(count,2)+" matches"
+           ug_photerr=push_arr(ug_photerr,median(locus[obji].ugerr)>0.03)
+           gr_photerr=push_arr(gr_photerr,median(locus[obji].grerr)>0.03)
+           ri_photerr=push_arr(ri_photerr,median(locus[obji].rierr)>0.03)
+           iz_photerr=push_arr(iz_photerr,median(locus[obji].izerr)>0.03)
+           zJ_photerr=push_arr(zJ_photerr,median(locus[obji].zJerr)>0.03)
+           JH_photerr=push_arr(JH_photerr,median(locus[obji].JHerr)>0.03)
+           HK_photerr=push_arr(HK_photerr,median(locus[obji].HKerr)>0.03)
 
-     endfor
+        endfor
+
+     endif
+
+;;; Convert to Johnson bands.
+;;; Jordi et al. 2006
+;;; http://www.sdss.org/dr7/algorithms/sdssUBVRITransform.html
+;;      U-B   =     (0.79 ± 0.02)*(u-g)    - (0.93 ± 0.02)
+;;      U-B   =     (0.52 ± 0.06)*(u-g)    + (0.53 ± 0.09)*(g-r) - (0.82 ± 0.04)
+;;      B-g   =     (0.175 ± 0.002)*(u-g)  + (0.150 ± 0.003)
+;;      B-g   =     (0.313 ± 0.003)*(g-r)  + (0.219 ± 0.002)
+;;      V-g   =     (-0.565 ± 0.001)*(g-r) - (0.016 ± 0.001)
+;;      V-I   =     (0.675 ± 0.002)*(g-i)  + (0.364 ± 0.002) if  g-i <= 2.1
+;;      V-I   =     (1.11 ± 0.02)*(g-i)    - (0.52 ± 0.05)   if  g-i >  2.1
+;;      R-r   =     (-0.153 ± 0.003)*(r-i) - (0.117 ± 0.003)
+;;      R-I   =     (0.930 ± 0.005)*(r-i)  + (0.259 ± 0.002)
+;;      I-i   =     (-0.386 ± 0.004)*(i-z) - (0.397 ± 0.001)
+
+     Ujohn_Bjohn   =     (0.79)*(ug)    - (0.93)
+;     Ujohn_Bjohn   =     (0.52)*(ug)    + (0.53)*(gr) - (0.82)
+;     Bjohn_gsdss   =     (0.175)*(ug)  + (0.150)
+     Bjohn_gsdss   =     (0.313)*(gr)  + (0.219)
+     Vjohn_gsdss   =     (-0.565)*(gr) - (0.016)
+     ind1=where(gi le 2.1)
+     ind2=where(gi gt 2.1)
+     Vjohn_Ijohn=replicate(-99.0,n_elements(gi))
+     Vjohn_Ijohn[ind1]   =     (0.675)*(gi[ind1])  + (0.364) ; if  g-i <= 2.1
+     Vjohn_Ijohn[ind2]   =     (1.11)*(gi[ind2])    - (0.52) ; if  g-i >  2.1
+     Rjohn_rsdss   =     (-0.153)*(ri) - (0.117)
+     Rjohn_Ijohn   =     (0.930)*(ri)  + (0.259)
+     Ijohn_isdss   =     (-0.386)*(iz) - (0.397)
+
+     Bjohn_Vjohn=Bjohn_gsdss-Vjohn_gsdss
+;     Vjohn_Rjohn=Vjohn_Ijohn-Rjohn_Ijohn
+     Vjohn_Rjohn=Vjohn_gsdss+gr-Rjohn_rsdss
+     Ijohn_zsdss=Ijohn_isdss+iz
+     Ijohn_Jtmass=Ijohn_zsdss+zJ
+
 
      rirange=[0.1,1.9]
      select=where(ri ge rirange[0] and ri le rirange[1])
@@ -193,59 +232,63 @@ function slr_read_covey_median_locus, $
      JH_err=JH_err[select]
      HK_err=HK_err[select]
 
-     ug_width=sqrt((ug_err^2 - ug_photerr^2)>0)
-     gr_width=sqrt((gr_err^2 - gr_photerr^2)>0)
-     ri_width=sqrt((ri_err^2 - ri_photerr^2)>0)
-     iz_width=sqrt((iz_err^2 - iz_photerr^2)>0)
-     zJ_width=sqrt((zJ_err^2 - zJ_photerr^2)>0)
-     JH_width=sqrt((JH_err^2 - JH_photerr^2)>0)
-     HK_width=sqrt((HK_err^2 - HK_photerr^2)>0)
+;     ug_width=sqrt((ug_err^2 - ug_photerr^2)>0)
+;     gr_width=sqrt((gr_err^2 - gr_photerr^2)>0)
+;     ri_width=sqrt((ri_err^2 - ri_photerr^2)>0)
+;     iz_width=sqrt((iz_err^2 - iz_photerr^2)>0)
+;     zJ_width=sqrt((zJ_err^2 - zJ_photerr^2)>0)
+;     JH_width=sqrt((JH_err^2 - JH_photerr^2)>0)
+;     HK_width=sqrt((HK_err^2 - HK_photerr^2)>0)
 
-     cat={gi:gi,$
+     cat={gsdss_isdss:gi,$
           num:n_elements(gi),$
-          ug:ug,$
-          ug_err:ug_err,$
-          ug_width:ug_width,$
-          gr:gr,$
-          gr_err:gr_err,$
-          gr_width:gr_width,$
-          ri:ri,$
-          ri_err:ri_err,$
-          ri_width:ri_width,$
-          iz:iz,$
-          iz_err:iz_err,$
-          iz_width:iz_width,$
-          zJ:zJ,$
-          zJ_err:zJ_err,$
-          zJ_width:zJ_width,$
-          JH:JH,$
-          JH_err:JH_err,$
-          JH_width:JH_width,$
-          HK:HK,$
-          HK_err:HK_err,$
-          HK_width:HK_width,$
-          gz:gi+iz,$
-          gJ:gi+iz+zJ,$
-          gH:gi+iz+zJ+JH,$
-          gK:gi+iz+zJ+JH+HK,$
-          rz:ri+iz,$
-          rJ:ri+iz+zJ,$
-          rH:ri+iz+zJ+JH,$
-          rK:ri+iz+zJ+JH+HK,$
-          iJ:iz+zJ,$
-          iH:iz+zJ+JH,$
-          iK:iz+zJ+JH+HK,$
-          zH:zJ+JH,$
-          zK:zJ+JH+HK,$
-          JK:JH+HK}
+          usdss_gsdss:ug,$
+          usdss_gsdss_err:ug_err,$
+;          ug_width:ug_width,$
+          gsdss_rsdss:gr,$
+          gsdss_rsdss_err:gr_err,$
+;          gr_width:gr_width,$
+          rsdss_isdss:ri,$
+          rsdss_isdss_err:ri_err,$
+;          ri_width:ri_width,$
+          isdss_zsdss:iz,$
+          isdss_zsdss_err:iz_err,$
+;          iz_width:iz_width,$
+          zsdss_Jtmass:zJ,$
+          zsdss_Jtmass_err:zJ_err,$
+;          zJ_width:zJ_width,$
+          Jtmass_Htmass:JH,$
+          Jtmass_Htmass_err:JH_err,$
+;          JH_width:JH_width,$
+          Htmass_Ktmass:HK,$
+          Htmass_Ktmass_err:HK_err,$
+;          HK_width:HK_width,$
+          gsdss_zsdss:gi+iz,$
+          gsdss_Jtmass:gi+iz+zJ,$
+          gsdss_Htmass:gi+iz+zJ+JH,$
+          gsdss_Ktmass:gi+iz+zJ+JH+HK,$
+          rsdss_zsdss:ri+iz,$
+          rsdss_Jtmass:ri+iz+zJ,$
+          rsdss_Htmass:ri+iz+zJ+JH,$
+          rsdss_Ktmass:ri+iz+zJ+JH+HK,$
+          isdss_Jtmass:iz+zJ,$
+          isdss_Htmass:iz+zJ+JH,$
+          isdss_Ktmass:iz+zJ+JH+HK,$
+          zsdss_Htmass:zJ+JH,$
+          zsdss_Ktmass:zJ+JH+HK,$
+          Jtmass_Ktmass:JH+HK,$
+          bjohn_vjohn:bjohn_vjohn,$
+          vjohn_rjohn:vjohn_rjohn,$
+          rjohn_ijohn:rjohn_ijohn,$
+          ijohn_zjohn:ijohn_zsdss}
 
      save,file=savefile,cat
 
   endelse
 
-  cat.gr-=k0[0]
-  cat.ri-=k0[1]
-  cat.iz-=k0[2]
+;  cat.gr-=k0[0]
+;  cat.ri-=k0[1]
+;  cat.iz-=k0[2]
 
   if keyword_set(plot) then begin
 
@@ -283,9 +326,9 @@ function slr_read_covey_median_locus, $
 ;;                        /xy_plane,/yz_plane,/xz_plane, /nodata_3d
      loadct,12,/silent
      plot_3dbox,cat.gr,cat.ri,cat.iz,$
-                       /overplot, thick=linethick, $
-                       color_3d=200, $
-                       /xy_plane,/yz_plane,/xz_plane, /onlydata_3d
+                /overplot, thick=linethick, $
+                color_3d=200, $
+                /xy_plane,/yz_plane,/xz_plane, /onlydata_3d
 ;;      plot_3dbox_fwhigh,cat.gr,cat.ri,cat.iz,$
 ;;                        /overplot, thick=linethick, $
 ;;                        color_3d=200, $

@@ -106,6 +106,7 @@ pro slr_pipe, infile=infile,$
      case fits2do[ii] of 
         0:begin
            fitpar=data.fitpar0
+           append_colors_only=0
            message,"Calibrating colors",/info
         end
         1:begin
@@ -118,6 +119,7 @@ pro slr_pipe, infile=infile,$
               data.fitpar1.kappa.err[here]=fitpar.kappa.err[jj]
            endfor
            fitpar=data.fitpar1
+           append_colors_only=1
            message,"Calibrating abs colors",/info
         end
         else:message,"Can only do 2 kinds of fits"
@@ -157,7 +159,9 @@ pro slr_pipe, infile=infile,$
      option=option,$
      fitpar=fitpar,$
      data=data,$
-     file=outfile
+     file=outfile,$
+     append_colors_only=append_colors_only
+
 
   endfor
   

@@ -144,66 +144,61 @@ pro slr_get_data, file=file,$
         endif
      endif
 
-;;;  Photometric parallax, Juric et al 2008
-     goodi=where(finite(ctab.r) and finite(ctab.i))
-     Zee = slr_galactic_zee1(ctab.r[goodi],ctab.i[goodi],bee)
-     disti=where(zee lt option.zeelow)
-     Zee = slr_galactic_zee2(ctab.r[goodi],ctab.i[goodi],bee)
-     disti=setunion(disti,where(zee lt option.zeelow))
-     if option.verbose ge 1 then begin
-        print,strtrim(n_elements(disti),2),$
-              ' cal objects are in the disk (assuming colors already calibrated)'
-     endif
-
-     if option.cutdiskstars then begin
-        print,"Cutting disk stars"
-        obji=setintersection($
-             obji,$
-             setdifference(lindgen(n_elements(r)),disti))
-     endif
-
      data=create_struct(data,"ctabfile",file)
      data=create_struct(data,"ctab",ctab)
      data=create_struct(data,"ell",ell)
      data=create_struct(data,"bee",bee)
-     data=create_struct(data,"zee",zee)
+;;;  Photometric parallax, Juric et al 2008
+     if tag_exist(ctab,'rsdss') and tag_exist(ctab,'isdss') then begin
+        goodi=where(finite(ctab.rsdss) and finite(ctab.isdss))
+        Zee = slr_galactic_zee1(ctab.rsdss[goodi],ctab.isdss[goodi],bee)
+        disti=where(zee lt option.zeelow)
+        Zee = slr_galactic_zee2(ctab.rsdss[goodi],ctab.isdss[goodi],bee)
+        disti=setunion(disti,where(zee lt option.zeelow))
+        if option.verbose ge 1 then begin
+           print,strtrim(n_elements(disti),2),$
+                 ' cal objects are in the disk (assuming colors already calibrated)'
+        endif
+        data=create_struct(data,"zee",zee)
+     endif
+
      if slr_have_sfd() then begin
-        data=create_struct(data,"u_galext",extinction_a*k_ext[0])
-        data=create_struct(data,"g_galext",extinction_a*k_ext[1])
-        data=create_struct(data,"r_galext",extinction_a*k_ext[2])
-        data=create_struct(data,"i_galext",extinction_a*k_ext[3])
-        data=create_struct(data,"z_galext",extinction_a*k_ext[4])
-        data=create_struct(data,"J_galext",extinction_a*k_ext[5])
-        data=create_struct(data,"H_galext",extinction_a*k_ext[6])
-        data=create_struct(data,"K_galext",extinction_a*k_ext[7])
+        data=create_struct(data,"usdss_galext",extinction_a*k_ext[0])
+        data=create_struct(data,"gsdss_galext",extinction_a*k_ext[1])
+        data=create_struct(data,"rsdss_galext",extinction_a*k_ext[2])
+        data=create_struct(data,"isdss_galext",extinction_a*k_ext[3])
+        data=create_struct(data,"zsdss_galext",extinction_a*k_ext[4])
+        data=create_struct(data,"Jtmass_galext",extinction_a*k_ext[5])
+        data=create_struct(data,"Htmass_galext",extinction_a*k_ext[6])
+        data=create_struct(data,"Ktmass_galext",extinction_a*k_ext[7])
         data=create_struct(data,"ebv_galext",extinction_a)
      endif
 
 
 ;;; Define the math default structures
      fitpar0={type:0,$
-             dim:n_elements(option.colors2calibrate),$
-             n_colors:n_elements(option.colors2calibrate),$
-             n_bands:n_elements(option.bands),$
-             colornames:option.colors2calibrate,$
-             bandnames:option.bands,$
-             kappa:{n:n_elements(option.colors2calibrate),$
-                    names:option.colors2calibrate,$
-                    guess:option.kappa_guess,$
-                    range:option.kappa_guess_range,$
-                    val  :option.kappa_guess,$
-                    err  :option.kappa_guess_err,$
-                    fixed:option.kappa_fix},$
-             b:{n:n_elements(option.colormult),$
-                matrix:identity(n_elements(option.colors2calibrate)),$
-                bands:option.colortermbands,$
-                mult :option.colormult,$
-                guess:replicate(0,n_elements(option.colormult)),$
-                range:replicate(0,n_elements(option.colormult)),$
-                val  :option.colorterms,$
-                err  :replicate(0.001,n_elements(option.colorterms)),$
-                fixed:replicate(1,n_elements(option.colormult))}$
-            }
+              dim:n_elements(option.colors2calibrate),$
+              n_colors:n_elements(option.colors2calibrate),$
+              n_bands:n_elements(option.bands),$
+              colornames:option.colors2calibrate,$
+              bandnames:option.bands,$
+              kappa:{n:n_elements(option.colors2calibrate),$
+                     names:option.colors2calibrate,$
+                     guess:option.kappa_guess,$
+                     range:option.kappa_guess_range,$
+                     val  :option.kappa_guess,$
+                     err  :option.kappa_guess_err,$
+                     fixed:option.kappa_fix},$
+              b:{n:n_elements(option.colormult),$
+                 matrix:identity(n_elements(option.colors2calibrate)),$
+                 bands:option.colortermbands,$
+                 mult :option.colormult,$
+                 guess:replicate(0,n_elements(option.colormult)),$
+                 range:replicate(0,n_elements(option.colormult)),$
+                 val  :option.colorterms,$
+                 err  :replicate(0.001,n_elements(option.colorterms)),$
+                 fixed:replicate(1,n_elements(option.colormult))}$
+             }
      fitpar0.b.matrix=slr_colorterm_matrix(fitpar0.b.val,$
                                            fitpar0)
      fitpar1={type:0,$
@@ -248,55 +243,46 @@ pro slr_get_data, file=file,$
   if option.plot then begin
      goodi=slr_get_good_indices(data,option,data.fitpar0)
      if n_elements(goodi) lt 5e3 then begin
-        if 0 then begin
-           slr_locus_cubes,field=data.field,$
-                           gr=data.ctab.g[goodi]-data.ctab.r[goodi],$
-                           ri=data.ctab.r[goodi]-data.ctab.i[goodi],$
-                           iz=data.ctab.i[goodi]-data.ctab.z[goodi],$
-                           interactive=option.interactive,$
-                           postscript=option.postscript
-        endif else begin
-           datarr=slr_get_data_array(data,option,data.fitpar0,$
-                                     err=datarr_err,$
-                                     output_indices=ind)
-           covey=slr_read_covey_median_locus()
+        datarr=slr_get_data_array(data,option,data.fitpar0,$
+                                  err=datarr_err,$
+                                  output_indices=ind)
+        covey=slr_read_covey_median_locus()
 
-           scatter=1
-           contour=~scatter
-           fill=1
-           linecolor=150
-           histbin=0.05
-           symsize=0.2
-           n_dim=n_elements(option.colors2calibrate)
-           y=slr_get_covey_data(option.colors2calibrate)
+        scatter=1
+        contour=~scatter
+        fill=1
+        linecolor=150
+        histbin=0.05
+        symsize=0.2
+        n_dim=n_elements(option.colors2calibrate)
+        y=slr_get_covey_data(option.colors2calibrate)
 
-           erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],$
-                             /dox,/doy,gap=0.05,$
-                             mtitle='!6Input data'
+        erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],$
+                          /dox,/doy,gap=0.05,$
+                          mtitle='!6Input data'
 
-           for ii=0,n_dim-2 do begin
-              xrange=minmax([datarr[*,ii],y[*,ii]])
-              yrange=minmax([datarr[*,ii+1],y[*,ii+1]])
-              slr_plot_locus,$
-                 datarr[*,ii],datarr[*,ii+1],$
-                 contour=contour,scatter=scatter,djs_contour=contour,$
-                 fill=fill,linecolor=linecolor,ctable=ctable,$
-                 psym=8,symsize=symsize,charsize=charsize,$
-                 xtitle='!8'+option.colors2calibrate[ii]+'!6',$
-                 ytitle='!8'+option.colors2calibrate[ii+1]+'!6',$
-                 xrange=xrange,yrange=yrange,$
-                 nlevels=nlevels,histbin=histbin    
-              oplot,y[*,ii],y[*,ii+1],thick=2
-              
-              multiplot,/dox,/doy
-           endfor
+        for ii=0,n_dim-2 do begin
+           xrange=minmax([datarr[*,ii],y[*,ii]])
+           yrange=minmax([datarr[*,ii+1],y[*,ii+1]])
+           slr_plot_locus,$
+              datarr[*,ii],datarr[*,ii+1],$
+              contour=contour,scatter=scatter,djs_contour=contour,$
+              fill=fill,linecolor=linecolor,ctable=ctable,$
+              psym=8,symsize=symsize,charsize=charsize,$
+              xtitle='!8'+option.colors2calibrate[ii]+'!6',$
+              ytitle='!8'+option.colors2calibrate[ii+1]+'!6',$
+              xrange=xrange,yrange=yrange,$
+              nlevels=nlevels,histbin=histbin    
+           oplot,y[*,ii],y[*,ii+1],thick=2
            
-           multiplot,/default
+           multiplot,/dox,/doy
+        endfor
+        
+        multiplot,/default
 
-           if option.interactive then begin
-              junk='' & read,'Hit enter',junk
-           endif
-        endelse
+        if option.interactive then begin
+           junk='' & read,'Hit enter',junk
+        endif
      endif else begin
 ;           slr_plot_locus
      endelse

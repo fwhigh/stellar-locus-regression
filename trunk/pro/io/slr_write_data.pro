@@ -1,7 +1,8 @@
 pro slr_write_data, file=file,$
                     option=option,$
                     data=data,$
-                    fitpar=fitpar
+                    fitpar=fitpar,$
+                    append_colors_only=append_colors_only
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -119,52 +120,64 @@ pro slr_write_data, file=file,$
 
 
 
-  id_length=max([3,strlen(ctab.id)])+1
-
-  frmt_struct={header:['ID','RA','Dec',$
-;                   option.bands,$
-;                   option.bands+'_err',$
-                   fitpar.colornames,$
-                   fitpar.colornames+'_err'],$
-           headerformat:['A'+strtrim(id_length-1,2),$
-                         'A10','A10',$
-;                       replicate('A8',2*n_elements(option.bands)),$
-                       replicate('A8',2*n_elements(fitpar.colornames))],$
-           format:['A'+strtrim(id_length,2),$
-                   'F10.5','F10.5',$
-;                   replicate('F8.3',2*n_elements(option.bands)),$
-                   replicate('F8.3',2*n_elements(fitpar.colornames))]$
-          }
-
-if 1 then begin
-
-  slr_append_colortable,ctab_out_file,$
-                        ctab,$
-                        frmt_struct,$
-                        infile=infile
+  if keyword_set(append_colors_only) then begin
 
 
-endif else begin
+     frmt_struct={header:[fitpar.colornames,$
+                          fitpar.colornames+'_err'],$
+                  headerformat:[replicate('A8',2*n_elements(fitpar.colornames))],$
+                  format:[replicate('F8.3',2*n_elements(fitpar.colornames))]$
+                 }
 
-                  
-  openw,lun,ctab_out_file,/get_lun
-  format='("#",'+strjoin(frmt_struct.headerformat,',')+')'
-  printf,lun,frmt_struct.header,format=format
+     print,"Appending ",ctab_out_file
+  endif else begin
+     id_length=max([3,strlen(ctab.id)])+1
 
-  n_total=n_elements(ctab.ra)
-  tags=tag_names(ctab)
-  for ii=0L,n_total-1 do begin
-     delvarx,line
-     for jj=0,n_elements(frmt_struct.header)-1 do begin
-        here=where(strlowcase(tags) eq strlowcase(frmt_struct.header[jj]))
-        val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
-        if ~finite(val) then val=string('-',format='(A8)')
-        line=push_arr(line,val)
+     frmt_struct={$
+                 header:['ID','RA','Dec',$
+                         fitpar.colornames,$
+                         fitpar.colornames+'_err'],$
+                 headerformat:['A'+strtrim(id_length-1,2),$
+                               'A10','A10',$
+                               replicate('A8',2*n_elements(fitpar.colornames))],$
+                 format:['A'+strtrim(id_length,2),$
+                         'F10.5','F10.5',$
+                         replicate('F8.3',2*n_elements(fitpar.colornames))]$
+                 }
+     
+  endelse
+
+  if 1 then begin
+
+     infile=ctab_out_file
+     slr_append_colortable,ctab_out_file,$
+                           ctab,$
+                           frmt_struct,$
+                           infile=infile,$
+                           append=append_colors_only
+
+
+  endif else begin
+
+     
+     openw,lun,ctab_out_file,/get_lun
+     format='("#",'+strjoin(frmt_struct.headerformat,',')+')'
+     printf,lun,frmt_struct.header,format=format
+
+     n_total=n_elements(ctab.ra)
+     tags=tag_names(ctab)
+     for ii=0L,n_total-1 do begin
+        delvarx,line
+        for jj=0,n_elements(frmt_struct.header)-1 do begin
+           here=where(strlowcase(tags) eq strlowcase(frmt_struct.header[jj]))
+           val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
+           if ~finite(val) then val=string('-',format='(A8)')
+           line=push_arr(line,val)
+        endfor
+        printf,lun,strjoin(line)
      endfor
-     printf,lun,strjoin(line)
-  endfor
-  close,lun
+     close,lun
 
-endelse
+  endelse
 
 end

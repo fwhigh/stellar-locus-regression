@@ -69,6 +69,8 @@ function slr_options, file=file
      message,"Config file "+file+" not found"
   endif
 
+  acceptable_bands=slr_acceptable_bands()
+
   if 0 then begin
      readcol,file,$
              par,val,$
@@ -95,7 +97,7 @@ function slr_options, file=file
      close,lun
   endelse
 
-  option=create_struct(       "version",'2.2')
+  option=create_struct(       "version",slr_version())
   for ii=0,n_elements(par)-1 do begin
      case par[ii] of 
         "use_ir":begin
@@ -290,71 +292,49 @@ function slr_options, file=file
      endif
   endif
 
-  acceptable_bands=['u','g','r','i','z','J','H','K']
-  delvarx,bands
-  for ii=0,n_elements(option.colors2calibrate)-1 do begin
-     bands=push_arr(bands,$
-                    strmid(option.colors2calibrate[ii],0,1))
-     bands=push_arr(bands,$
-                    strmid(option.colors2calibrate[ii],1,1))
-  endfor
-  bands=bands[uniq(bands,sort(bands))]
-  delvarx,here
-  for ii=0,n_elements(acceptable_bands)-1 do begin
-     matchi=where(bands eq acceptable_bands[ii],count)
-     if count ne 1 then continue
-     here=push_arr(here,matchi)
-  endfor
-  bands=bands[here]
-  option=create_struct(option,'bands',bands)
-  for jj=0,n_elements(option.bands)-1 do begin
-     if total(acceptable_bands eq option.bands[jj]) eq 0 then begin
-        message,"Band "+option.bands[jj]+" can't be used",/info
-        message,"Must use "+strjoin(acceptable_bands,' ')
-     endif
-  endfor
 
-;;; Initialize
+;;; Initial colors and bands.
+
+  delvarx,bands
+  option.colors2calibrate=$
+     slr_color_string_to_struct_tag(option.colors2calibrate,$
+                                    bands=bands)
+  option=create_struct(option,'bands',bands)
+  if option.colortermbands[0] eq 'none' or $
+     option.colormult[0] eq 'none' then begin
+     option.colorterms[*]=0
+     option.colortermbands[*]=''
+     option.colormult[*]=''
+  endif else begin
+     option.colortermbands=slr_band_string_to_struct_tag($
+                           option.colortermbands)
+     option.colormult=slr_color_string_to_struct_tag($
+                      option.colormult)
+  endelse
+
+
+;;; Initialize abs stuff
   if option.abs_colors2calibrate[0] eq 'none' then begin
      option.abs_colors2calibrate=''
      option=create_struct(option,'abs_bands','')
   endif else begin
-     delvarx,bands
-     for ii=0,n_elements(option.abs_colors2calibrate)-1 do begin
-        bands=push_arr(bands,$
-                       strmid(option.abs_colors2calibrate[ii],0,1))
-        bands=push_arr(bands,$
-                       strmid(option.abs_colors2calibrate[ii],1,1))
-     endfor
-     bands=bands[uniq(bands,sort(bands))]
-     delvarx,here
-     for ii=0,n_elements(acceptable_bands)-1 do begin
-        matchi=where(bands eq acceptable_bands[ii],count)
-        if count ne 1 then continue
-        here=push_arr(here,matchi)
-     endfor
-     bands=bands[here]
-     option=create_struct(option,'abs_bands',bands)
-
-     for jj=0,n_elements(option.abs_bands)-1 do begin
-        if total(acceptable_bands eq option.abs_bands[jj]) eq 0 then begin
-           message,"Band "+option.abs_bands[jj]+" can't be used",/info
-           message,"Must use "+strjoin(acceptable_bands,' ')
-        endif
-     endfor
+     delvarx,abs_bands
+     option.abs_colors2calibrate=$
+        slr_color_string_to_struct_tag(option.abs_colors2calibrate,$
+                                       bands=abs_bands)
+     option=create_struct(option,'abs_bands',abs_bands)
   endelse
-
-
-  if option.colortermbands[0] eq 'none' then begin
-     option.colorterms[*]=0
-     option.colortermbands[*]=''
-     option.colormult[*]=''
-  endif
-  if option.abs_colortermbands[0] eq 'none' then begin
+  if option.abs_colortermbands[0] eq 'none' or $
+     option.abs_colormult[0] eq 'none' then begin
      option.abs_colorterms[*]=0
      option.abs_colortermbands[*]=''
      option.abs_colormult[*]=''
-  endif
+  endif else begin
+     option.abs_colortermbands=slr_band_string_to_struct_tag($
+                               option.abs_colortermbands)
+     option.abs_colormult=slr_color_string_to_struct_tag($
+                          option.abs_colormult)
+  endelse
 
 ;;;
 ;;; Do preliminary checks on inputs.

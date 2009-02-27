@@ -63,6 +63,12 @@ pro slr_append_colortable, ctab_out_file,$
 
   fieldlength='8'
 
+  if keyword_set(append) then begin
+     if ctab_in_file eq ctab_out_file then begin
+        ctab_out_file+='.tmp'
+     endif
+  endif
+
   tmptags=tag_names(ctab)
   delvarx,tags
   for i=0L,n_elements(tmptags)-1 do begin
@@ -106,5 +112,12 @@ pro slr_append_colortable, ctab_out_file,$
   
   if keyword_set(append) then close,IN
   close,OUT
+
+  if keyword_set(append) then begin
+     if ctab_in_file eq ctab_out_file then begin
+        file_move,ctab_out_file,strip_ext(ctab_out_file)
+     endif
+  endif
+
 
 end
