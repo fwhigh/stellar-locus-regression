@@ -88,8 +88,8 @@ function slr_get_data_array, cat, option, fitpar, $
   cat_tags=tag_names(cat)
   ctab_tags=tag_names(cat.ctab)
   for ii=0,n_elements(fitpar.colornames)-1 do begin
-     band1=(strmid(fitpar.colornames[ii],0,1))[0]
-     band2=(strmid(fitpar.colornames[ii],1,1))[0]
+     band1=(strsplit(fitpar.colornames[ii],'_',/extract))[0]
+     band2=(strsplit(fitpar.colornames[ii],'_',/extract))[1]
      if ~tag_exist(cat.ctab,band1) then begin
         message,"Data for band "+band1+" not provided"
      endif

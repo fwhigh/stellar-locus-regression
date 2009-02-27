@@ -96,10 +96,10 @@ function colortable_column_format
         redsh          : 4 ,$
         redsh_err      : 4 ,$
         u_galext       : 4 ,$
-;        g_galext       : 4 ,$
-;        r_galext       : 4 ,$
-;        i_galext       : 4 ,$
-;        z_galext       : 4 ,$
+        g_galext       : 4 ,$
+        r_galext       : 4 ,$
+        i_galext       : 4 ,$
+        z_galext       : 4 ,$
         dphotoz_minus  : 4 ,$
         dphotoz_plus   : 4 ,$
         delta_redshift : 4 ,$
@@ -259,8 +259,8 @@ function slr_read_colortable, file,$
 ;
 ;-
 
-  compile_opt idl2, hidden
-  on_error, 2
+;  compile_opt idl2, hidden
+;  on_error, 2
 
   if not keyword_set(verbose) then verbose=0
   
@@ -273,11 +273,16 @@ function slr_read_colortable, file,$
      restore,savefile 
   endif else begin
      template=get_cat_template(file,header=header,literal=literal)
-     cat=read_ascii(file,template=template)
+     tmpcat=read_ascii(file,template=template)
      
+     tags=(strsplit(header,/extract))[1:*]
      cat=create_struct('catalog_type','colortable',$
-                       'header',header,$
-                       cat)
+                       'header',header)
+     for ii=0,n_elements(tags)-1 do begin
+        name=slr_band_string_to_struct_tag(tags[ii])
+        cat=create_struct(cat,$
+                          name,tmpcat.(ii))
+     endfor
      save,file=savefile
   endelse
 
