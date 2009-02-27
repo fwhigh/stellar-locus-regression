@@ -227,8 +227,35 @@ pro slr_get_data, file=file,$
      fitpar1.b.matrix=slr_colorterm_matrix(fitpar1.b.val,$
                                            fitpar1)
 
+     fitparall={type:0,$
+                dim:n_elements(option.all_colors2calibrate),$
+                n_colors:n_elements(option.all_colors2calibrate),$
+                n_bands:n_elements(option.all_bands),$
+                colornames:option.all_colors2calibrate,$
+                bandnames:option.all_bands,$
+                kappa:{n:n_elements(option.all_colors2calibrate),$
+                       names:option.all_colors2calibrate,$
+                       guess:option.all_kappa_guess,$
+                       range:option.all_kappa_guess_range,$
+                       val  :option.all_kappa_guess,$
+                       err  :option.all_kappa_guess_err,$
+                       fixed:option.all_kappa_fix},$
+                b:{n:n_elements(option.all_colormult),$
+                   matrix:identity(n_elements(option.all_colors2calibrate)),$
+                   bands:option.all_colortermbands,$
+                   mult :option.all_colormult,$
+                   guess:replicate(0,n_elements(option.all_colormult)),$
+                   range:replicate(0,n_elements(option.all_colormult)),$
+                   val  :option.all_colorterms,$
+                   err  :replicate(0.001,n_elements(option.colorterms)),$
+                   fixed:replicate(1,n_elements(option.all_colormult))}$
+               }
+     fitparall.b.matrix=slr_colorterm_matrix(fitparall.b.val,$
+                                             fitparall)
+
      data=create_struct(data,'fitpar0',fitpar0)
      data=create_struct(data,'fitpar1',fitpar1)
+     data=create_struct(data,'fitparall',fitparall)
 
      if option.use_ir then begin
         goodi=slr_get_good_indices(data,option)
@@ -244,7 +271,7 @@ pro slr_get_data, file=file,$
      goodi=slr_get_good_indices(data,option,data.fitpar0)
      if n_elements(goodi) lt 5e3 then begin
         datarr=slr_get_data_array(data,option,data.fitpar0,$
-                                  err=datarr_err,$
+                                  color_err=datarr_err,$
                                   output_indices=ind)
         covey=slr_read_covey_median_locus()
 

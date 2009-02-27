@@ -1,7 +1,8 @@
 function slr_get_data_array, cat, option, fitpar, $
                              alli=alli,$
-                             err=err, $
-                             mag=mag, $
+                             color_err=color_err, $
+                             magnitudes=mag, $
+                             mag_err=mag_err,$
                              reddening=reddening,$
                              output_indices=ind, $
                              input_indices=in_ind
@@ -117,8 +118,7 @@ function slr_get_data_array, cat, option, fitpar, $
      if size(dat,/tname) eq 'UNDEFINED' then begin
         dat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
              (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
-        err=(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]
-        mag=(cat.ctab.(mag1))[ind]
+        color_err=(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]
         if option.have_sfd then begin
            reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
         endif
@@ -126,20 +126,41 @@ function slr_get_data_array, cat, option, fitpar, $
         dat=[[dat],$
              [(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
                (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]]]
-        err=[[err],$
+        color_err=[[color_err],$
              [(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]]]
-        mag=[[mag],$
-             [(cat.ctab.(mag1))[ind]]]
         if option.have_sfd then begin
            reddening=[[reddening],$
                       [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]
         endif
-        if ii eq (n_elements(fitpar.colornames)-1) then begin
-           mag=[[mag],$
-                [(cat.ctab.(mag2))[ind]]]
-        endif
      endelse
   endfor
+
+  delvarx,mag
+  for ii=0,n_elements(fitpar.bandnames)-1 do begin
+     band=fitpar.bandnames[ii]
+     if ~tag_exist(cat.ctab,band) then begin
+        message,"Data for band "+band+" not provided"
+     endif
+     magi=where(strlowcase(ctab_tags) eq $
+                strlowcase(band),$
+                count)
+     magi_err=where(strlowcase(ctab_tags) eq $
+                    strlowcase(band)+'_err',$
+                    count)
+     magi_galext=where(strlowcase(cat_tags) eq $
+                       strlowcase(band)+'_galext',$
+                       count)
+     if size(mag,/tname) eq 'UNDEFINED' then begin
+        mag=(cat.ctab.(magi))[ind]
+        mag_err=(cat.ctab.(magi_err))[ind]
+     endif else begin
+        mag=[[mag],$
+             [(cat.ctab.(magi))[ind]]]
+        mag_err=[[mag_err],$
+                 [(cat.ctab.(magi_err))[ind]]]
+     endelse
+  endfor
+
 
   return,dat
 

@@ -26,7 +26,7 @@ function curve_dist_func, p
 ;                  fitpar,p,p_counter=p_counter)
      color_matrix=fitpar.b.matrix
 
-     if 0 then begin
+     if 1 then begin
         print,'Transforming Covey'
         print,"Colorterm matrix B ="
         print,transpose(color_matrix)
@@ -191,8 +191,8 @@ pro slr_fit_curve, x_dat=x_dat,$
 
   if not keyword_set(verbose) then verbose=0
 
-  if keyword_set(plot) and ~keyword_set(postscript) then $
-     window,0,xsize=900,ysize=600
+;  if keyword_set(plot) and ~keyword_set(postscript) then $
+;     window,0,xsize=900,ysize=600
 
   case fittype of
      0:begin

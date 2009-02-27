@@ -1,8 +1,6 @@
 function slr_color_transform, x2,$
                               kappa=kappa,$
-                              M_operator=M,$
-                              trans_type=trans_type,$
-                              basis=basis,$
+                              B=B,$
                               inverse=inverse,$
                               debug=debug
 
@@ -62,27 +60,43 @@ n_dat=n_elements(x2[*,0])
 
 if n_elements(kappa) ne n_dim then $
    message,'Constant array must have same dimensions as color vector'
-if not keyword_set(M) then M=identity(n_dim)
+if not keyword_set(B) then B=identity(n_dim)
 
 if keyword_set(inverse) then begin
 
-;   M_use = imsl_inv(M)
-   M_use = matrix_power(M,-1)
+;   B_use = imsl_inv(B)
+   B_use = matrix_power(B,-1)
 
    x2_tr=x2/x2-1
+   x2_test=x2
+   here=where(~finite(x2_test),count)
+   if count ge 1 then $
+      x2_test[here]=1e10
+   if keyword_set(debug) then $
+      pm,B_use
    for ii=0,n_dat-1 do begin
-      x2_tr[ii,*] = matrix_multiply(M_use,x2[ii,*]-kappa,/btranspose)
+;      if keyword_set(debug) then begin
+;         print
+;         pm,x2[ii,*]-kappa
+;         pm,x2_test[ii,*]-kappa
+;      endif
+      x2_tr[ii,*] = matrix_multiply(B_use,x2_test[ii,*]-kappa,/btranspose)
+;      if keyword_set(debug) then begin
+;         pm,x2_tr[ii,*]
+;         junk='' & read,'Hit enter',junk
+;      endif
    endfor
-
-
+   here=where(abs(x2_tr) gt 1e4,count)
+   if count ge 1 then $
+      x2_tr[here]=!values.f_nan
 
 endif else begin
 
-   M_use = M
+   B_use = B
 
    x2_tr=x2/x2-1
    for ii=0,n_dat-1 do begin
-      x2_tr[ii,*] = kappa+matrix_multiply(M_use,x2[ii,*],/btranspose)
+      x2_tr[ii,*] = kappa+matrix_multiply(B_use,x2[ii,*],/btranspose)
    endfor
 
 endelse

@@ -80,19 +80,50 @@ pro slr_write_data, file=file,$
 
   colors=slr_get_data_array(data,option,fitpar,$
                             /alli,$
-                            err=colors_err)
+                            color_err=colors_err,$
+                            magnitudes=mags,mag_err=mags_err)
   for ii=0,n_elements(kappa)-1 do begin
      colors_err[*,ii]=sqrt(colors_err[*,ii]^2+kappa_err[ii]^2)
   endfor
 
-  B=slr_colorterm_matrix(fitpar.b.val,fitpar)
+  B=fitpar.b.matrix
+
   colors_calib=slr_color_transform(colors,$
                                    kappa=kappa,$
                                    B=B,$
-                                   /inverse)
+                                   /inverse,debug=0)
+
   here=where(~finite(colors_calib),count)
   if count ge 1 then $
      colors_err[here]=!values.f_nan
+
+
+;  mags_calib=slr_mag_transform(mags,colors,$
+;                               kappa=kappa,$
+;                               B=B,$
+;                               /inverse)
+
+  bandi=where(fitpar.bandnames eq 'isdss')
+  cti=where(fitpar.b.bands eq 'isdss',count)
+  if count eq 1 then begin
+     ct=(fitpar.b.val[cti])[0]
+     colori=where(fitpar.colornames eq (fitpar.b.mult[cti])[0])
+  endif else begin
+     ct=0.0
+     colori=0
+  endelse
+  cali=where(fitpar.colornames eq 'isdss_Jtmass',count)
+  if count eq 1 then begin
+     ikap=(kappa[cali])[0]
+  endif else begin
+     ikap=0.0
+  endelse
+
+  i_calib=mags[*,bandi]-ikap-ct*colors_calib[*,colori]
+  i_err=mags_err[*,bandi]
+  badi=where(~finite(i_calib),count)
+  if count ge 1 then $
+     i_err[badi]=!values.f_nan
 
   for ii=0,n_elements(fitpar.colornames)-1 do begin
      ctab_addendum=create_struct($
@@ -100,28 +131,26 @@ pro slr_write_data, file=file,$
                    fitpar.colornames[ii]+"_err",colors_err[*,0])
   endfor
 
+
+
   if option.verbose ge 1 then $
      message,'Writing '+ctab_out_file,/info
-;  slr_append_colortable,ctab_in_file,$
-;                        ctab_out_file,$
-;                        ctab_addendum
-
-
 
   for ii=0,n_elements(fitpar.colornames)-1 do begin
      ctab=create_struct($
           ctab,$
           fitpar.colornames[ii],colors_calib[*,ii],$
           fitpar.colornames[ii]+'_err',colors_err[*,ii])
+     here=where(strlowcase(tag_names(ctab)) eq $
+                strlowcase((fitpar.bandnames[bandi])[0]))
+     ctab.(here)=i_calib
+     here=where(strlowcase(tag_names(ctab)) eq $
+                strlowcase((fitpar.bandnames[bandi])[0]+"_err"))
+     ctab.(here)=i_err
   endfor
 
 
-
-
-
-
   if keyword_set(append_colors_only) then begin
-
 
      frmt_struct={header:[fitpar.colornames,$
                           fitpar.colornames+'_err'],$
@@ -136,48 +165,28 @@ pro slr_write_data, file=file,$
      frmt_struct={$
                  header:['ID','RA','Dec',$
                          fitpar.colornames,$
-                         fitpar.colornames+'_err'],$
+                         fitpar.colornames+'_err',$
+                         fitpar.bandnames[bandi],$
+                         fitpar.bandnames[bandi]+'_err'],$
                  headerformat:['A'+strtrim(id_length-1,2),$
                                'A10','A10',$
-                               replicate('A8',2*n_elements(fitpar.colornames))],$
+                               replicate('A8',2*n_elements(fitpar.colornames)),$
+                               replicate('A8',2*n_elements(fitpar.bandnames[bandi]))$
+                              ],$
                  format:['A'+strtrim(id_length,2),$
                          'F10.5','F10.5',$
-                         replicate('F8.3',2*n_elements(fitpar.colornames))]$
+                         replicate('F8.3',2*n_elements(fitpar.colornames)),$
+                         replicate('F8.3',2*n_elements(fitpar.bandnames[bandi]))]$
                  }
      
   endelse
 
-  if 1 then begin
 
-     infile=ctab_out_file
-     slr_append_colortable,ctab_out_file,$
-                           ctab,$
-                           frmt_struct,$
-                           infile=infile,$
-                           append=append_colors_only
-
-
-  endif else begin
-
-     
-     openw,lun,ctab_out_file,/get_lun
-     format='("#",'+strjoin(frmt_struct.headerformat,',')+')'
-     printf,lun,frmt_struct.header,format=format
-
-     n_total=n_elements(ctab.ra)
-     tags=tag_names(ctab)
-     for ii=0L,n_total-1 do begin
-        delvarx,line
-        for jj=0,n_elements(frmt_struct.header)-1 do begin
-           here=where(strlowcase(tags) eq strlowcase(frmt_struct.header[jj]))
-           val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
-           if ~finite(val) then val=string('-',format='(A8)')
-           line=push_arr(line,val)
-        endfor
-        printf,lun,strjoin(line)
-     endfor
-     close,lun
-
-  endelse
+  infile=ctab_out_file
+  slr_append_colortable,ctab_out_file,$
+                        ctab,$
+                        frmt_struct,$
+                        infile=infile,$
+                        append=append_colors_only
 
 end
