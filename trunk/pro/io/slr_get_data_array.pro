@@ -118,7 +118,7 @@ function slr_get_data_array, cat, option, fitpar, $
      if size(dat,/tname) eq 'UNDEFINED' then begin
         dat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
              (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
-        color_err=(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]
+        color_err=sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])
         if option.have_sfd then begin
            reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
         endif
@@ -127,7 +127,7 @@ function slr_get_data_array, cat, option, fitpar, $
              [(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
                (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]]]
         color_err=[[color_err],$
-             [(cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind]]]
+             [sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])]]
         if option.have_sfd then begin
            reddening=[[reddening],$
                       [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]

@@ -164,7 +164,7 @@ pro slr_locus_line_calibration,$
                 bestfit=calibfit1,$
                 /benchmark
 
-  if n_elements(ind1_better) le 3 then begin
+  if n_elements(ind1_better) eq 0 then begin
      message,"Not enough good ones"
      errflag=1
      return
@@ -194,7 +194,6 @@ pro slr_locus_line_calibration,$
 
   kap_err=fitpar.kappa.err
   if bootstrap then begin
-     message,"Fix me"
      start_time=systime(1)
      if option.verbose ge 1 then begin
         message,"Bootstrapping "+strtrim(n_bootstrap,2)+" times to estimate errors.",/info
@@ -204,10 +203,13 @@ pro slr_locus_line_calibration,$
      x1_err_orig=x1_err
      n_data=n_elements(x1_orig[*,0])
      n_iter=n_bootstrap
+     if option.plot and n_iter le 200 then begin
+        plotboot=1
+     endif else plotboot=0
      delvarx,p_bootstrap
      for i=0,n_iter-1 do begin
         seed=i+1
-        if ((i+1) mod 20) eq 0 and option.verbose ge 2 then $
+        if ((i+1) mod 1) eq 0 and option.verbose ge 1 then $
            print,'Iteration ',i+1,'/',n_iter
 ;           IMSL_RANDOMOPT, Set = i+1
 ;           b1ind=imsl_random(n_data,/discrete_unif,parameters=n_data)-1
@@ -224,11 +226,11 @@ pro slr_locus_line_calibration,$
                       weighted_residual=option.weighted_residual,$
                       fittype=0,$
                       field=data.field,$
-                      interactive=option.interactive,$
+                      interactive=0,$
                       debug=option.debug,$
                       verbose=option.verbose,$
-;                         plot=option.plot,$
-                      plot=0,$
+                      plot=plotboot,$
+                      animate_regression=0,$
                       postscript=option.postscript,$
                       bestfit=bootfit
         

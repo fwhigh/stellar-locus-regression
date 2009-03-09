@@ -72,18 +72,22 @@ function colortable_column_format
         J_err          : 4 ,$
         H_err          : 4 ,$
         K_err          : 4 ,$
-        g_r            : 4 ,$
-        g_i            : 4 ,$
-        g_z            : 4 ,$
-        r_i            : 4 ,$
-        r_z            : 4 ,$
-        i_z            : 4 ,$
-        g_r_err        : 4 ,$
-        g_i_err        : 4 ,$
-        g_z_err        : 4 ,$
-        r_i_err        : 4 ,$
-        r_z_err        : 4 ,$
-        i_z_err        : 4 ,$
+        gr             : 4 ,$
+        gi             : 4 ,$
+        gz             : 4 ,$
+        ri             : 4 ,$
+        rz             : 4 ,$
+        iz             : 4 ,$
+        iJ             : 4 ,$
+        zJ             : 4 ,$
+        gr_err         : 4 ,$
+        gi_err         : 4 ,$
+        gz_err         : 4 ,$
+        ri_err         : 4 ,$
+        rz_err         : 4 ,$
+        iz_err         : 4 ,$
+        iJ_err         : 4 ,$
+        zJ_err         : 4 ,$
         tmixed         : 2 ,$
         sdss_type      : 4 ,$
         sed_type       : 4 ,$
@@ -279,7 +283,9 @@ function slr_read_colortable, file,$
      cat=create_struct('catalog_type','colortable',$
                        'header',header)
      for ii=0,n_elements(tags)-1 do begin
-        name=slr_band_string_to_struct_tag(tags[ii])
+        name=slr_band_string_to_struct_tag($
+             slr_color_string_to_struct_tag($
+             tags[ii]))
         cat=create_struct(cat,$
                           name,tmpcat.(ii))
      endfor

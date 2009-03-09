@@ -201,31 +201,36 @@ pro slr_get_data, file=file,$
              }
      fitpar0.b.matrix=slr_colorterm_matrix(fitpar0.b.val,$
                                            fitpar0)
-     fitpar1={type:0,$
-              dim:n_elements(option.abs_colors2calibrate),$
-              n_colors:n_elements(option.abs_colors2calibrate),$
-              n_bands:n_elements(option.abs_bands),$
-              colornames:option.abs_colors2calibrate,$
-              bandnames:option.abs_bands,$
-              kappa:{n:n_elements(option.abs_colors2calibrate),$
-                     names:option.abs_colors2calibrate,$
-                     guess:option.abs_kappa_guess,$
-                     range:option.abs_kappa_guess_range,$
-                     val  :option.abs_kappa_guess,$
-                     err  :option.abs_kappa_guess_err,$
-                     fixed:option.abs_kappa_fix},$
-              b:{n:n_elements(option.abs_colormult),$
-                 matrix:identity(n_elements(option.abs_colors2calibrate)),$
-                 bands:option.abs_colortermbands,$
-                 mult :option.abs_colormult,$
-                 guess:replicate(0,n_elements(option.abs_colormult)),$
-                 range:replicate(0,n_elements(option.abs_colormult)),$
-                 val  :option.abs_colorterms,$
-                 err  :replicate(0.001,n_elements(option.colorterms)),$
-                 fixed:replicate(1,n_elements(option.abs_colormult))}$
-             }
-     fitpar1.b.matrix=slr_colorterm_matrix(fitpar1.b.val,$
-                                           fitpar1)
+     data=create_struct(data,'fitpar0',fitpar0)
+
+     if option.abs_colors2calibrate[0] then begin
+        fitpar1={type:0,$
+                 dim:n_elements(option.abs_colors2calibrate),$
+                 n_colors:n_elements(option.abs_colors2calibrate),$
+                 n_bands:n_elements(option.abs_bands),$
+                 colornames:option.abs_colors2calibrate,$
+                 bandnames:option.abs_bands,$
+                 kappa:{n:n_elements(option.abs_colors2calibrate),$
+                        names:option.abs_colors2calibrate,$
+                        guess:option.abs_kappa_guess,$
+                        range:option.abs_kappa_guess_range,$
+                        val  :option.abs_kappa_guess,$
+                        err  :option.abs_kappa_guess_err,$
+                        fixed:option.abs_kappa_fix},$
+                 b:{n:n_elements(option.abs_colormult),$
+                    matrix:identity(n_elements(option.abs_colors2calibrate)),$
+                    bands:option.abs_colortermbands,$
+                    mult :option.abs_colormult,$
+                    guess:replicate(0,n_elements(option.abs_colormult)),$
+                    range:replicate(0,n_elements(option.abs_colormult)),$
+                    val  :option.abs_colorterms,$
+                    err  :replicate(0.001,n_elements(option.colorterms)),$
+                    fixed:replicate(1,n_elements(option.abs_colormult))}$
+                }
+        fitpar1.b.matrix=slr_colorterm_matrix(fitpar1.b.val,$
+                                              fitpar1)
+        data=create_struct(data,'fitpar1',fitpar1)
+     endif
 
      fitparall={type:0,$
                 dim:n_elements(option.all_colors2calibrate),$
@@ -252,9 +257,6 @@ pro slr_get_data, file=file,$
                }
      fitparall.b.matrix=slr_colorterm_matrix(fitparall.b.val,$
                                              fitparall)
-
-     data=create_struct(data,'fitpar0',fitpar0)
-     data=create_struct(data,'fitpar1',fitpar1)
      data=create_struct(data,'fitparall',fitparall)
 
      if option.use_ir then begin

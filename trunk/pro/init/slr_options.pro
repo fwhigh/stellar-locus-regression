@@ -340,6 +340,7 @@ function slr_options, file=file
   all_colors2calibrate=[option.colors2calibrate,$
                         option.abs_colors2calibrate]
   sorti=uniq(all_colors2calibrate,sort(all_colors2calibrate))
+  sorti=sorti[where(all_colors2calibrate[sorti] ne '')]
   all_colors2calibrate=$
      all_colors2calibrate[sorti]
   all_kappa_guess=[option.kappa_guess,$
@@ -362,14 +363,21 @@ function slr_options, file=file
 
   all_colortermbands=[option.colortermbands,$
                       option.abs_colortermbands]
-  sorti=uniq(all_colortermbands,sort(all_colortermbands))
-  all_colortermbands=all_colortermbands[sorti]
-  all_colorterms=[option.colorterms,$
-                  option.abs_colorterms]
-  all_colorterms=all_colorterms[sorti]
-  all_colormult=[option.colormult,$
-                 option.abs_colormult]
-  all_colormult=all_colormult[sorti]
+  if total(all_colortermbands ne '') eq 0 then begin
+     all_colortermbands='none'
+     all_colorterms=-99
+     all_colormult='none'
+  endif else begin
+     sorti=uniq(all_colortermbands,sort(all_colortermbands))
+     sorti=sorti[where(all_colortermbands[sorti] ne '')]
+     all_colortermbands=all_colortermbands[sorti]
+     all_colorterms=[option.colorterms,$
+                     option.abs_colorterms]
+     all_colorterms=all_colorterms[sorti]
+     all_colormult=[option.colormult,$
+                    option.abs_colormult]
+     all_colormult=all_colormult[sorti]
+  endelse
   
   option=create_struct(option,$
                        'all_colors2calibrate',all_colors2calibrate,$

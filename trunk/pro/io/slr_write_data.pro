@@ -85,7 +85,7 @@ pro slr_write_data, file=file,$
   for ii=0,n_elements(kappa)-1 do begin
      colors_err[*,ii]=sqrt(colors_err[*,ii]^2+kappa_err[ii]^2)
   endfor
-
+stop
   B=fitpar.b.matrix
 
   colors_calib=slr_color_transform(colors,$
@@ -163,18 +163,18 @@ pro slr_write_data, file=file,$
      id_length=max([3,strlen(ctab.id)])+1
 
      frmt_struct={$
-                 header:['ID','RA','Dec',$
+                 header:['ID','RA','Dec','type','tmixed',$
                          fitpar.colornames,$
                          fitpar.colornames+'_err',$
                          fitpar.bandnames[bandi],$
                          fitpar.bandnames[bandi]+'_err'],$
                  headerformat:['A'+strtrim(id_length-1,2),$
-                               'A10','A10',$
+                               'A10','A10','A10','A10',$
                                replicate('A8',2*n_elements(fitpar.colornames)),$
                                replicate('A8',2*n_elements(fitpar.bandnames[bandi]))$
                               ],$
                  format:['A'+strtrim(id_length,2),$
-                         'F10.5','F10.5',$
+                         'F10.5','F10.5','I10','I10',$
                          replicate('F8.3',2*n_elements(fitpar.colornames)),$
                          replicate('F8.3',2*n_elements(fitpar.bandnames[bandi]))]$
                  }
