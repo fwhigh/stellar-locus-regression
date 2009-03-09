@@ -26,7 +26,7 @@ function curve_dist_func, p
 ;                  fitpar,p,p_counter=p_counter)
      color_matrix=fitpar.b.matrix
 
-     if 1 then begin
+     if 0 then begin
         print,'Transforming Covey'
         print,"Colorterm matrix B ="
         print,transpose(color_matrix)

@@ -98,50 +98,52 @@ pro slr_pipe, infile=infile,$
      option=option,$
      data=data
 
-  fits2do=[0]
-  if option.abs_colors2calibrate[0] then begin
-     fits2do=push_arr(fits2do,1)
-  endif
-  for ii=0,n_elements(fits2do)-1 do begin
-     case fits2do[ii] of 
-        0:begin
-           fitpar=data.fitpar0
-           append_colors_only=0
-           message,"Calibrating colors",/info
-        end
-        1:begin
-           for jj=0,n_elements(data.fitpar1.colornames)-1 do begin
-              here=where(data.fitpar0.colornames eq $
-                         data.fitpar1.colornames[jj],$
-                         count)
-              if count eq 0 then continue
-              data.fitpar1.kappa.val[jj]=data.fitpar0.kappa.val[here]
-              data.fitpar1.kappa.guess[jj]=data.fitpar0.kappa.val[here]
-              data.fitpar1.kappa.err[jj]=data.fitpar0.kappa.err[here]
-           endfor
-           fitpar=data.fitpar1
-           append_colors_only=1
-           message,"Calibrating abs colors",/info
-        end
-        else:message,"Can only do 2 kinds of fits"
-     endcase
+
+  if option.get_kappa then begin
+     fits2do=[0]
+     if option.abs_colors2calibrate[0] then begin
+        fits2do=push_arr(fits2do,1)
+     endif
+     for ii=0,n_elements(fits2do)-1 do begin
+        case fits2do[ii] of
+           0:begin
+              fitpar=data.fitpar0
+              append_colors_only=0
+              message,"Calibrating colors",/info
+           end
+           1:begin
+              for jj=0,n_elements(data.fitpar1.colornames)-1 do begin
+                 here=where(data.fitpar0.colornames eq $
+                            data.fitpar1.colornames[jj],$
+                            count)
+                 if count eq 0 then continue
+                 data.fitpar1.kappa.val[jj]=data.fitpar0.kappa.val[here]
+                 data.fitpar1.kappa.guess[jj]=data.fitpar0.kappa.val[here]
+                 data.fitpar1.kappa.err[jj]=data.fitpar0.kappa.err[here]
+              endfor
+              fitpar=data.fitpar1
+              append_colors_only=1
+              message,"Calibrating abs colors",/info
+           end
+           else:message,"Can only do 2 kinds of fits"
+        endcase
 
 ;;; Regress the data to the Covey median locus
-     slr_locus_line_calibration,$
-        data=data,$
-        option=option,$
-        fitpar=fitpar,$
-        galext_mean=galext_mean,$
-        galext_stddev=galext_stddev,$
-        bootstrap=(option.nbootstrap ne 0)
+        slr_locus_line_calibration,$
+           data=data,$
+           option=option,$
+           fitpar=fitpar,$
+           galext_mean=galext_mean,$
+           galext_stddev=galext_stddev,$
+           bootstrap=(option.nbootstrap ne 0)
 
 
-     print,'Best fit kappa'
-     for jj=0,n_elements(fitpar.colornames)-1 do begin
-        print,' kappa ',fitpar.colornames[jj],' = ',$
-              string(fitpar.kappa.val[jj],format='(F8.3)'),$
-              ' +/-',string(fitpar.kappa.err[jj],format='(F7.3)')
-     endfor
+        print,'Best fit kappa'
+        for jj=0,n_elements(fitpar.colornames)-1 do begin
+           print,' kappa ',fitpar.colornames[jj],' = ',$
+                 string(fitpar.kappa.val[jj],format='(F8.3)'),$
+                 ' +/-',string(fitpar.kappa.err[jj],format='(F7.3)')
+        endfor
 ;     print,'Compare to predicted Galactic extinction values'
 ;     for jj=0,n_elements(fitpar.colornames)-1 do begin
 ;        print,' E ',fitpar.colornames[jj],' = ',$
@@ -149,47 +151,51 @@ pro slr_pipe, infile=infile,$
 ;              ' +/-',string(galext_stddev[jj],format='(F7.3)')
 ;     endfor
 
-     if not keyword_set(outfile) then begin
-        outfile=getenv('SLR_COLORTABLE_OUT')
-     endif
-     if outfile eq '' then begin
-        outfile=slr_get_ctab_filename(infile,/out)
-     endif
+        if not keyword_set(outfile) then begin
+           outfile=getenv('SLR_COLORTABLE_OUT')
+        endif
+        if outfile eq '' then begin
+           outfile=slr_get_ctab_filename(infile,/out)
+        endif
 
 
 
 
-      case fits2do[ii] of 
-         0:begin
-            data.fitpar0=fitpar
-            if n_elements(fits2do) eq 1 then allfitpar=data.fitpar0
-         end
-         1:begin
-            data.fitpar1=fitpar
-            allfitpar=data.fitparall
-            for jj=0,n_elements(allfitpar.colornames)-1 do begin
-               here=where(data.fitpar0.colornames eq allfitpar.colornames[jj],$
-                          count)
-               if count eq 1 then begin
-                  allfitpar.kappa.val[jj]=data.fitpar0.kappa.val[here]
-                  allfitpar.kappa.guess[jj]=data.fitpar0.kappa.val[here]
-                  allfitpar.kappa.err[jj]=data.fitpar0.kappa.err[here]
-               endif
-               here=where(data.fitpar1.colornames eq allfitpar.colornames[jj],$
-                          count)
-               if count eq 1 then begin
-                  allfitpar.kappa.val[jj]=data.fitpar1.kappa.val[here]
-                  allfitpar.kappa.guess[jj]=data.fitpar1.kappa.val[here]
-                  allfitpar.kappa.err[jj]=data.fitpar1.kappa.err[here]
-               endif
-               
-               
-            endfor
-         end
-         else:message,"Can only do 2 kinds of fits"
-      endcase
+        case fits2do[ii] of 
+           0:begin
+              data.fitpar0=fitpar
+              if n_elements(fits2do) eq 1 then allfitpar=data.fitpar0
+           end
+           1:begin
+              data.fitpar1=fitpar
+              allfitpar=data.fitparall
+              for jj=0,n_elements(allfitpar.colornames)-1 do begin
+                 here=where(data.fitpar0.colornames eq allfitpar.colornames[jj],$
+                            count)
+                 if count eq 1 then begin
+                    allfitpar.kappa.val[jj]=data.fitpar0.kappa.val[here]
+                    allfitpar.kappa.guess[jj]=data.fitpar0.kappa.val[here]
+                    allfitpar.kappa.err[jj]=data.fitpar0.kappa.err[here]
+                 endif
+                 here=where(data.fitpar1.colornames eq allfitpar.colornames[jj],$
+                            count)
+                 if count eq 1 then begin
+                    allfitpar.kappa.val[jj]=data.fitpar1.kappa.val[here]
+                    allfitpar.kappa.guess[jj]=data.fitpar1.kappa.val[here]
+                    allfitpar.kappa.err[jj]=data.fitpar1.kappa.err[here]
+                 endif
+                 
+                 
+              endfor
+           end
+           else:message,"Can only do 2 kinds of fits"
+        endcase
 
-  endfor
+     endfor
+  endif
+
+  allfitpar=data.fitpar0
+
 
   slr_write_data,$
      option=option,$
