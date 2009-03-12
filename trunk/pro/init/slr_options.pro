@@ -1,4 +1,41 @@
-function slr_options, file=file
+function isnumber, var
+
+  if size(var,/tname) eq "INT" or size(var,/tname) eq "LONG" or $
+     size(var,/tname) eq "UINT" or size(var,/tname) eq "ULONG" or $
+     size(var,/tname) eq "LONG64" or size(var,/tname) eq "ULONG64" or $
+     size(var,/tname) eq "FLOAT" or size(var,/tname) eq "DOUBLE" or $
+     size(var,/tname) eq "BYTE" then $
+        return,1 else return,0
+
+end
+
+pro slr_check4option, file_option, $
+                      par, $
+                      index, $
+                      isrequired=isrequired, $
+                      boolean=boolean, $
+                      isthere=isthere
+
+  if size(file_option,/tname) eq "UNDEFINED" then begin
+     if keyword_set(isrequired) then $
+        message,"Must provide input parameter: "+par
+     isthere=0
+  endif else begin
+     file_pars=strlowcase(tag_names(file_option))
+     index=where(file_pars eq par,count)
+     if count eq 1 then isthere=1 else isthere=0
+     if ~isthere and keyword_set(isrequired) then $
+        message,"Must provide input parameter: "+par
+     if keyword_set(boolean) then begin
+        if fix(file_option.(index)) ne 0 and fix(file_option.(index)) ne 1 then $
+           message,"Input parameter "+par+" must be 0 or 1"
+     endif
+  endelse
+
+end
+
+function slr_options, file=file, $
+                      _EXTRA = ex
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -71,370 +108,419 @@ function slr_options, file=file
 
   acceptable_bands=slr_acceptable_bands()
 
-  if 0 then begin
-     readcol,file,$
-             par,val,$
-             /silent,$
-             delimiter=' ',$
-             comment='#',$
-             format='(A,A)'
-  endif else begin
-     lun=3
-     openr,lun,file
-     line=''
-     WHILE ~ EOF(lun) DO BEGIN 
-        READF, lun, line 
-        commenti=strpos(line,'#')
-        if commenti eq 0 then continue
-        if commenti eq -1 then commenti=strlen(line)
-        line=strmid(line,0,commenti)
-        pair=strsplit(line,/extract)
-        par=push_arr(par,pair[0])
-        val=push_arr(val,pair[1])
-     ENDWHILE 
 
+;;;
+;;; BEGIN FILE PARSE
+;;;
 
-     close,lun
-  endelse
+  lun=3
+  openr,lun,file
+  line=''
+  WHILE ~ EOF(lun) DO BEGIN 
+     READF, lun, line 
+     commenti=strpos(line,'#')
+     if commenti eq 0 then continue
+     if commenti eq -1 then commenti=strlen(line)
+     line=strmid(line,0,commenti)
+     pair=strsplit(line,/extract)
+     file_par=push_arr(file_par,pair[0])
+     file_val=push_arr(file_val,pair[1])
+  ENDWHILE 
+  close,lun
+
+  file_option=create_struct(       "version",slr_version())
+
+  for ii=0,n_elements(file_par)-1 do begin
+     file_option=create_struct(file_option,file_par[ii],file_val[ii])
+  endfor
 
   option=create_struct(       "version",slr_version())
-  for ii=0,n_elements(par)-1 do begin
-     case par[ii] of 
-        "use_ir":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-           if option.use_ir then $
-              message,"Infrared regression not yet implemented",/info
-        end
-        "force":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "postscript":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "plot":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "interactive":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "animate_regression":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "weighted_residual":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "verbose":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "debug":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "nbootstrap":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "get_kappa":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "type":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "tmixed":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "deredden":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "have_sfd":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "cutdiskstars":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "beelow":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "zeelow":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "snlow":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "gsnlow":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "gmax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "rmin":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "rmax":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "magerr_floor":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "max_locus_dist":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "max_weighted_locus_dist":begin
-           option=create_struct(option,par[ii],float(val[ii]))
-        end
-        "use_fitpar":begin
-           option=create_struct(option,par[ii],fix(val[ii]))
-        end
-        "color_min":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "color_max":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "mag_min":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "mag_max":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "kappa_fix":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],fix(tmpval))
-        end
-        "abs_kappa_fix":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],fix(tmpval))
-        end
-        "kappa_guess":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "abs_kappa_guess":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "kappa_guess_err":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "abs_kappa_guess_err":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "kappa_guess_range":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "abs_kappa_guess_range":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "colorterms":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           if tmpval[0] eq 'none' then tmpval=0
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "abs_colorterms":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           if tmpval[0] eq 'none' then tmpval=0
-           option=create_struct(option,par[ii],float(tmpval))
-        end
-        "colortermbands":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-        "abs_colortermbands":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-        "colormult":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-        "abs_colormult":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-        "colors2calibrate":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-        "abs_colors2calibrate":begin
-           tmpval=strsplit(val[ii],',',/extract)
-           option=create_struct(option,par[ii],tmpval)
-        end
-;;         "bands":begin
-;;            tmpval=strsplit(val[ii],',',/extract)
-;;            option=create_struct(option,par[ii],tmpval)
-;;            bands=['u','g','r','i','z','J','H','K']
-;;            for jj=0,n_elements(option.bands)-1 do begin
-;;               if total(bands eq option.bands[jj]) eq 0 then begin
-;;                  message,"Band "+option.bands[jj]+" can't be used",/info
-;;                  message,"Must use g,r,i,z, and/or J"
-;;               endif
-;;            endfor
-;;         end
-        else:begin
-           message,"Input parameter "+par[ii]+" unknown"
-        end
-     endcase
-  endfor
+
+;;; Verbosity
+  this_par="verbose"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
 
   if option.verbose ge 1 then begin
      message,"Using config file "+file,/info
   endif
 
+  this_par="debug"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="force"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+;;; Colors 2 calibrate
+  this_par="colors2calibrate"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=slr_color_string_to_struct_tag($
+         strsplit(ex.(here2),',',/extract),bands=bands,isknown=isknown)
+  endif else begin
+     val=slr_color_string_to_struct_tag($
+         strsplit(file_option.(here1),',',/extract),bands=bands,isknown=isknown)
+  endelse
+  if total(isknown) ne n_elements(val) then $
+     message,"Don't recognize color(s): "+$
+             strjoin(val[where(~isknown)],',')
+  if n_elements(val) lt 2 then $
+     message,"Must provide at least 2 colors2calibrate"
+  option=create_struct(option,this_par,val)
+  option=create_struct(option,"bands",bands)
+  n_colors=n_elements(option.colors2calibrate)
+  n_bands=n_elements(option.bands)
+
+  this_par="kappa_fix"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if ~isnumber(val) then $
+           message,this_par+" must be a vector of numbers"
+  endif else begin
+     val=fix(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) ne n_colors then $
+     message,"N("+this_par+") must equal N(colors2calibrate)"
+  option=create_struct(option,this_par,val)
+
+  this_par="kappa_guess"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if ~isnumber(val) then $
+           message,this_par+" must be a vector of numbers"
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) ne n_colors then $
+     message,"N("+this_par+") must equal N(colors2calibrate)"
+  option=create_struct(option,this_par,val)
+
+  this_par="kappa_guess_err"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if ~isnumber(val) then $
+           message,this_par+" must be a vector of numbers"
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) ne n_colors then $
+     message,"N("+this_par+") must equal N(colors2calibrate)"
+  option=create_struct(option,this_par,val)
+
+  this_par="kappa_guess_range"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if ~isnumber(val) then $
+           message,this_par+" must be a vector of numbers"
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(option.kappa_fix) ne n_colors then $
+     message,"N("+this_par+") must equal N(colors2calibrate)"
+  option=create_struct(option,this_par,val)
+
+;;; Color terms
+  this_par="colorterms"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if size(val,/tname) eq "STRING" then  begin
+        
+     endif else begin
+        if ~isnumber(val) then $
+           message,this_par+" must be a vector of numbers or 'none'"
+     endelse
+  endif else begin
+     val=file_option.(here1)
+  endelse
+  val=strsplit(val,',',/extract)
+  if n_elements(val) eq 1 then begin
+     if val eq 'none' then $
+        val=!values.f_nan; else $
+;           message,"Don't understand value of "+this_par
+  endif
+  val=float(val)
+  option=create_struct(option,this_par,val)
+  n_colorterms=n_elements(option.colorterms)
+
+  this_par="colortermbands"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if n_colorterms eq 1 and ~finite(option.colorterms[0]) then begin
+     val=''
+  endif else begin
+     if isthere then begin
+        val=strsplit(ex.(here2),',',/extract)
+     endif else begin
+        val=strsplit(file_option.(here1),',',/extract)
+     endelse
+     val=slr_band_string_to_struct_tag(val,isknown=isknown)
+     if n_elements(val) ne n_colorterms then $
+        message,"N("+this_par+") must equal N(colorsterms)"
+     if total(isknown) ne n_colorterms then $
+        message,"Don't know colorterm band(s): "+$
+                strjoin(val[where(~isknown)],',')
+     for ii=0,n_elements(val)-1 do begin
+        if total(option.bands eq val[ii]) eq 0 then $
+           message,"The colorterm band "+val[ii]+$
+                   " doesn't appear in colors2calibrate"
+     endfor
+  endelse
+     option=create_struct(option,this_par,val)
+
+  this_par="colormult"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if n_colorterms eq 1 and ~finite(option.colorterms[0]) then begin
+     val=''
+  endif else begin
+     if isthere then begin
+        val=strsplit(ex.(here2),',',/extract)
+     endif else begin
+        val=strsplit(file_option.(here1),',',/extract)
+     endelse
+    val=slr_color_string_to_struct_tag(val,isknown=isknown)
+    if n_elements(val) ne n_colorterms then $
+       message,"N("+this_par+") must equal N(colorsterms)"
+    if total(isknown) ne n_colorterms then $
+       message,"Don't know colorterm multiplier(s): "+$
+               strjoin(val[where(~isknown)],',')
+     for ii=0,n_elements(val)-1 do begin
+        if total(option.colors2calibrate eq val[ii]) eq 0 then $
+           message,"The colorterm multiplier "+val[ii]+$
+                   " doesn't appear in colors2calibrate"
+     endfor
+  endelse
+  option=create_struct(option,this_par,val)
+
+
+;;; Plotting
+  this_par="plot"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="postscript"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="animate_regression"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="interactive"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+;;; Fitting 
+  this_par="transform_only"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="weighted_residual"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="nbootstrap"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+
+;;; SFD
+  this_par="have_sfd"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
   if option.have_sfd then begin
      if ~slr_have_sfd() then begin
         message,"Can't locate SFD maps"
      endif
   endif
 
+;;; Cuts for data
+  this_par="type"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
 
-;;; Initial colors and bands.
+  this_par="tmixed"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
 
-  delvarx,bands
-  option.colors2calibrate=$
-     slr_color_string_to_struct_tag(option.colors2calibrate,$
-                                    bands=bands)
-  option=create_struct(option,'bands',bands)
-  if option.colortermbands[0] eq 'none' or $
-     option.colormult[0] eq 'none' then begin
-     option.colorterms[*]=0
-     option.colortermbands[*]=''
-     option.colormult[*]=''
+  this_par="deredden"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+  if option.deredden and ~option.have_sfd then $
+     message,"Can't deredden without SFD maps"
+
+  this_par="cutdiskstars"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="zeelow"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=float(ex.(here2)) else val=float(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="beelow"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=float(ex.(here2)) else val=float(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="snlow"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
   endif else begin
-     option.colortermbands=slr_band_string_to_struct_tag($
-                           option.colortermbands)
-     option.colormult=slr_color_string_to_struct_tag($
-                      option.colormult)
+     val=float(strsplit(file_option.(here1),',',/extract))
   endelse
-
-
-;;; Initialize abs colors and bands.
-  if option.abs_colors2calibrate[0] eq 'none' then begin
-     option.abs_colors2calibrate=''
-     option=create_struct(option,'abs_bands','')
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
   endif else begin
-     delvarx,abs_bands
-     option.abs_colors2calibrate=$
-        slr_color_string_to_struct_tag(option.abs_colors2calibrate,$
-                                       bands=abs_bands)
-     option=create_struct(option,'abs_bands',abs_bands)
+     message,"N("+this_par+") must equal N(bands) or 1"
   endelse
-  if option.abs_colortermbands[0] eq 'none' or $
-     option.abs_colormult[0] eq 'none' then begin
-     option.abs_colorterms[*]=0
-     option.abs_colortermbands[*]=''
-     option.abs_colormult[*]=''
+  option=create_struct(option,this_par,val)
+
+  this_par="color_min"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
   endif else begin
-     option.abs_colortermbands=slr_band_string_to_struct_tag($
-                               option.abs_colortermbands)
-     option.abs_colormult=slr_color_string_to_struct_tag($
-                          option.abs_colormult)
+     val=float(strsplit(file_option.(here1),',',/extract))
   endelse
-
-;;; Initialize all colors and bands.
-  all_colors2calibrate=[option.colors2calibrate,$
-                        option.abs_colors2calibrate]
-  sorti=uniq(all_colors2calibrate,sort(all_colors2calibrate))
-  sorti=sorti[where(all_colors2calibrate[sorti] ne '')]
-  all_colors2calibrate=$
-     all_colors2calibrate[sorti]
-  all_kappa_guess=[option.kappa_guess,$
-                   option.abs_kappa_guess]
-  all_kappa_guess=all_kappa_guess[sorti]
-  all_kappa_guess_range=[option.kappa_guess_range,$
-                   option.abs_kappa_guess_range]
-  all_kappa_guess_range=all_kappa_guess_range[sorti]
-  all_kappa_guess_err=[option.kappa_guess_err,$
-                   option.abs_kappa_guess_err]
-  all_kappa_guess_err=all_kappa_guess_err[sorti]
-  all_kappa_fix=[option.kappa_fix,$
-                   option.abs_kappa_fix]
-  all_kappa_fix=all_kappa_fix[sorti]
-
-  all_bands=[option.bands,$
-             option.abs_bands]
-  all_bands=$
-     all_bands[uniq(all_bands,sort(all_bands))]
-
-  all_colortermbands=[option.colortermbands,$
-                      option.abs_colortermbands]
-  if total(all_colortermbands ne '') eq 0 then begin
-     all_colortermbands='none'
-     all_colorterms=-99
-     all_colormult='none'
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
   endif else begin
-     sorti=uniq(all_colortermbands,sort(all_colortermbands))
-     sorti=sorti[where(all_colortermbands[sorti] ne '')]
-     all_colortermbands=all_colortermbands[sorti]
-     all_colorterms=[option.colorterms,$
-                     option.abs_colorterms]
-     all_colorterms=all_colorterms[sorti]
-     all_colormult=[option.colormult,$
-                    option.abs_colormult]
-     all_colormult=all_colormult[sorti]
+     message,"N("+this_par+") must equal N(colors) or 1"
   endelse
-  
-  option=create_struct(option,$
-                       'all_colors2calibrate',all_colors2calibrate,$
-                       'all_kappa_guess',all_kappa_guess,$
-                       'all_kappa_guess_range',all_kappa_guess_range,$
-                       'all_kappa_guess_err',all_kappa_guess_err,$
-                       'all_kappa_fix',all_kappa_fix,$
-                       'all_bands',all_bands,$
-                       'all_colortermbands',all_colortermbands,$
-                       'all_colorterms',all_colorterms,$
-                       'all_colormult',all_colormult)
-;;;
-;;; Do preliminary checks on inputs.
-;;;
+  option=create_struct(option,this_par,val)
 
-;;; Check colors
-  n_colors=n_elements(option.colors2calibrate)
-  if n_elements(option.kappa_fix) ne n_colors then $
-     message,"N(kappa_fix) must equal N(colors2calibrate)"
-  if n_elements(option.kappa_guess) ne n_colors then $
-     message,"N(kappa_guess) must must equal N(colors2calibrate)"
-  if n_elements(option.kappa_guess_err) ne n_colors then $
-     message,"N(kappa_guess_err) must must equal N(colors2calibrate)"
-  if n_elements(option.kappa_guess_range) ne n_colors then $
-     message,"N(kappa_guess_range) must equal N(colors2calibrate)"
-  if n_elements(option.colorterms) ne n_elements(option.colortermbands) then $
-     message,"N(colortermbands) must equal N(colorterms)"
-  if n_elements(option.colorterms) ne n_elements(option.colormult) then $
-     message,"N(colormult) must equal N(colorterms)"
+  this_par="color_max"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
+  endif else begin
+     message,"N("+this_par+") must equal N(colors) or 1"
+  endelse
+  option=create_struct(option,this_par,val)
 
-;;; Check abs colors
-  if option.abs_colors2calibrate[0] then begin
-     n_abs_colors=n_elements(option.abs_colors2calibrate)
-     if n_elements(option.abs_kappa_fix) ne n_abs_colors then $
-        message,"N(abs_kappa_fix) must equal N(abs_colors2calibrate)"
-     if n_elements(option.abs_kappa_guess) ne n_abs_colors then $
-        message,"N(abs_kappa_guess) must must equal N(abs_colors2calibrate)"
-     if n_elements(option.abs_kappa_guess_err) ne n_abs_colors then $
-        message,"N(abs_kappa_guess_err) must must equal N(abs_colors2calibrate)"
-     if n_elements(option.abs_kappa_guess_range) ne n_abs_colors then $
-        message,"N(abs_kappa_guess_range) must equal N(abs_colors2calibrate)"
-     if n_elements(option.abs_kappa_guess_range) ne n_abs_colors then $
-        message,"N(abs_kappa_guess_range) must equal N(abs_colors2calibrate)"
-     if n_elements(option.abs_colorterms) ne n_elements(option.abs_colortermbands) then $
-        message,"N(abs_colortermbands) must equal N(abs_colorterms)"
-     if n_elements(option.abs_colorterms) ne n_elements(option.abs_colormult) then $
-        message,"N(abs_colormult) must equal N(abs_colorterms)"
-  endif
+  this_par="mag_min"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
+  endif else begin
+     message,"N("+this_par+") must equal N(bands) or 1"
+  endelse
+  option=create_struct(option,this_par,val)
 
-;;; Check bands
-  n_bands=n_elements(option.bands)
-  if n_elements(option.mag_min) ne n_bands and $
-     n_elements(option.mag_min) ne 1 then $
-        message,"N(mag_min) must equal N(bands)"
-  if n_elements(option.mag_max) ne n_bands and $
-     n_elements(option.mag_max) ne 1 then $
-        message,"N(mag_max) must equal N(bands)"
+  this_par="mag_max"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
+  endif else begin
+     message,"N("+this_par+") must equal N(bands) or 1"
+  endelse
+  option=create_struct(option,this_par,val)
+
+  this_par="magerr_floor"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=float(strsplit(ex.(here2),',',/extract))
+  endif else begin
+     val=float(strsplit(file_option.(here1),',',/extract))
+  endelse
+  if n_elements(val) eq 1 then begin
+     val=replicate(val[0],n_bands)
+  endif else if n_elements(val) eq n_bands then begin
+     val=val[0]
+  endif else begin
+     message,"N("+this_par+") must equal N(bands) or 1"
+  endelse
+  option=create_struct(option,this_par,val)
+
+  this_par="max_locus_dist"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=float(ex.(here2)) else val=float(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+  this_par="max_weighted_locus_dist"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=float(ex.(here2)) else val=float(file_option.(here1))
+  option=create_struct(option,this_par,val)
 
   return,option
 

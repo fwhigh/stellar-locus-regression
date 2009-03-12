@@ -55,7 +55,7 @@ function slr_colorterm_matrix, coltrm,$
 
   matrix_out=identity(fitpar.n_colors)
 
-  if fitpar.b.bands[0] ne 'none' then begin
+  if fitpar.b.bands[0] ne '' then begin
      for ii=0,n_elements(fitpar.colornames)-1 do begin
         lhs_color=fitpar.colornames[ii]
         lhs_band1=(strsplit(lhs_color,'_',/extract))[0]
@@ -83,59 +83,6 @@ function slr_colorterm_matrix, coltrm,$
         endif
      endfor
   endif
-
-
-  return,matrix_out
-
-
-
-
-  message,"I'm obsolete"
-
-
-  if not keyword_set(type) then type=0
-
-  case type of
-     0:begin
-        matrix_out=identity(3)+$
-                   [[ coltrm[0],        0,                0],$
-                    [-coltrm[1], coltrm[1],                0],$
-                    [        0,-coltrm[2],coltrm[2]-coltrm[3]]]
-     end
-     3:begin
-        matrix_out=identity(4)+$
-                   [[ coltrm[0],        0,                0,        0],$
-                    [-coltrm[1], coltrm[1],                0,        0],$
-                    [        0,-coltrm[2],coltrm[2]-coltrm[3], coltrm[3]],$
-                    [        0,        0,                0,        0]]
-     end
-     5:begin
-        matrix_out=identity(3)+$
-                   [[ coltrm[0],        0,       0],$
-                    [        0, coltrm[1],       0],$
-                    [        0,        0,coltrm[2]]]
-     end
-     6:begin
-        matrix_out=identity(4)+$
-                   [[ coltrm[0],        0,       0,       0],$
-                    [        0, coltrm[1],       0,       0],$
-                    [        0,        0,coltrm[2],       0],$
-                    [        0,        0,       0,       0]]
-     end
-     7:begin
-        matrix_out=identity(7)+$
-                   [[ coltrm[0],        0,                0,       0,       0,       0,coltrm[0]],$
-                    [-coltrm[1], coltrm[1],                0,       0,       0,coltrm[1],       0],$
-                    [        0,-coltrm[2],coltrm[2]-coltrm[3],coltrm[3],coltrm[2],       0,       0],$
-                    [        0,        0,                0,       0,0,0,0],$
-                    [        0,        0,                0,       0,0,0,0],$
-                    [        0,        0,                0,       0,0,0,0],$
-                    [        0,        0,                0,       0,0,0,0]]
-     end
-     else:message,"Don't know math operator type "+strtrim(type,2)
-  endcase
-
-  if keyword_set(inverse) then matrix_out=inverse(matrix_out)
 
   return,matrix_out
 
