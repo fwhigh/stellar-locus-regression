@@ -85,7 +85,7 @@ pro slr_write_data, file=file,$
   for ii=0,n_elements(kappa)-1 do begin
      colors_err[*,ii]=sqrt(colors_err[*,ii]^2+kappa_err[ii]^2)
   endfor
-stop
+
   B=fitpar.b.matrix
 
   colors_calib=slr_color_transform(colors,$

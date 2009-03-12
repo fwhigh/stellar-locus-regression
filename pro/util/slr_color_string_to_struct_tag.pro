@@ -58,6 +58,8 @@ function slr_color_string_to_struct_tag, $
 ; compile_opt idl2, hidden
 ; on_error, 2
 
+  delvarx,isknown
+
   acceptable_bands=slr_acceptable_bands($
                    john_bands=john_bands,$
                    sdss_bands=sdss_bands,$
@@ -67,6 +69,7 @@ function slr_color_string_to_struct_tag, $
      delvarx,isknown1,isknown2
      if strlen(string[ii]) ne 2 then begin
         tmptag=string[ii]
+        tmpisknown=0
      endif else begin
         band1=slr_band_string_to_struct_tag($
               (strmid(string[ii],0,1))[0],$
@@ -76,12 +79,15 @@ function slr_color_string_to_struct_tag, $
               isknown=isknown2,iserror=iserror2)
         if total(isknown1) ne 1 or total(isknown2) ne 1 then begin
            tmptag=string[ii]
+           tmpisknown=0
         endif else begin
            tmptag=strjoin(slr_band_string_to_struct_tag([band1,band2]),'_')
-           bands=push_arr(bands,[band1,band2])
+           tmpisknown=1
         endelse
+        bands=push_arr(bands,[band1,band2])
      endelse
      tag=push_arr(tag,tmptag)
+     isknown=push_arr(isknown,tmpisknown)
   endfor
 
   if keyword_set(bands) then $

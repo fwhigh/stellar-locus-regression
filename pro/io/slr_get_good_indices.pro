@@ -83,15 +83,11 @@ function slr_get_good_indices, cat, option, fitpar, $
      tagi_err=where(strlowcase(tags) eq $
                     strlowcase(fitpar.bandnames[ii])+'_err',$
                     count)
-     if n_elements(option.mag_min) eq 1 then $
-        mag_min=option.mag_min[0] else $
-           mag_min=option.mag_min[ii]           
-     if n_elements(option.mag_max) eq 1 then $
-        mag_max=option.mag_max[0] else $
-           mag_max=option.mag_max[ii]           
+     mag_min=option.mag_min[ii]           
+     mag_max=option.mag_max[ii]           
      ind=setintersection($
          ind,$
-         where(1/cat.ctab.(tagi_err) gt option.snlow and $
+         where(1/cat.ctab.(tagi_err) gt option.snlow[ii] and $
                cat.ctab.(tagi) gt mag_min and $
                cat.ctab.(tagi) lt mag_max and $
                finite(cat.ctab.(tagi)) and finite(cat.ctab.(tagi_err)) and $

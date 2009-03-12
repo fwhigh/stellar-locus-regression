@@ -124,23 +124,6 @@ pro slr_get_data, file=file,$
                  mean(bee),'+/-',stddev(bee)
            print,'Galactic longitude',$
                  mean(ell),'+/-',stddev(ell)
-           print,'cal mean galext in g-r',$
-                 mean((extinction_a*k_ext[1]-extinction_a*k_ext[2])),$
-                 '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[2]))
-           print,'cal mean galext in r-i',$
-                 mean((extinction_a*k_ext[2]-extinction_a*k_ext[3])),$
-                 '+/-',stddev((extinction_a*k_ext[2]-extinction_a*k_ext[3]))
-           print,'cal mean galext in i-z',$
-                 mean((extinction_a*k_ext[3]-extinction_a*k_ext[4])),$
-                 '+/-',stddev((extinction_a*k_ext[3]-extinction_a*k_ext[4]))
-           if option.use_ir  then begin
-              print,'cal mean galext in z-J',$
-                    mean((extinction_a*k_ext[4]-extinction_a*k_ext[5])),$
-                    '+/-',stddev((extinction_a*k_ext[4]-extinction_a*k_ext[5]))
-           endif
-           print,'cal mean galext in g-i',$
-                 mean((extinction_a*k_ext[1]-extinction_a*k_ext[3])),$
-                 '+/-',stddev((extinction_a*k_ext[1]-extinction_a*k_ext[3]))
         endif
      endif
 
@@ -176,7 +159,7 @@ pro slr_get_data, file=file,$
 
 
 ;;; Define the math default structures
-     fitpar0={type:0,$
+     fitpar={type:0,$
               dim:n_elements(option.colors2calibrate),$
               n_colors:n_elements(option.colors2calibrate),$
               n_bands:n_elements(option.bands),$
@@ -199,80 +182,18 @@ pro slr_get_data, file=file,$
                  err  :replicate(0.001,n_elements(option.colorterms)),$
                  fixed:replicate(1,n_elements(option.colormult))}$
              }
-     fitpar0.b.matrix=slr_colorterm_matrix(fitpar0.b.val,$
-                                           fitpar0)
-     data=create_struct(data,'fitpar0',fitpar0)
-
-     if option.abs_colors2calibrate[0] then begin
-        fitpar1={type:0,$
-                 dim:n_elements(option.abs_colors2calibrate),$
-                 n_colors:n_elements(option.abs_colors2calibrate),$
-                 n_bands:n_elements(option.abs_bands),$
-                 colornames:option.abs_colors2calibrate,$
-                 bandnames:option.abs_bands,$
-                 kappa:{n:n_elements(option.abs_colors2calibrate),$
-                        names:option.abs_colors2calibrate,$
-                        guess:option.abs_kappa_guess,$
-                        range:option.abs_kappa_guess_range,$
-                        val  :option.abs_kappa_guess,$
-                        err  :option.abs_kappa_guess_err,$
-                        fixed:option.abs_kappa_fix},$
-                 b:{n:n_elements(option.abs_colormult),$
-                    matrix:identity(n_elements(option.abs_colors2calibrate)),$
-                    bands:option.abs_colortermbands,$
-                    mult :option.abs_colormult,$
-                    guess:replicate(0,n_elements(option.abs_colormult)),$
-                    range:replicate(0,n_elements(option.abs_colormult)),$
-                    val  :option.abs_colorterms,$
-                    err  :replicate(0.001,n_elements(option.colorterms)),$
-                    fixed:replicate(1,n_elements(option.abs_colormult))}$
-                }
-        fitpar1.b.matrix=slr_colorterm_matrix(fitpar1.b.val,$
-                                              fitpar1)
-        data=create_struct(data,'fitpar1',fitpar1)
-     endif
-
-     fitparall={type:0,$
-                dim:n_elements(option.all_colors2calibrate),$
-                n_colors:n_elements(option.all_colors2calibrate),$
-                n_bands:n_elements(option.all_bands),$
-                colornames:option.all_colors2calibrate,$
-                bandnames:option.all_bands,$
-                kappa:{n:n_elements(option.all_colors2calibrate),$
-                       names:option.all_colors2calibrate,$
-                       guess:option.all_kappa_guess,$
-                       range:option.all_kappa_guess_range,$
-                       val  :option.all_kappa_guess,$
-                       err  :option.all_kappa_guess_err,$
-                       fixed:option.all_kappa_fix},$
-                b:{n:n_elements(option.all_colormult),$
-                   matrix:identity(n_elements(option.all_colors2calibrate)),$
-                   bands:option.all_colortermbands,$
-                   mult :option.all_colormult,$
-                   guess:replicate(0,n_elements(option.all_colormult)),$
-                   range:replicate(0,n_elements(option.all_colormult)),$
-                   val  :option.all_colorterms,$
-                   err  :replicate(0.001,n_elements(option.colorterms)),$
-                   fixed:replicate(1,n_elements(option.all_colormult))}$
-               }
-     fitparall.b.matrix=slr_colorterm_matrix(fitparall.b.val,$
-                                             fitparall)
-     data=create_struct(data,'fitparall',fitparall)
-
-     if option.use_ir then begin
-        goodi=slr_get_good_indices(data,option)
-        if option.verbose ge 1 then begin
-           print,n_elementS(goodi),' good matches in grizJ'
-        endif
-     endif
+     fitpar.b.matrix=slr_colorterm_matrix(fitpar.b.val,$
+                                           fitpar)
+     data=create_struct(data,'fitpar',fitpar)
 
      save,file=savefile,data
   endif                         ; Savefile exists
 
   if option.plot then begin
-     goodi=slr_get_good_indices(data,option,data.fitpar0)
+     goodi=slr_get_good_indices(data,option,data.fitpar)
+
      if n_elements(goodi) lt 5e3 then begin
-        datarr=slr_get_data_array(data,option,data.fitpar0,$
+        datarr=slr_get_data_array(data,option,data.fitpar,$
                                   color_err=datarr_err,$
                                   output_indices=ind)
         covey=slr_read_covey_median_locus()
