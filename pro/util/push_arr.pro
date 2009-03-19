@@ -26,11 +26,12 @@ function push_arr, array, scalar
 ;  push_arr
 ;
 ; PURPOSE:
-;  Create, or increase, and array Perl-style.
+;  Create, or increase, an array, like push() in Perl or C.
 ;
 ; EXPLANATION:
 ;
 ; CALLING SEQUENCE:
+;  arr=push_arr(arr,val)
 ;
 ; INPUTS:
 ;

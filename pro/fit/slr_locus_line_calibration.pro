@@ -192,7 +192,7 @@ pro slr_locus_line_calibration,$
 
   obji_out=ind1_better
 
-  kap_err=fitpar.kappa.err
+  kap_err=float(fitpar.kappa.err)
   if bootstrap then begin
      start_time=systime(1)
      if option.verbose ge 1 then begin
@@ -241,12 +241,12 @@ pro slr_locus_line_calibration,$
         endelse
      endfor
 
+     ii=0
      for jj=0,n_elements(kap_err)-1 do begin
-;        slr_log,data.logfile,$
-;                'kappa_gr_err '+string(kap_err[0],format='(F)')
         if fitpar.kappa.fixed[jj] then continue
-        kap_err[jj]=stddev(p_bootstrap[jj,*])
-;           kap_err[jj]=robust_sigma(p_bootstrap[jj,*])
+        kap_err[jj]=stddev(p_bootstrap[ii,*])
+;           kap_err[jj]=robust_sigma(p_bootstrap[ii,*])
+        ii++
      endfor
 ;        save,file=slr_datadir()+path_sep()+data.field+'_bootstrap.sav',$
 ;             data,option,p_bootstrap

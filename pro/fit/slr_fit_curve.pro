@@ -316,8 +316,10 @@ pro slr_fit_curve, x_dat=x_dat,$
         prefix='Un-weighted' else $
            prefix='Weighted'
      ct_string=''
-     for ii=0,n_elements(colorterms)-1 do $
-        ct_string+=' '+strtrim(string(colorterms[ii],format='(F10.3)'),2)
+     if finite(colorterms[0]) then begin
+        for ii=0,n_elements(colorterms)-1 do $
+           ct_string+=' '+strtrim(string(colorterms[ii],format='(F10.3)'),2)
+     endif else ct_string+=' none'
      par_string=''
      for ii=0,n_elements(p)-1 do $
         par_string+=' '+strtrim(string(p[ii],format='(F10.3)'),2)

@@ -77,6 +77,13 @@ function slr_options, file=file, $
 ; INPUTS:
 ;
 ; OPTIONAL INPUTS:
+;  file (string) File to get default configuration.
+;  *** You can provide any parameter that appears in the default
+;  config file here as well. This is done by specifying the parameter
+;  name verbatim, followed by the value. Parameters supplied on the
+;  IDL commandline overwrite those appearing in the config file.Lists
+;  must be passed in IDL format, not as strings of comma separated
+;  values. See slr_pipe.
 ;
 ; OUTPUTS:
 ;
@@ -91,7 +98,6 @@ function slr_options, file=file, $
 ; HISTORY:
 ;  Written by:     FW High 2008
 ;  2/09 FWH Options now come from an external config file
-;
 ;-
 
 ;  compile_opt idl2, hidden
@@ -159,13 +165,66 @@ function slr_options, file=file, $
   if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
   option=create_struct(option,this_par,val)
 
+  this_par="write_ctab"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
+;;; Mags 2 write
+  this_par="mags2write"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=slr_band_string_to_struct_tag($
+         strsplit(ex.(here2),',',/extract),isknown=isknown)
+  endif else begin
+     val=slr_band_string_to_struct_tag($
+         strsplit(file_option.(here1),',',/extract),isknown=isknown)
+  endelse
+  if n_elements(val) eq 1 and val[0] eq 'none' then val='' else begin
+     if total(isknown) ne n_elements(val) then $
+        message,"Don't recognize mag(s): "+$
+                strjoin(val[where(~isknown)],',')
+  endelse
+  option=create_struct(option,this_par,val)
+  n_mags_out=n_elements(option.mags2write)
+
+  this_par="mag_zeropoints"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if n_mags_out eq 1 and ~option.mags2write then begin
+     val=''
+  endif else begin
+     if isthere then begin
+        val=slr_color_string_to_struct_tag($
+            strsplit(ex.(here2),',',/extract),bands=bands,isknown=isknown)
+     endif else begin
+        val=slr_color_string_to_struct_tag($
+            strsplit(file_option.(here1),',',/extract),bands=bands,isknown=isknown)
+     endelse
+     if total(isknown) ne n_elements(val) then $
+        message,"Don't recognize color(s): "+$
+                strjoin(val[where(~isknown)],',')
+     if n_elements(val) ne n_mags_out then $
+        message,"N("+this_par+") must equal N(mags2write)"
+  endelse
+  option=create_struct(option,this_par,val)
+
 ;;; Colors 2 calibrate
+  this_par="transform_only"
+  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
+  option=create_struct(option,this_par,val)
+
   this_par="colors2calibrate"
   slr_check4option,file_option,this_par,here1,/isrequired
   slr_check4option,ex,this_par,here2,isthere=isthere
   if isthere then begin
      val=slr_color_string_to_struct_tag($
-         strsplit(ex.(here2),',',/extract),bands=bands,isknown=isknown)
+;         strsplit(ex.(here2),',',/extract),bands=bands,isknown=isknown)
+         ex.(here2),bands=bands,isknown=isknown)
   endif else begin
      val=slr_color_string_to_struct_tag($
          strsplit(file_option.(here1),',',/extract),bands=bands,isknown=isknown)
@@ -190,7 +249,7 @@ function slr_options, file=file, $
   endif else begin
      val=fix(strsplit(file_option.(here1),',',/extract))
   endelse
-  if n_elements(val) ne n_colors then $
+  if n_elements(val) ne n_colors and ~option.transform_only then $
      message,"N("+this_par+") must equal N(colors2calibrate)"
   option=create_struct(option,this_par,val)
 
@@ -232,7 +291,7 @@ function slr_options, file=file, $
   endif else begin
      val=float(strsplit(file_option.(here1),',',/extract))
   endelse
-  if n_elements(option.kappa_fix) ne n_colors then $
+  if n_elements(option.kappa_fix) ne n_colors and ~option.transform_only then $
      message,"N("+this_par+") must equal N(colors2calibrate)"
   option=create_struct(option,this_par,val)
 
@@ -243,20 +302,25 @@ function slr_options, file=file, $
   if isthere then begin
      val=ex.(here2)
      if size(val,/tname) eq "STRING" then  begin
-        
+        if n_elements(val) eq 1 then begin
+           if val eq 'none' then $
+              val=!values.f_nan
+        endif
      endif else begin
-        if ~isnumber(val) then $
+        if isnumber(val) then begin
+
+        endif else begin
            message,this_par+" must be a vector of numbers or 'none'"
+        endelse
      endelse
   endif else begin
      val=file_option.(here1)
+     val=strsplit(val,',',/extract)
+     if n_elements(val) eq 1 then begin
+        if val eq 'none' then $
+           val=!values.f_nan
+     endif
   endelse
-  val=strsplit(val,',',/extract)
-  if n_elements(val) eq 1 then begin
-     if val eq 'none' then $
-        val=!values.f_nan; else $
-;           message,"Don't understand value of "+this_par
-  endif
   val=float(val)
   option=create_struct(option,this_par,val)
   n_colorterms=n_elements(option.colorterms)
@@ -268,7 +332,8 @@ function slr_options, file=file, $
      val=''
   endif else begin
      if isthere then begin
-        val=strsplit(ex.(here2),',',/extract)
+;        val=strsplit(ex.(here2),',',/extract)
+        val=ex.(here2)
      endif else begin
         val=strsplit(file_option.(here1),',',/extract)
      endelse
@@ -284,7 +349,7 @@ function slr_options, file=file, $
                    " doesn't appear in colors2calibrate"
      endfor
   endelse
-     option=create_struct(option,this_par,val)
+  option=create_struct(option,this_par,val)
 
   this_par="colormult"
   slr_check4option,file_option,this_par,here1,/isrequired
@@ -293,7 +358,8 @@ function slr_options, file=file, $
      val=''
   endif else begin
      if isthere then begin
-        val=strsplit(ex.(here2),',',/extract)
+;        val=strsplit(ex.(here2),',',/extract)
+        val=ex.(here2)
      endif else begin
         val=strsplit(file_option.(here1),',',/extract)
      endelse
@@ -338,12 +404,6 @@ function slr_options, file=file, $
   option=create_struct(option,this_par,val)
 
 ;;; Fitting 
-  this_par="transform_only"
-  slr_check4option,file_option,this_par,here1,/isrequired,/boolean
-  slr_check4option,ex,this_par,here2,isthere=isthere
-  if isthere then val=fix(ex.(here2)) else val=fix(file_option.(here1))
-  option=create_struct(option,this_par,val)
-
   this_par="weighted_residual"
   slr_check4option,file_option,this_par,here1,/isrequired,/boolean
   slr_check4option,ex,this_par,here2,isthere=isthere

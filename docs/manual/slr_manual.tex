@@ -138,19 +138,101 @@ Free Documentation License".
 Stellar Locus Regression (\slr) is a method of directly adjusting the
 instrumental broadband optical colors of stars to bring them into
 accord with a universal stellar color-color locus, producing
-accurately calibrated colors for both stars and galaxies.  This is
-achieved without first establishing individual zeropoints for each
-passband, and can be performed in real-time at the telescope.  In
-\citet{bib:slr} the authors demonstrated how \slr\ naturally makes one
-wholesale correction for differences in instrumental response, for
-atmospheric transparency, for atmospheric extinction, and for Galactic
-extinction.  We are offering open-source access to our IDL routines,
-validated and verified for the implementation of this technique.
+accurately calibrated colors for both stars and galaxies.  
 
-Figure \ref{fig:algorithm} schematically outlines the technique and
-Figure \ref{fig:example} shows the effect of using \slr\ on
-uncalibrated data.  The core IDL tools we have developed are available
-at \url{http://stellar-locus-regression.googlecode.com}.
+We offer an implementation of \slr\ in the Interactive Data Language
+(IDL).  This manual is a guide on getting, installing, and running our
+public IDL code.
+
+The peer-reviewed paper of \citet{bib:slr} initially outlined the
+broad ideas behind the technique, established the mathematical
+formalism, and presented the first tests of the technique.  We expect
+\slr\ to have even broader applicability to astronomy than we
+envisaged in that article.
+
+\section{What \slr\ Is}
+
+At it's core, \slr\ simply fits instrumental colors of stars to a
+standard line, delivering calibration parameters that can then be
+applied to all objects in the field.
+
+Instrumental colors are differences in instrumental magnitudes.
+Instrumental magnitudes are the direct product of measuring photometry
+in bias-subtracted, flat-fielded images.  Source Extractor
+\citep{bib:sextractor} is the common tool for measuring instrumental
+magnitudes.  The distinctive stellar locus is seen immediately in
+instrumental color-color plots of stars in the field.  The red points
+in the top panels of Figure \ref{fig:example} are a real example of
+this.
+
+\begin{figure}
+% \epsscale{0.75}
+  \center
+  \includegraphics[scale=0.6]{fig/illus_sptcl2332_5051_locus_threepanel.eps}
+  \caption{ An illustration of Stellar Locus Regression (\slr).
+    Colors are plotted on the SDSS photometric system. All panels show
+    the standard stellar locus (black line and gray density contours),
+    reproduced from \citet{bib:covey}.  Red points are stellar colors
+    obtained from a Source Extractor analysis of flat-fielded Magellan
+    $6.5\,\mathrm{m}$ IMACS images.  {\it Top panels:} The
+    instrumental IMACS colors are plotted, with a clear mismatch
+    between them and the standard locus. {\it Middle panels:} \slr\ is
+    performed with only a common translation vector applied to the
+    instrumental colors.  Note the color-dependent discrepancies in
+    the upper right portions of the central panels.  {\it Bottom
+      panels:} Color terms are measured from a single, separate
+    observation of a field containing standard stars. Fixing these
+    color terms, a new best-fit translation is determined, which
+    brings the observed colors onto the \sdss-calibrated color system,
+    as defined by the stellar locus.  This \slr\ analysis, when the
+    corrections are then applied to all objects in the photometric
+    catalog, allows us to rapidly obtain highly accurate colors on the
+    SDSS system, directly from flat-fielded data, with a single
+    correction step that accounts for atmospheric extinction, Galactic
+    extinction and instrumental response differences.}
+ \label{fig:example}
+\end{figure}
+% \epsscale{1.0}
+
+The instrumental stellar locus closely resembles the calibrated
+stellar locus, shown with the heavy line and gray density contours in
+Figure \ref{fig:example}.  If we align the two loci with simple
+shifts, we arrive at the middle panels of Figure \ref{fig:example}.
+The two agree somewhat, although we see a systematic difference.  This
+difference arises from using a different instrument (Magellan in
+Chile) than that used to make the standard stellar locus (Sloan
+Digital Sky Survey telescope in New Mexico).  We measure and apply the
+usual instrumental color terms, re-measure the shift, and produce a
+stellar locus that matches the standard one nearly perfectly.  This is
+shown in the bottom panels of Figure \ref{fig:example}.
+
+The product is a color calibration that can be applied to all objects
+in the same field where the calibrator stars appeared.  The \slr\
+color calibration is achieved without first establishing individual
+zeropoints for each passband, can be performed in real-time at the
+telescope, and makes use of the stars from any field---they need not
+be standards.  \citet{bib:slr} demonstrated how \slr\ naturally makes
+one wholesale correction for differences in instrumental response, for
+atmospheric transparency, for atmospheric extinction, and for Galactic
+extinction.  
+
+This all assumes that the standard locus is universal.  We explored
+the extent to which this is true in \citet{bib:slr}, both in theory
+and in practice.  We found that \slr\ calibrations are repeatable with
+sub-percent systematic color uncertainty, that \slr\ re-calibrations
+of \sdss\ data are directly sensitive to reddening by Galactic dust at
+the 2\% level for the fields we looked at, and \slr\ calibrations of
+red cluster galaxy colors were sufficiently accurate to deliver
+cluster photometric redshifts with 0.6\% systematic uncertainty (which
+we found to be consistent with 2\% color errors).
+
+\slr\ is a simple and fundamentally different way of calibrating
+photometry.  It works, and it works well.
+
+Figure \ref{fig:algorithm} schematically outlines how \slr\ fits into
+a typical calibration scheme.  The core IDL tools we have developed
+are available at \url{http://stellar-locus-regression.googlecode.com},
+and this manual serves as a guide to that particular code.
 
 \begin{figure}
 \center
@@ -162,37 +244,6 @@ at \url{http://stellar-locus-regression.googlecode.com}.
   performed once per detector. }
 \label{fig:algorithm}
 \end{figure}
-
-\begin{figure}
-% \epsscale{0.75}
-  \center
- \includegraphics[scale=0.6]{fig/illus_sptcl2332_5051_locus_threepanel.eps}
- \caption{ An illustration of Stellar Locus Regression (\slr).  Colors
-   are plotted on the SDSS photometric system. All panels show the
-   standard stellar locus (black line and gray density contours),
-   reproduced from \citet{bib:covey}.  Red points are stellar colors
-   obtained from a Source Extractor analysis of flat-fielded Magellan
-   $6.5\,\mathrm{m}$ IMACS images.  {\it Top panels:} The instrumental
-   IMACS colors are plotted, with a clear mismatch between them and
-   the standard locus. {\it Middle panels:} \slr\ is performed with
-   only a common translation vector applied to the instrumental
-   colors.  Note the color-dependent discrepancies in the upper right
-   portions of the central panels.  By way of example, the vectors
-   show the expected direction and magnitude of extinction by Galactic
-   dust ($A_r=0.2$) and the atmosphere ($1.3$ airmasses).  {\it Bottom
-     panels:} Color terms are measured from a single observation of a
-   field containing standard stars. Fixing these color terms, a new
-   best-fit translation is determined, which brings the observed
-   colors onto the \sdss-calibrated color system, as defined by the
-   stellar locus.  This \slr\ analysis, when the corrections are then
-   applied to all objects in the photometric catalog, allows us to
-   rapidly obtain highly accurate colors on the SDSS system, directly
-   from flat-fielded data, with a single correction step that accounts
-   for atmospheric extinction, Galactic extinction and instrumental
-   response differences.}
- \label{fig:example}
- \end{figure}
-%\epsscale{1.0}
 
 
 \chapter{Quick Start}
@@ -221,12 +272,19 @@ at \url{http://stellar-locus-regression.googlecode.com}.
 \end{verbatim}
 \item Verify your installation (see \S\ref{sec:verify}):
 \begin{verbatim}
+% idl
+IDL> slr_docs
+IDL> exit
 % cd $SLR_INSTALL/example_data
 % slr.csh low_reddening.ctab low_reddening.slr.ctab
 % slr.csh high_reddening.ctab high_reddening.slr.ctab
 % idl
 IDL> slr_demo
-IDL> slr_docs
+IDL> exit
+% cat low_reddening.slr.ctab
+% cat low_reddening.slr
+% cat high_reddening.slr.ctab
+% cat high_reddening.slr
 \end{verbatim}
 \end{enumerate}
 
@@ -347,14 +405,20 @@ Now set some environment variables in your cshrc or bashrc file. Remember to ins
 % setenv PATH {$PATH}:SLR_INSTALL/bin
 \end{verbatim}
 
-We've used the example directories mentioned in this install file. This should let the demo (see below) work properly. If you made different choices, you must make sure these environment variables reflect them.
+We've used the example directories mentioned in this install
+file. This should let the demo (see below) work properly. If you made
+different choices, you must make sure these environment variables
+reflect them.
+
+\chapter{Usage}
 
 \section{Verifying Your Installation}
 \label{sec:verify}
 
-If everything is set up properly, you can run the demo by invoking idl and running:
+If everything is set up properly, you can run the demo by invoking IDL
+and running:
 \begin{verbatim}
-% cd $SLR_INSTALL/example_Data
+% cd $SLR_INSTALL/example_data
 % idl
 IDL> slr_demo
 \end{verbatim}
@@ -370,7 +434,7 @@ numerical regression, and results for best-fit parameters printed to
 screen.
 
 
-\subsection{Running slr.csh Using Example Data}
+\section{Running slr.csh Using Example Data}
 
 Go to the directory \$SLR\_INSTALL/example\_data, then issue at
 the commandline (you have to be in same directory as your input file):
@@ -386,18 +450,27 @@ with the additional appended columns GR, RI, etc, which are the
 calibrated colors g - r, r - i. Estimated color errors, with bootstrap
 errors added in quadrature, are also output.
 
-Browse the log file that \slr\ generates, in this case
-lowext\_stars3\_fwhigh.slr. This contains the color calibrations
-with bootstrap errors.
+Browse the output table of calibrated colors, and the log file that
+\slr\ generates, in this case lowext\_stars3\_fwhigh.slr. The latter
+contains the color calibration parameters with bootstrap errors.
+\begin{verbatim}
+% cat low_reddening.slr.ctab
+% cat low_reddening.slr
+\end{verbatim}
 
 If that works then you should also be able to run
 \begin{verbatim}
 % cd $SLR_INSTALL/example_data
 % slr.csh high_reddening.ctab high_reddening.slr.ctab
 \end{verbatim}
+Browse the output:
+\begin{verbatim}
+% cat high_reddening.slr.ctab
+% cat high_reddening.slr
+\end{verbatim}
 
 
-\subsection{Running slr.csh with Your Own Data}
+\section{Running slr.csh with Your Own Data}
 
 To run \slr\ on your own data, issue the command (again, in the same
 directory as your input file):
@@ -407,32 +480,78 @@ directory as your input file):
 The configuration file can optionally be specified.  If none is given,
 then the default file is used, \$SLR\_INSTALL/config/default.config.
 
-This has the same output as the previous section.  The requirements
-for the input file are as follows:
+This has the same output as the previous section.  See
+\S\ref{sec:colortable} for requirements on acceptable input colortable
+formatting.
 
+The code outputs a new colortable with calibrated colors and
+optionally magnitudes, with errors.  The output filename is the input
+filename with the string ``slr.ctab'' appended.  If the input filename
+had ``.ctab'' as the suffix, then this suffix is first removed in
+order to avoid duplication.  The \slr\ log file is the input
+colortable file name with ``.slr'' appended.  Again, ``.ctab'' is
+first removed if is the input file's suffix.
+
+
+\section{Writing Wrappers}
+
+
+At its core, \slr\ simply fits $ugrizUBVRIJHK$ colors to a standard
+locus. This is done with slr\_pipe.pro.  \slr\ doesn't care where the
+input magnitudes came from, nor whether they were previously
+calibrated fully, partially, or at all.  \slr\ only knows how to make
+the input stellar locus look like the standard locus, thereby
+producing calibrated colors.
+
+\subsection{slr\_pipe.pro}
+
+But the real power of \slr\ comes from writing wrappers to
+slr\_pipe.pro.  For example, if you have uncalibrated $griz$
+magnitudes, with 2MASS $J$-band data for a subset of your stars, then
+you can make a wrapper that calls slr\_pipe three times:
 \begin{enumerate}
-
-\item The first line is a description of the columns followed by a
-  $\#$ for example:
-\begin{verbatim}
-# ID RA Dec type tmixed g g_err r r_err i i_err z z_err ...
-\end{verbatim}
-  where the ellipsis ... means there are more acceptable columns you
-  can specify.  See \S\ref{sec:colortable} for a full description of
-  the ``colortable''.
+\item Calibrate only the colors $(g-r,r-i,i-z)$.  This produces the
+  vector of color translations
+  $\zptcolor=(\kappa_{gr},\kappa_{ri},\kappa_{iz})$.
+\item Then calibrate only the colors $(i-z,z-J)$, but pass the
+  calibration parameter $\kappa_{iz}$ as an input and leave it fixed
+  during the fit. This produces $\kappa_{zJ}$, which happens to be
+  equal to your $z$-band zeropoint (which includes atmospheric
+  extinction, Galactic extinction, the instrumental zeropoint, and so
+  on).
+\item Run it one more time, leaving $\zptcolor$ fixed to the values
+  you just measured, to produce a catalog that contains the calibrated
+  colors $(g-r,r-i,i-z)$.
 \end{enumerate}
+All three of these tasks are within the scope of slr\_pipe, even
+though they have conceptually different results.
 
+This is made possible by passing parameters on the IDL commandline.
+The best fit $\zptcolor$ can be access via the IDL keyword kappa\_out,
+and its error via kappaerr\_out.  These can then be accessed then
+passed to the next call of slr\_pipe using syntax like
+\begin{verbatim}
+IDL> slr_pipe,infile='low_reddening.ctab',$
+IDL>          outfile='low_reddening.slr.ctab',$
+IDL>          kappa_out=low_kappa, kapperr_out=low_kappa_err
+IDL> slr_pipe,infile='low_reddening.ctab',$
+IDL>          outfile='low_reddening.slr.ctab',$
+IDL>          kappa_guess=low_kappa, kappa_guess_err=low_kappa_err, $
+IDL>          nbootstrap=0
+\end{verbatim}
+In this example we've run \slr\ twice, but the second time we changed
+the initial guess for $\zptcolor$ used during the regression.  We also
+decided not to do the bootstrap the second time, choosing instead to
+use the first bootstrap errors as our estimates for errors on the new
+$\zptcolor$.
 
+This works because any parameter that appears in the configuration
+file (\S\ref{sec:config}) can be passed to slr\_pipe, verbatim.
+Commandline parameters overwrite those parsed from the configuration
+file.
 
-
-\chapter{Conventions}
-
-Define mathematical conventions.
-
-Assumptions.
-
-Glossary of terms.
-
+Wrapping around slr\_pipe lets you loop over lots of data and/or run
+sophisticated calibrations, like the $grizJ$ scheme described above.
 
 \chapter{The Colortable}
 \label{sec:colortable}
@@ -440,7 +559,8 @@ Glossary of terms.
 SLR reads data from and outputs results to what we call {\it
   colortables}.  These are simple ascii files with a single header
 that starts with \verb|#| and one row of data per object.  The header
-values are columns names, and each row corresponds to one object.  Here's a simple (truncated) example:
+values are columns names, and each row corresponds to one object.
+Here's a simple (truncated) example:
 \begin{verbatim}
 # ID        RA       Dec type tmixed       g  g_err       r  r_err ...
    0 254.00649  34.33696    1      0  20.672  0.025  19.795  0.018 ...
@@ -452,9 +572,10 @@ values are columns names, and each row corresponds to one object.  Here's a simp
 \end{verbatim}
 The ellipses ... here mean there can be additional columns and rows.
 
-The data must be fixed width.  The header strings however need not be
-fixed width.  Empty or erroneous data must generically be represented
-by the character ``\verb|-|'' (dash).
+The columns can be any fixed width, but they must be fixed.  The
+header strings however need not be fixed width.  Empty or erroneous
+data must generically be represented by the character ``\verb|-|''
+(dash).
 
 While there is a minimal subset of columns that must be present for
 SLR to work properly, it is acceptable for there to be extra columns
@@ -526,10 +647,11 @@ used by the SLR code.
 
 
 \chapter{Configuration Parameters}
+\label{sec:config}
 
 SLR reads ascii configuration files that the user can edit.  Comments
 can be used with the character \verb|#|.  There must be at least one
-space between the paramter name and its value.  Arrays (vectors) are
+space between the parameter name and its value.  Arrays (vectors) are
 comma-separated lists; there must be no spaces in such lists.  Each
 parameter in the config file must have a corresponding value next to
 it.  There can be no empty fields.  All parameters must be present in
@@ -578,28 +700,42 @@ Table \ref{tab:config} describes all configuration paramaters.
 \verb|colormult| & {\it string array} & Comma separated list of the colors that multiply the \verb|colorterms|. \\
 
 ~ & ~ & ~ \\ \hline
-\multicolumn{3}{c}{Program behavior} \\
+\multicolumn{3}{c}{Controlling the fitter} \\
 \hline ~ & ~ & ~ \\ 
 
 \verb|transform_only| & {\it boolean} & If yes, then don't do regression and just calibrate the data using the input $\zptcolor$ and colorterms.  If no, fit for $\zptcolor$ and then perform the color transformation. \\
+\verb|weighted_residual| & {\it boolean} & Use the error-weighted residual? \\
+\verb|nbootstrap| & {\it integer} & Number of bootstraps to perform. \\
+
+~ & ~ & ~ \\ \hline
+\multicolumn{3}{c}{Program behavior} \\
+\hline ~ & ~ & ~ \\ 
+
 \verb|force| & {\it boolean} & Force a re-read of ascii data? If not, then read from IDL .sav files if they exist.  \\
 \verb|verbose| & {\it integer} & Verbosity level, 0, 1, or 2.  \\
 \verb|plot| & {\it boolean} &  \\
 \verb|postscript| & {\it boolean} & Write figures to postscript files instead of to screen? \verb|plot| must also be set.  \\
 \verb|interactive| & {\it boolean} & Prompt user for response periodically? \\
 \verb|animate_regression| & {\it boolean} & Plot each iteration of the fit? \\
-\verb|weighted_residual| & {\it boolean} & Use the error-weighted residual? \\
-\verb|nbootstrap| & {\it integer} & Number of bootstraps to perform. \\
 \verb|debug| & {\it boolean} & Debug mode? \\
+\verb|have_sfd| & {\it boolean} & Are the maps of \citet{bib:sfd} available? Must exist in \$DUST\_DIR/maps. \\
+
 
 ~ & ~ & ~ \\ \hline
-\multicolumn{3}{c}{Limits and conditions on the data} \\
+\multicolumn{3}{c}{Ouput} \\
+\hline ~ & ~ & ~ \\ 
+
+\verb|write_ctab| & {\it boolean} & Write table of calibrated colors (and optionally magnitudes)? \\
+\verb|mags2write| & {\it string array} & What bands to write \slr-calibrated magnitudes for, or ``none'' if none. The bands must appear somewhere in \verb|colors2calibrate|. \\
+\verb|mag_zeropoints| & {\it string array} & Which elements of $\zptcolor$ are the magnitude zeropoints?  There must be one entry for each \verb|write_mags|.  \\
+
+~ & ~ & ~ \\ \hline
+\multicolumn{3}{c}{Conditions on the data} \\
 \hline ~ & ~ & ~ \\ 
 
 \verb|type| & {\it integer} & The type identifying stars, which are used in the fit. \\
 \verb|tmixed| & {\it boolean} & Whether to allow for point/extended source ambiguity in objects used in the fit. \\
 \verb|deredden| & {\it boolean} & Deredden the objects before fitting, using \citet{bib:sfd}? \\
-\verb|have_sfd| & {\it boolean} & Are the maps of \citet{bib:sfd} available? Must exist in \$DUST\_DIR/maps. \\
 \verb|cutdiskstars| & {\it boolean} & Cut out disk stars with Galactic $|Z|<$ \verb|zeelow| before fitting, using \citet{bib:juric}?  \\
 \verb|zeelow| & {\it float} & Lower limit of allowable Galactic scale height $Z$ for stars. Assumes they are main-sequence, and already calibrated. Only used if \verb|cutdiskstars| is set. In parsecs. \\
 \verb|beelow| & {\it float} & Lower limit of allowable Galactic latitudes $|b|$, in $\deg$. \\
@@ -616,13 +752,6 @@ Table \ref{tab:config} describes all configuration paramaters.
 \end{center}
 
 
-
-
-\chapter{Outputs}
-
-\section{Output Colortable}
-
-\section{The SLR Log File}
 
 
 
