@@ -31,12 +31,12 @@ pro slr_get_data, file=file,$
 ; PURPOSE:
 ;  Get the stellar data from colortables optimally.
 ;
-; EXPLANATION:
-;  Reads stellar data from colortables, gets SFD Galactic extinction
-;  values for each position, and initializes some other things.  For
-;  large data sets, the initial execution of this procedure is slow,
-;  but every time after it is faster thanks to the use of IDL .sav
-;  files. 
+; EXPLANATION: 
+;  Reads stellar data from colortables, optionally gets SFD Galactic
+;  extinction values for each position, and initializes some other
+;  things.  For large data sets, the initial execution of this
+;  procedure is slow, but every time after it is faster thanks to the
+;  use of IDL .sav files.
 ;
 ; CALLING SEQUENCE:
 ;  slr_get_data,$
@@ -51,7 +51,6 @@ pro slr_get_data, file=file,$
 ;  option (struct)  Global options
 ;  force (bit)      Force to read the ascii rather than the .sav file?
 ;                   Default 0.
-;
 ;
 ; OUTPUTS:
 ;  data (struct)  The data.
@@ -83,6 +82,7 @@ pro slr_get_data, file=file,$
      message,"Using default options",/info
      option=slr_options()
   endif
+  if not keyword_set(force) then force=1 else force=0
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
@@ -106,7 +106,7 @@ pro slr_get_data, file=file,$
           initialize=0
 
 
-  if file_test(savefile) and not keyword_set(force) then begin
+  if file_test(savefile) and ~force then begin
      restore,savefile
   endif else if fieldname ne 'none' then begin
 
@@ -155,6 +155,13 @@ pro slr_get_data, file=file,$
         data=create_struct(data,"Htmass_galext",extinction_a*k_ext[6])
         data=create_struct(data,"Ktmass_galext",extinction_a*k_ext[7])
         data=create_struct(data,"ebv_galext",extinction_a)
+
+        if option.verbose ge 1 then begin
+           print,'Median E(B-V) = '+$
+                 string(median(extinction_a),format='(F5.3)')+$
+                 ' +/- '+$
+                 string(stddev(extinction_a),format='(F5.3)')
+        endif
      endif
 
 
@@ -167,18 +174,18 @@ pro slr_get_data, file=file,$
               bandnames:option.bands,$
               kappa:{n:n_elements(option.colors2calibrate),$
                      names:option.colors2calibrate,$
-                     guess:option.kappa_guess,$
-                     range:option.kappa_guess_range,$
-                     val  :option.kappa_guess,$
-                     err  :option.kappa_guess_err,$
+                     guess:float(option.kappa_guess),$
+                     range:float(option.kappa_guess_range),$
+                     val  :float(option.kappa_guess),$
+                     err  :float(option.kappa_guess_err),$
                      fixed:option.kappa_fix},$
               b:{n:n_elements(option.colormult),$
                  matrix:identity(n_elements(option.colors2calibrate)),$
                  bands:option.colortermbands,$
                  mult :option.colormult,$
-                 guess:replicate(0,n_elements(option.colormult)),$
-                 range:replicate(0,n_elements(option.colormult)),$
-                 val  :option.colorterms,$
+                 guess:replicate(0.,n_elements(option.colormult)),$
+                 range:replicate(0.,n_elements(option.colormult)),$
+                 val  :float(option.colorterms),$
                  err  :replicate(0.001,n_elements(option.colorterms)),$
                  fixed:replicate(1,n_elements(option.colormult))}$
              }
@@ -192,7 +199,7 @@ pro slr_get_data, file=file,$
   if option.plot then begin
      goodi=slr_get_good_indices(data,option,data.fitpar)
 
-     if n_elements(goodi) lt 5e3 then begin
+     if n_elements(goodi) lt 5e3 and n_elements(goodi) ge 1 then begin
         datarr=slr_get_data_array(data,option,data.fitpar,$
                                   color_err=datarr_err,$
                                   output_indices=ind)

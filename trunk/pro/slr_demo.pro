@@ -51,7 +51,6 @@ pro slr_demo, configfile=configfile
 ;       
 ; HISTORY:
 ;       Written by:     FW High Jan 2009
-;
 ;-
 
 ; compile_opt idl2, hidden

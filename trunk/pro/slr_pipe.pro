@@ -1,6 +1,8 @@
 pro slr_pipe, infile=infile,$
               outfile=outfile,$
               configfile=configfile, $
+              kappa_out=kappa_out, $
+              kappa_err_out=kappa_err_out, $
               _EXTRA = ex 
 
 ;$Rev:: 76            $:  Revision of last commit
@@ -29,37 +31,51 @@ pro slr_pipe, infile=infile,$
 ;  slr_pipe
 ;
 ; PURPOSE:
-;  The basic SLR pipeline to calibrate griz colors.
+;  The basic SLR pipeline to calibrate colors.
 ;
 ; EXPLANATION:
-;  Most useful when invoked from the shell script slr.csh.
+;  This is the main procedure that takes in data and calibrates it. In
+;  practice, it is the program that wrappers will directly invoke.
 ;
 ; CALLING SEQUENCE:
-;  slr_pipe
+;  slr_pipe,infile=infile,outfile=outfile,configfile=configfile,$
+;   kappa_out=kappa_out,kappa_err_out=kappa_err_out,$
+;   _EXTRA=x
 ;
 ; INPUTS:
-;  Requires the environment variable SLR_COLORABLE_IN to be set to the
-;  input colortable.
-;  Requires the environment variable SLR_COLORABLE_OUT to be set to
-;  the output colortable.
+;  infile (string)    Input colortable file.
 ;
 ; OPTIONAL INPUTS:
-;  You can set SLR_CONFIG_FILE to a custom SLR configuration file.
+;  configfile (string) File to get default configuration.
+;  outfile    (string) File to write calibrated colors/mags to.  Must
+;                      be provided if "write_ctab" is set.
+;  *** You can provide any parameter that appears in the default
+;  config file here as well. This is done by specifying the parameter
+;  name verbatim, followed by the value. Parameters supplied on the
+;  IDL commandline overwrite those appearing in the config file. These
+;  parameters are passed immediately to slr_options via _EXTRA
+;  keywords.  Lists must be passed in IDL format, not as strings of
+;  comma separated values. See EXAMPLES.
 ;
 ; OUTPUTS:
-;  Writes SLR calibrations to the file $SLR_COLORABLE_OUT.
-;  Logs SLR calibrations to a log file.
 ;
 ; OPIONAL OUTPUTS:
+;  kappa_out     (float array)  Output kappa
+;  kappa_err_out (float array)  Error on kappa
 ;       
 ; NOTES:
 ;
 ; EXAMPLES:
-;  At the commandline:
-;   % cd $SLR_INSTALL/example_data
-;   % slr.csh lowext_stars3_fwhigh.ctab lowext_stars3_fwhigh.slr.ctab
-;  First argument is the input colortable, second is the output.  The
-;  calibration results are logged to lowext_stars3_fwhigh.slr.
+;  The follow runs SLR on the example data, with some tweaked config
+;  parameters, and gives access to the output calibrations "kappa".
+;  % cd $SLR_INSTALL/example_data; idl
+;  IDL> slr_pipe,infile='low_reddening.ctab',$
+;  IDL> max_weighted_locus_dist=10,$
+;  IDL> cutdiskstars=1,zeelow=100,$
+;  IDL> nbootstrap=0,$
+;  IDL> kappa_out=kappa_out
+;  ...
+;  IDL> print,kappa_out
 ;
 ; PROCEDURES USED:
 ;  slr_options
@@ -114,33 +130,31 @@ pro slr_pipe, infile=infile,$
      data.fitpar=fitpar
   endif
 
+;;; Print the results
+  kappa_out=data.fitpar.kappa.val
+  kappa_err_out=data.fitpar.kappa.err
   print,'Resulting kappa vector:'
   for jj=0,n_elements(data.fitpar.colornames)-1 do begin
      print,' kappa ',data.fitpar.colornames[jj],' = ',$
            string(data.fitpar.kappa.val[jj],format='(F8.3)'),$
            ' +/-',string(data.fitpar.kappa.err[jj],format='(F7.3)')
   endfor
-;     print,'Compare to predicted Galactic extinction values'
-;     for jj=0,n_elements(data.fitpar.colornames)-1 do begin
-;        print,' E ',data.fitpar.colornames[jj],' = ',$
-;              string(galext_mean[jj],format='(F8.3)'),$
-;              ' +/-',string(galext_stddev[jj],format='(F7.3)')
-;     endfor
 
-  if not keyword_set(outfile) then begin
-     outfile=getenv('SLR_COLORTABLE_OUT')
+;;; Write results to file
+  if option.write_ctab then begin
+     if not keyword_set(outfile) then begin
+        outfile=getenv('SLR_COLORTABLE_OUT')
+     endif
+     if outfile eq '' then begin
+        outfile=slr_get_ctab_filename(infile,/out)
+     endif
+
+     slr_write_data,$
+        option=option,$
+        fitpar=data.fitpar,$
+        data=data,$
+        file=outfile
   endif
-  if outfile eq '' then begin
-     outfile=slr_get_ctab_filename(infile,/out)
-  endif
-
-
-
-  slr_write_data,$
-     option=option,$
-     fitpar=data.fitpar,$
-     data=data,$
-     file=outfile
 
   message,"SLR successfully completed in "+$
           strtrim(string(SYSTIME(1)-start_time,format='(F10.3)'),2)+$

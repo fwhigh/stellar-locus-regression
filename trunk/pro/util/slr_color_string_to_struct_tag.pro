@@ -27,7 +27,7 @@ function slr_color_string_to_struct_tag, $
 ;
 ;+
 ; NAME:
-;  slr_band_string_to_struct_tag
+;  slr_color_string_to_struct_tag
 ;
 ; PURPOSE:
 ;  Convert a known passband string to a structure tag if the string is recognized as corresponding to a filter.
