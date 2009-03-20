@@ -82,7 +82,9 @@ pro slr_get_data, file=file,$
      message,"Using default options",/info
      option=slr_options()
   endif
-  if not keyword_set(force) then force=1 else force=0
+  if n_elements(force) eq 0 then force=1 else begin
+     if keyword_set(force) then force=1 else force=0
+  endelse
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
