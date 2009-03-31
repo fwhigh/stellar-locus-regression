@@ -236,7 +236,7 @@ pro slr_get_data, file=file,$
            
            multiplot,/dox,/doy
         endfor
-        
+
         multiplot,/default
 
         if option.interactive then begin

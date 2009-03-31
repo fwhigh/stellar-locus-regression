@@ -88,8 +88,8 @@ function slr_get_good_indices, cat, option, fitpar, $
      ind=setintersection($
          ind,$
          where(1/cat.ctab.(tagi_err) gt option.snlow[ii] and $
-               cat.ctab.(tagi) gt mag_min and $
-               cat.ctab.(tagi) lt mag_max and $
+               cat.ctab.(tagi) gt mag_min and cat.ctab.(tagi) gt -90 and $
+               cat.ctab.(tagi) lt mag_max and cat.ctab.(tagi) lt 90 and $
                finite(cat.ctab.(tagi)) and finite(cat.ctab.(tagi_err)) and $
                cat.ctab.(tagi) ne -99 and cat.ctab.(tagi_err) ne -99,$
                count))
