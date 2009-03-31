@@ -80,6 +80,10 @@ function slr_get_data_array, cat, option, fitpar, $
                               input_indices=in_ind,tmass_indices=tind)
   endelse
 
+  if n_elements(ind) eq 1 and ind[0] eq -1 then begin
+     message,"No good objects!"
+  end
+
   if option.verbose ge 1 and option.deredden then begin
      message,"Dereddening",/info
   endif
@@ -115,19 +119,23 @@ function slr_get_data_array, cat, option, fitpar, $
      mag2_galext=where(strlowcase(cat_tags) eq $
                        strlowcase(band2)+'_galext',$
                        count)
-     if size(dat,/tname) eq 'UNDEFINED' then begin
-        dat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
+     tmpdat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
              (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
-        color_err=sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])
+     tmpcolor_err=sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])
+     badi=where(cat.ctab.(mag1) lt -90 or cat.ctab.(mag1) gt 90 or $
+                cat.ctab.(mag2) lt -90 or cat.ctab.(mag2) gt 90 ,count)
+     if count ge 1 then begin
+        tmpdat[badi]=-99
+     endif
+     if size(dat,/tname) eq 'UNDEFINED' then begin
+        dat=tmpdat
+        color_err=tmpcolor_err
         if option.have_sfd then begin
            reddening=(cat.(mag1_galext)-cat.(mag2_galext))[ind]
         endif
      endif else begin
-        dat=[[dat],$
-             [(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
-               (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]]]
-        color_err=[[color_err],$
-             [sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])]]
+        dat=[[dat],[tmpdat]]
+        color_err=[[color_err],[tmpcolor_err]]
         if option.have_sfd then begin
            reddening=[[reddening],$
                       [(cat.(mag1_galext)-cat.(mag2_galext))[ind]]]

@@ -110,10 +110,10 @@ pro slr_write_data, file=file,$
           fitpar.colornames+'_err']
   headerformat=['A'+strtrim(id_length-1,2),$
                 'A10','A10','A10','A10',$
-                replicate('A8',2*n_elements(fitpar.colornames))]
+                replicate('A9',2*n_elements(fitpar.colornames))]
   format=['A'+strtrim(id_length,2),$
           'F10.5','F10.5','I10','I10',$
-          replicate('F8.3',2*n_elements(fitpar.colornames))]
+          replicate('F9.3',2*n_elements(fitpar.colornames))]
 
   if option.mags2write then begin
      for jj=0,n_elements(option.mags2write)-1 do begin
@@ -150,9 +150,9 @@ pro slr_write_data, file=file,$
                 fitpar.bandnames[bandi],$
                 fitpar.bandnames[bandi]+'_err']
         headerformat=[headerformat,$
-                      replicate('A8',2)]
+                      replicate('A9',2)]
         format=[format,$
-                replicate('F8.3',2)]
+                replicate('F9.3',2)]
 
      endfor
   endif

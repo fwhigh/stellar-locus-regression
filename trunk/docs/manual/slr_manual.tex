@@ -131,7 +131,7 @@ Free Documentation License".
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-% \input{preliminaries}
+\input{preliminaries}
 
 \chapter{Introduction}
 
@@ -251,7 +251,8 @@ and this manual serves as a guide to that particular code.
 
 \begin{enumerate}
 \item \href{http://stellar-locus-regression.googlecode.com}{Download}
-  the \slr\ code.
+  the \slr\ code and unpack it in a directory of your choosing,
+  $<$install-dir$>$.
 \item Install and set up the \href{http://idlastro.gsfc.nasa.gov}{Goddard
     astronomy} IDL libraries,
   \href{http://www.astro.princeton.edu/~schlegel/code.html}{idlutils},
@@ -266,10 +267,12 @@ and this manual serves as a guide to that particular code.
   directory $<$data-dir$>$/covey.
 \item Set environment variables (here in tcsh):
 \begin{verbatim}
-% setenv SLR_INSTALL <install-dir>/slr-v2.1
+% setenv SLR_INSTALL <install-dir>/slr-v?.?
 % setenv SLR_DATA <data-dir>
 % setenv PATH {$PATH}:$SLR_INSTALL/bin
 \end{verbatim}
+  where the version number v?.?\ corresponds to whatever you
+  downloaded in step 1.
 \item Verify your installation (see \S\ref{sec:verify}):
 \begin{verbatim}
 % idl
@@ -297,11 +300,12 @@ First, go get the latest version 2 download at
 \url{http://stellar-locus-regression.googlecode.com}. Untar
 it with
 \begin{verbatim}
-tar xzvf slr-v2.1.tar.gz
+tar xzvf slr-v?.?.tar.gz
 \end{verbatim}
+where the version number v?.?\ corresponds to whatever you downloaded.
 Put the package in some directory $<$install-dir$>$. This can be
-/usr/local/idllibraries or \$HOME or whatever you prefer. The
-package root directory will then be $<$install-dir$>$/slr-v2.1.
+/usr/local/idllibraries or \$HOME or whatever you prefer. The package
+root directory will then be $<$install-dir$>$/slr-v?.?.
 
 Version 2.1 and higher require only IDL, and do not require
 Analyst. Version 2.0 and prior require IDL with the Analyst add-on,
@@ -411,9 +415,9 @@ different choices, you must make sure these environment variables
 reflect them.
 
 \chapter{Usage}
+\label{sec:verify}
 
 \section{Verifying Your Installation}
-\label{sec:verify}
 
 If everything is set up properly, you can run the demo by invoking IDL
 and running:
@@ -553,6 +557,42 @@ file.
 Wrapping around slr\_pipe lets you loop over lots of data and/or run
 sophisticated calibrations, like the $grizJ$ scheme described above.
 
+
+
+\chapter{Pre-Processing Your Data}
+\label{sec:prepost}
+
+Before you run \slr, you'll have to have multiband observations of a
+given field in hand.  All images must be bias-subtracted and
+flat-fielded, including dome flats, fringe corrections, and ideally
+illumination corrections as well.  You'll then run SExtractor or the
+equivalent to detect objects in each band, and identify unique stars,
+galaxies, and other objects between all bands.  The result will be a
+list of instrumental magnitudes for each object in the field in each
+band.  You can subtract instrumental magnitudes to arrive at
+intstrumental colors.
+
+If you want to standardize your colors to a system using a different
+instrument than that originally used to establish the standard, then
+you'll probably have to measure color terms, as described in
+\S\ref{sec:colorterms}.
+
+The final steps are to format your multi-band instrumental catalog
+into an \slr-readable colortable \S\ref{sec:colortable}, and to tell
+\slr\ about your color terms using the config files
+(\S\ref{sec:config}-\ref{sec:colorterms}).  You're now ready to run
+\slr.
+
+Of course, you can also run \slr\ on photometry that has already been
+calibrated to any degree.  When running \slr\ in this case, it will
+give you new calibrations such that the colors resemble the standard
+locus line as well as possible.
+
+
+
+
+
+
 \chapter{The Colortable}
 \label{sec:colortable}
 
@@ -614,19 +654,19 @@ used by the SLR code.
 \verb|ID| & {\it string} & J2000 $\deg$ & Yes & Object identifier. \\
 \verb|RA| & {\it float} & J2000 $\deg$ & Yes & Right ascension. \\
 \verb|Dec| & {\it float} & J2000 $\deg$ & Yes & Declination. \\
-\verb|type| & {\it integer} & & Yes & $1=\textrm{star}$, $3=\textrm{galaxy}$. \\
-\verb|tmixed| & {\it boolean} & & Yes & Is the \verb|type| ambiguous between the bands? \\
-\verb|U| & {\it float} & mag & No & $U$-band magnitude. \\
+\verb|type| & {\it integer} & & Yes & $1=\textrm{star}$. Only stars should be used. If an object has a different \verb|type|, then the code will ignore it during regression, but will still apply calibrations to all objects when outputting the new colortable. \\
+\verb|tmixed| & {\it boolean} & & Yes & Is the \verb|type| ambiguous between the bands? Normally you'll want to run \slr\ on unambiguous stars (\verb|tmixed| $=0$, \verb|type| $=1$). If you are low on stars in your catalog, you can try setting \verb|tmixed| to 1, in which case \slr\ will use all objects of the specified \verb|type|. \\
+\verb|U| & {\it float} & mag & UNTESTED & $U$-band magnitude. \\
 \verb|U_err| & {\it float} & mag & If \verb|U| present & Uncertainty in Johnson $U$-band magnitude. \\
-\verb|B| & {\it float} & mag & No & $B$-band magnitude. \\
+\verb|B| & {\it float} & mag & UNTESTED & $B$-band magnitude. \\
 \verb|B_err| & {\it float} & mag & If \verb|B| present & Uncertainty in Johnson $B$-band magnitude. \\
-\verb|V| & {\it float} & mag & No & $V$-band magnitude. \\
+\verb|V| & {\it float} & mag & UNTESTED & $V$-band magnitude. \\
 \verb|V_err| & {\it float} & mag & If \verb|V| present & Uncertainty in Johnson $V$-band magnitude. \\
-\verb|R| & {\it float} & mag & No & $R$-band magnitude. \\
+\verb|R| & {\it float} & mag & UNTESTED & $R$-band magnitude. \\
 \verb|R_err| & {\it float} & mag & If \verb|R| present & Uncertainty in Johnson $R$-band magnitude. \\
-\verb|I| & {\it float} & mag & No & $I$-band magnitude. \\
+\verb|I| & {\it float} & mag & UNTESTED & $I$-band magnitude. \\
 \verb|I_err| & {\it float} & mag & If \verb|I| present & Uncertainty in Johnson $I$-band magnitude. \\
-\verb|u| & {\it float} & mag & No & $u$-band magnitude. \\
+\verb|u| & {\it float} & mag & UNTESTED & $u$-band magnitude. \\
 \verb|u_err| & {\it float} & mag & If \verb|u| present & Uncertainty in SDSS $u$-band magnitude. \\
 \verb|g| & {\it float} & mag & No & $g$-band magnitude. \\
 \verb|g_err| & {\it float} & mag & If \verb|g| present & Uncertainty in SDSS $g$-band magnitude. \\
@@ -638,12 +678,17 @@ used by the SLR code.
 \verb|z_err| & {\it float} & mag & If \verb|z| present & Uncertainty in SDSS $z$-band magnitude. \\
 \verb|J| & {\it float} & mag & No & $J$-band magnitude. \\
 \verb|J_err| & {\it float} & mag & If \verb|J| present & Uncertainty in SDSS $J$-band magnitude. \\
-\verb|H| & {\it float} & mag & No & $H$-band magnitude. \\
+\verb|H| & {\it float} & mag & UNTESTED & $H$-band magnitude. \\
 \verb|H_err| & {\it float} & mag & If \verb|H| present & Uncertainty in SDSS $H$-band magnitude. \\
-\verb|K| & {\it float} & mag & No & $K$-band magnitude. \\
+\verb|K| & {\it float} & mag & UNTESTED & $K$-band magnitude. \\
 \verb|K_err| & {\it float} & mag & If \verb|K| present & Uncertainty in SDSS $K$-band magnitude. \\
 \end{longtable}
 \end{center}
+
+
+
+
+
 
 
 \chapter{Configuration Parameters}
@@ -696,7 +741,7 @@ Table \ref{tab:config} describes all configuration paramaters.
 \hline ~ & ~ & ~ \\ 
 
 \verb|colorterms| & {\it float array} & Color terms to use. \\
-\verb|colortermbands| & {\it string array} & Comma separated list of the bands that use the color terms. If {\tt none}, then color terms are not used. \\
+\verb|colortermbands| & {\it string array} & Comma separated list of the bands that use the color terms. Each band here must appear somewhere in \verb|colors2calibrate|, although not all magntiudes in \verb|colors2calibrate| need have a \verb|colortermband|.  See \S\ref{sec:colorterms}.  If {\tt none}, then color terms are not used. \\
 \verb|colormult| & {\it string array} & Comma separated list of the colors that multiply the \verb|colorterms|. \\
 
 ~ & ~ & ~ \\ \hline
@@ -750,6 +795,159 @@ Table \ref{tab:config} describes all configuration paramaters.
 
 \end{longtable}
 \end{center}
+
+
+
+
+\chapter{Color Terms}
+\label{sec:colorterms}
+
+\slr\ allows for the use of color terms under a broad but still finite
+set of assumptions.  We've attempted to make the assumptions as
+flexible as possible, without letting the code become too abstract and
+unwieldy.  I'll go over the assumptions here so that you can get this
+code to produce better results than you would without using color term
+corrections.
+
+
+\section{The Procedure}
+\subsection{Adopt Photometric Calibration Equations}
+
+First, understand that you must adopt a color term convention.  You do
+this by adopting photometric calibration equations of the form
+\begin{subequations} 
+\begin{align}
+  \textrm{instrumental mag} & = \textrm{standard mag} + \textrm{zeropoints} + \\
+  & (\textrm{color term})\times(\textrm{standard color}).
+\end{align}
+\end{subequations}
+Here the instrumental mag is what is measured after bias subtraction
+and flat-fielding, and the standard mag is the standardized measure of
+flux that we're ultimately after.  The zeropoints have contributions
+from atmospheric extinction and Galactic extinction, from instrumental
+sensitivivity, from aperture corrections, and from anything else
+additive.  The color term is a constant to be determined, and the
+standard color that it multiplies must be chosen.  The value of the
+color term constant depends on the standard color that it
+multiplies.\footnote{See \citet{bib:slr} for further discussion of the
+  form of the photometric and color calibration equations that we use.
+}
+
+There is one equation of this form for each magnitude that you are
+considering during Stellar Locus Regression.  So for $N$ magnitudes
+you must adopt $N$ photometric calibration equations, and $N$
+different color terms.  Each color term can multiply a different
+standard color.
+
+These equations are entirely standard, so there should be no surprises
+here.
+
+
+
+
+\subsection{Measure Your Color Terms}
+
+It is your job to measure the color terms yourself.  Although it is
+critical to use color term corrections when calibration data between
+different instruments using \slr, we do not provide procedures to do
+this for you.  Our goal has been to keep the scope of our \slr\ code
+as narrow as possible so that its place within a larger photometric
+calibration pipeline is well defined.  Also, we just don't want to
+support more code that we have to!
+
+Typically you will measure color terms by matching catalogs of
+observed standard stars to a standard catalog, plotting the difference
+of instrumental mags and standard mags versus the standard color you
+adopted in Step 1, and measuring the slope of a best-fit line.
+
+
+\subsection{Put the Results in an \slr\ Config File}
+
+The final step is to tell \slr\ what conventions you adopted, and the
+values of the color terms you measured.  See \S\ref{sec:config} while
+reading the following.
+
+The \slr\ parameter \verb|colortermbands| is a list of characters
+signifying the instrumental mags that require color term corrections.
+{\it Each band you list here must appear somewhere in
+  \verb|colors2calibrate|.}  However it's not necessary to have all
+bands appearing in \verb|colors2calibrate| to have an entry in
+\verb|colortermbands|, because not all bands need color term
+corrections in practice.  So make sure you don't include any extra
+bands in the list that just aren't being used in the color calibration
+in the first place.
+
+For each entry of \verb|colortermbands| you will need to specify one
+value for \verb|colorterms| and \verb|colormult|.  The latter two
+configuration parameters are lists that must have the same length as
+\verb|colortermbands|, and the lists are ordered.  The colorterms you
+measured in Step 2 are placed in \verb|colorterms|, and the standard
+color you chose in each passband calibration equation is placed in
+\verb|colormult|.  
+
+Here's another important assumption to understand: {\it Each color you
+  list in \verb|colormult| must appear in \verb|colors2calibrate|.}
+Your adopted standard colors must live in the vector space that you
+are calibrating.  They cannot be linear combinations of
+\verb|colors2calibrate|.  They must be a subset of
+\verb|colors2calibrate|.  While this may be a more restrictive
+assumption, we take it to be entirely reasonable under most
+circumstances.
+
+
+
+\section{An Example}
+
+For example, in \citet{bib:slr} we took data in the $griz$ Sloan
+passbands using instruments on the Magellan telescopes.  We noticed
+that the color term corrections were significant, so we adopted some
+color term equations of the form
+\begin{subequations} 
+\begin{align}
+  g & = g_0 + a_g + E_g + A_g + b_g(g_0-r_0) \\
+  r & = r_0 + a_r + E_r + A_r + b_r(r_0-i_0) \\
+  i & = i_0 + a_i + E_i + A_i + b_i(i_0-z_0) \\
+  z & = z_0 + a_z + E_z + A_z + b_z(i_0-z_0)
+\end{align} 
+\end{subequations}
+We observed some standard star fields in Stripe 82 and measured the
+color terms $b$.  Then for all subsequent observations, we calibrated
+our instrumental colors using the same color term values.  We did this
+by setting the color term parameters as follows:
+\begin{verbatim}
+colors2calibrate        gr,ri,iz
+colortermbands          g,r,i,z
+colorterms              -0.11,-0.01,-0.17,-0.01
+colormult               gr,ri,iz,iz
+\end{verbatim}
+
+In a subsequent step we matched all of our observed stars to the 2MASS
+database.  After making a new input colortable that inluded the
+$J$-band data from 2MASS, we re-ran \slr\ with the following color
+term configuration to calibrate our Magellan $i$-band data:
+\begin{verbatim}
+colors2calibrate        iz,iJ
+colortermbands          i,z
+colorterms              -0.17,-0.01
+colormult               iz,iz
+\end{verbatim}
+Note that we had to remove the $g$ and $r$ band entries from the color
+term parameters because those bands don't appear in the new list of
+\verb|colors2calibrate|.  Also note that the $J$-band needed no color
+term correcton.  This is because the $J$ magnitudes were already
+calibrated!
+
+
+
+\section{Higher Order Corrections}
+
+
+It's possible of course to make color-airmass and other higher order
+corrections.  The current implementation of \slr\ that we present here
+doesn't allow for these, but this is an obvious generalization that we
+intend to pursue.
+
+
 
 
 
