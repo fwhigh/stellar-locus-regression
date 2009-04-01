@@ -1,5 +1,5 @@
 #summary Basic installation instructions for SLR version 1.
-#labels Phase-Deploy
+#labels Phase-Deploy,Deprecated
 
 = Basic Installation Instructions =
 
