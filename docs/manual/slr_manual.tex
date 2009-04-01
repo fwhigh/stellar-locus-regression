@@ -267,11 +267,12 @@ and this manual serves as a guide to that particular code.
   directory $<$data-dir$>$/covey.
 \item Set environment variables (here in tcsh):
 \begin{verbatim}
-% setenv SLR_INSTALL <install-dir>/slr-v?.?
+% setenv SLR_INSTALL <install-dir>/slr-v*
 % setenv SLR_DATA <data-dir>
+% setenv IDL_PATH {$IDL_PATH}:+$SLR_INSTALL/pro
 % setenv PATH {$PATH}:$SLR_INSTALL/bin
 \end{verbatim}
-  where the version number v?.?\ corresponds to whatever you
+  where the version number v*\ corresponds to whatever you
   downloaded in step 1.
 \item Verify your installation (see \S\ref{sec:verify}):
 \begin{verbatim}
@@ -300,12 +301,12 @@ First, go get the latest version 2 download at
 \url{http://stellar-locus-regression.googlecode.com}. Untar
 it with
 \begin{verbatim}
-tar xzvf slr-v?.?.tar.gz
+tar xzvf slr-v*.tar.gz
 \end{verbatim}
-where the version number v?.?\ corresponds to whatever you downloaded.
+where the version number v*\ corresponds to whatever you downloaded.
 Put the package in some directory $<$install-dir$>$. This can be
 /usr/local/idllibraries or \$HOME or whatever you prefer. The package
-root directory will then be $<$install-dir$>$/slr-v?.?.
+root directory will then be $<$install-dir$>$/slr-v*.
 
 Version 2.1 and higher require only IDL, and do not require
 Analyst. Version 2.0 and prior require IDL with the Analyst add-on,
