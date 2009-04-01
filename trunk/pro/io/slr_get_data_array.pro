@@ -119,8 +119,13 @@ function slr_get_data_array, cat, option, fitpar, $
      mag2_galext=where(strlowcase(cat_tags) eq $
                        strlowcase(band2)+'_galext',$
                        count)
-     tmpdat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
-             (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
+     if option.have_sfd then begin
+        tmpdat=(cat.ctab.(mag1)-cat.(mag1_galext)*option.deredden-$
+                (cat.ctab.(mag2)-cat.(mag2_galext)*option.deredden))[ind]
+     endif else begin
+        tmpdat=(cat.ctab.(mag1)-$
+                (cat.ctab.(mag2)))[ind]
+     endelse
      tmpcolor_err=sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])
      badi=where(cat.ctab.(mag1) lt -90 or cat.ctab.(mag1) gt 90 or $
                 cat.ctab.(mag2) lt -90 or cat.ctab.(mag2) gt 90 ,count)
