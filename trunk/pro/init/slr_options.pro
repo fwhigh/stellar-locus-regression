@@ -193,7 +193,7 @@ function slr_options, file=file, $
   this_par="mag_zeropoints"
   slr_check4option,file_option,this_par,here1,/isrequired
   slr_check4option,ex,this_par,here2,isthere=isthere
-  if n_mags_out eq 1 and ~option.mags2write then begin
+  if n_mags_out eq 1 and option.mags2write[0] eq '' then begin
      val=''
   endif else begin
      if isthere then begin
@@ -203,9 +203,14 @@ function slr_options, file=file, $
         val=slr_color_string_to_struct_tag($
             strsplit(file_option.(here1),',',/extract),bands=bands,isknown=isknown)
      endelse
-     if total(isknown) ne n_elements(val) then $
-        message,"Don't recognize color(s): "+$
-                strjoin(val[where(~isknown)],',')
+     if total(isknown) ne n_elements(val) then begin
+        for ind=0,n_elements(isknown)-1 do begin
+           if ~isknown[ind] and val[ind] ne '0' then begin
+              message,"Don't recognize color(s): "+$
+                      strjoin(val[where(~isknown)],',')
+           endif
+        endfor
+     endif
      if n_elements(val) ne n_mags_out then $
         message,"N("+this_par+") must equal N(mags2write)"
   endelse
