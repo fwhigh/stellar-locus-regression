@@ -130,17 +130,61 @@ pro slr_pipe, infile=infile,$
      data.fitpar=fitpar
   endif
 
-;;; Print the results
   kappa_out=data.fitpar.kappa.val
   kappa_err_out=data.fitpar.kappa.err
-  print,'Resulting kappa vector:'
-  for jj=0,n_elements(data.fitpar.colornames)-1 do begin
-     print,' kappa ',data.fitpar.colornames[jj],' = ',$
-           string(data.fitpar.kappa.val[jj],format='(F8.3)'),$
-           ' +/-',string(data.fitpar.kappa.err[jj],format='(F7.3)')
+
+;; ;;; Print the results
+;;   print,'Resulting kappa vector:'
+;;   for jj=0,n_elements(data.fitpar.colornames)-1 do begin
+;;      print,' kappa ',data.fitpar.colornames[jj],' = ',$
+;;            string(data.fitpar.kappa.val[jj],format='(F8.3)'),$
+;;            ' +/-',string(data.fitpar.kappa.err[jj],format='(F7.3)')
+;;   endfor
+
+;;; Print the results
+  fitpar=data.fitpar
+  kappa=fitpar.kappa.val
+  for jj=0,n_elements(fitpar.colornames)-1 do begin
+     if fitpar.kappa.fixed[jj] then $
+        fixed='(fixed)' else $
+           fixed='(free) '
+     slr_log,data.logfile,$
+             'kappa '+slr_struct_tag_to_color_string(fitpar.colornames[jj])+$
+             ' '+fixed+' '+string(kappa[jj],format='(F)')
+     if keyword_set(reddening) then begin
+        galext_mean=push_arr(galext_mean,mean(reddening[*,jj]))
+        galext_stddev=push_arr(galext_stddev,stddev(reddening[*,jj]))
+     endif
   endfor
 
-;;; Write results to file
+  for jj=0,n_elements(fitpar.colornames)-1 do begin
+     slr_log,data.logfile,$
+             'kappa '+$
+             slr_struct_tag_to_color_string(fitpar.colornames[jj])+$
+             ' uncertainty '+$
+             string(fitpar.kappa.err[jj],format='(F)')
+  endfor
+
+  if fitpar.b.bands[0] then begin
+     lines='Color terms used (fixed):'
+     for ii=0,n_elements(fitpar.b.val)-1 do begin
+        lines=push_arr($
+              lines,$
+              slr_struct_tag_to_band_string(fitpar.b.bands[ii])+' = (...) +'+$
+              string(fitpar.b.val[ii],format='(F7.3)')+$
+              ' ('+$
+              slr_struct_tag_to_color_string(fitpar.b.mult[ii],join='-')+$
+              ')')
+     endfor
+  endif else begin
+     lines='No color terms used'
+  endelse
+
+  slr_log,data.logfile,$
+          lines
+
+
+;;; Write calibrated data to file
   if option.write_ctab then begin
      if not keyword_set(outfile) then begin
         outfile=getenv('SLR_COLORTABLE_OUT')

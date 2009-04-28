@@ -115,28 +115,35 @@ pro slr_write_data, file=file,$
           'F10.5','F10.5','I10','I10',$
           replicate('F9.3',2*n_elements(fitpar.colornames))]
 
-  if option.mags2write then begin
+  if option.mags2write[0] ne '' then begin
      for jj=0,n_elements(option.mags2write)-1 do begin
         band=option.mags2write[jj]
         bandi=where(fitpar.bandnames eq band)
 
+        if option.mag_zeropoints[jj] ne '0' then begin
 ;        cali=where(fitpar.colornames eq 'isdss_Jtmass',count)
-        cali=where(fitpar.colornames eq option.mag_zeropoints[jj],count)
-        kap=(kappa[cali])[0]
+           cali=where(fitpar.colornames eq option.mag_zeropoints[jj],count)
+           kap=(kappa[cali])[0]
 
-        mag_calib=mags[*,bandi]-kap
-        mag_err=mags_err[*,bandi]
-     
-        if fitpar.b.bands[0] then begin
-           for ii=0,n_elements(fitpar.b.val)-1 do begin
-              if fitpar.b.bands[ii] ne band then continue
-              colorterm=fitpar.b.val[ii]
-              colormult=fitpar.b.mult[ii]
-              colori=where(fitpar.colornames eq colormult)
-           endfor
-           mag_calib-=colorterm*colors_calib[*,colori]
-        endif else begin
+           mag_calib=mags[*,bandi]-kap
+           mag_err=mags_err[*,bandi]
            
+           if fitpar.b.bands[0] then begin
+              for ii=0,n_elements(fitpar.b.val)-1 do begin
+                 if fitpar.b.bands[ii] ne band then continue
+                 colorterm=fitpar.b.val[ii]
+                 colormult=fitpar.b.mult[ii]
+                 colori=where(fitpar.colornames eq colormult)
+              endfor
+              mag_calib-=colorterm*colors_calib[*,colori]
+           endif else begin
+              
+           endelse
+        endif else begin
+
+           mag_calib=mags[*,bandi]
+           mag_err=mags_err[*,bandi]
+
         endelse
 
         here=where(strlowcase(tag_names(ctab)) eq $
@@ -210,12 +217,12 @@ pro slr_write_data, file=file,$
                   format:format}     
   endelse
 
-
   infile=ctab_out_file
   slr_append_colortable,ctab_out_file,$
                         ctab,$
                         frmt_struct,$
                         infile=infile,$
                         append=append_colors_only
+
 
 end

@@ -1,5 +1,5 @@
 function slr_version
 
-  return,'1.0'
+  return,'1.1'
 
 end

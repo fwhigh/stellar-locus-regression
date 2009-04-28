@@ -254,7 +254,9 @@ function slr_options, file=file, $
   endif else begin
      val=fix(strsplit(file_option.(here1),',',/extract))
   endelse
-  if n_elements(val) ne n_colors and ~option.transform_only then $
+  if option.transform_only then $
+     val=replicate(1,n_colors)
+  if n_elements(val) ne n_colors then $
      message,"N("+this_par+") must equal N(colors2calibrate)"
   option=create_struct(option,this_par,val)
 

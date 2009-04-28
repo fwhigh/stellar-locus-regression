@@ -82,6 +82,7 @@ if keyword_set(initialize) then append=0 else append=1
 lun=8
 openw,lun,file,append=append
 for ii=0,n_elements(lines)-1 do begin
+   print,lines[ii]
    printf,lun,lines[ii]
 endfor
 close,lun
