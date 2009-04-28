@@ -6,6 +6,8 @@ function colortable_column_format
         Xpos           : 4 ,$
         Ypos           : 4 ,$
         chisqr         : 4 ,$
+        chisqrnorm     : 4 ,$
+        ncolors        : 4 ,$
         flag           : 7 ,$
         FWHM           : 4 ,$
         FWHM1          : 4 ,$
@@ -64,6 +66,10 @@ function colortable_column_format
         J              : 4 ,$
         H              : 4 ,$
         K              : 4 ,$
+        dJ             : 4 ,$
+        dH             : 4 ,$
+        dK             : 4 ,$
+        names          : 7 ,$
         u_err          : 4 ,$
         g_err          : 4 ,$
         r_err          : 4 ,$
@@ -150,7 +156,11 @@ function get_cat_template, file, $
   endif else begin
      message,"No comment line as expected"
   endelse
+  data_line='' & readf,lun,data_line
   close,lun
+
+  coord_type=4
+  if strpos(data_line,':') ne -1 then coord_type=7
 
   for i=0,n_elements(fieldnames)-1 do begin
      j=strpos(fieldnames[i],'-')
@@ -183,6 +193,9 @@ function get_cat_template, file, $
         if n_matches eq 0 then begin
            type=7               ; string is default
         endif else type=types.(here)
+        if strlowcase(fieldnames[i]) eq 'ra' or strlowcase(fieldnames[i]) eq 'dec' then begin
+           type=coord_type
+        endif
         fieldtypes=push_arr(fieldtypes,type)
      endfor
   endelse
