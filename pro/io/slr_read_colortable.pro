@@ -63,6 +63,8 @@ function colortable_column_format
         r              : 4 ,$
         i              : 4 ,$
         z              : 4 ,$
+        B              : 4 ,$
+        V              : 4 ,$
         J              : 4 ,$
         H              : 4 ,$
         K              : 4 ,$
@@ -75,6 +77,8 @@ function colortable_column_format
         r_err          : 4 ,$
         i_err          : 4 ,$
         z_err          : 4 ,$
+        B_err          : 4 ,$
+        V_err          : 4 ,$
         J_err          : 4 ,$
         H_err          : 4 ,$
         K_err          : 4 ,$

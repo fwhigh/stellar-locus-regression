@@ -103,7 +103,7 @@ pro slr_get_data, file=file,$
   data=create_struct(data,"logfile",logfile)
   slr_log,data.logfile,$
           ["Stellar Locus Regression v"+option.version,$
-           "High et al. 2009, AJ accepted",$
+           "High et al. 2009, The Astronomical Journal, 138, 110",$
            "This run started "+systime()],$
           initialize=0
 
