@@ -231,7 +231,7 @@ pro slr_locus_line_calibration,$
                       verbose=option.verbose,$
                       plot=plotboot,$
                       animate_regression=0,$
-                      postscript=option.postscript,$
+                      postscript=0,$
                       bestfit=bootfit
         
         if i eq 0 then begin

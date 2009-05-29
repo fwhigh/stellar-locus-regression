@@ -207,6 +207,7 @@ function slr_read_covey_median_locus, $
      Ijohn_isdss   =     (-0.386)*(iz) - (0.397)
 
      Bjohn_Vjohn=Bjohn_gsdss-Vjohn_gsdss
+     Bjohn_Rjohn=Bjohn_gsdss+gr-Rjohn_rsdss
 ;     Vjohn_Rjohn=Vjohn_Ijohn-Rjohn_Ijohn
      Vjohn_Rjohn=Vjohn_gsdss+gr-Rjohn_rsdss
      Ijohn_zsdss=Ijohn_isdss+iz
@@ -278,9 +279,10 @@ function slr_read_covey_median_locus, $
           zsdss_Ktmass:zJ+JH+HK,$
           Jtmass_Ktmass:JH+HK,$
           bjohn_vjohn:bjohn_vjohn,$
+          bjohn_rjohn:bjohn_rjohn,$
           vjohn_rjohn:vjohn_rjohn,$
           rjohn_ijohn:rjohn_ijohn,$
-          ijohn_zjohn:ijohn_zsdss}
+          ijohn_zsdss:ijohn_zsdss}
 
      save,file=savefile,cat
 

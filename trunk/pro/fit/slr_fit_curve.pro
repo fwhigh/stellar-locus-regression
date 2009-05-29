@@ -261,6 +261,10 @@ pro slr_fit_curve, x_dat=x_dat,$
   endelse
 
   if plot then begin
+     if keyword_set(postscript) then begin
+        ops,file=field+'_slr_fit.eps',/encap,/color,csize=0.8
+     endif
+
      n_dim=n_elements(x[0,*])
      n_dat=n_elements(x[*,0])
 
@@ -343,6 +347,9 @@ pro slr_fit_curve, x_dat=x_dat,$
      multiplot,/default
      loadct,0,/silent
 
+     if keyword_set(postscript) then begin
+        cps
+     endif
      if keyword_set(interactive) then begin
         junk='' & read,'Hit enter',junk
      endif
