@@ -98,10 +98,17 @@ pro slr_write_data, file=file,$
      colors_err[here]=!values.f_nan
 
   for ii=0,n_elements(fitpar.colornames)-1 do begin
-     ctab=create_struct($
-          ctab,$
-          fitpar.colornames[ii],colors_calib[*,ii],$
-          fitpar.colornames[ii]+'_err',colors_err[*,ii])
+     if tag_exist(ctab,fitpar.colornames[ii]) then begin
+        tagi=where(tag_names(ctab) eq strlowcase(fitpar.colornames[ii]))
+        ctab.(tagi)=colors_calib[*,ii]
+        tagi=where(tag_names(ctab) eq strlowcase(fitpar.colornames[ii]+'_err'))
+        ctab.(tagi)=colors_err[*,ii]
+     endif else begin
+        ctab=create_struct($
+             ctab,$
+             fitpar.colornames[ii],colors_calib[*,ii],$
+             fitpar.colornames[ii]+'_err',colors_err[*,ii])
+     endelse
   endfor
 
   id_length=max([3,strlen(ctab.id)])+1

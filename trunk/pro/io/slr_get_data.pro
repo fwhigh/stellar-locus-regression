@@ -203,6 +203,7 @@ pro slr_get_data, file=file,$
 
      if n_elements(goodi) lt 5e3 and n_elements(goodi) ge 1 then begin
         datarr=slr_get_data_array(data,option,data.fitpar,$
+                                  magnitudes=magarr,$
                                   color_err=datarr_err,$
                                   output_indices=ind)
         covey=slr_read_covey_median_locus()

@@ -8,10 +8,11 @@ WELCOME
 Welcome to Stellar Locus Regression.  If you plan to use SLR, make
 sure you are familiar with the licensing rules (see the COPYING file).
 
-If your work makes use of SLR, please email me at fwhigh@gmail.com to
-be put on the SLR mailing list.  You should also cite
+If your work makes use of SLR, please email me at
+high@physics.harvard.edu to be put on the SLR mailing list.  You
+should also cite
 
-High, F. W., et al. 2009, AJ submitted
+High, F. W., et al. 2009, AJ, 138, 110-129
 
 and 
 
@@ -22,12 +23,12 @@ website to report bugs or suggest improvements.  Go to
 
 http://stellar-locus-regression.googlecode.com
 
-and click on the "Issues" tab.  Email me a high@physics.harvard.edu
+and click on the "Issues" tab.  Email me at high@physics.harvard.edu
 for anything else.
 
 
 ============
-INSTALLATION
+INSTALLATIO
 ============
 
 Look in docs/manual for the latest PDF manual.
