@@ -127,8 +127,8 @@ function slr_get_data_array, cat, option, fitpar, $
                 (cat.ctab.(mag2)))[ind]
      endelse
      tmpcolor_err=sqrt((cat.ctab.(mag1_err)^2+cat.ctab.(mag2_err)^2)[ind])
-     badi=where(cat.ctab.(mag1) lt -90 or cat.ctab.(mag1) gt 90 or $
-                cat.ctab.(mag2) lt -90 or cat.ctab.(mag2) gt 90 ,count)
+     badi=where(cat.ctab.(mag1)[ind] lt -90 or cat.ctab.(mag1)[ind] gt 90 or $
+                cat.ctab.(mag2)[ind] lt -90 or cat.ctab.(mag2)[ind] gt 90 ,count)
      if count ge 1 then begin
         tmpdat[badi]=-99
      endif
