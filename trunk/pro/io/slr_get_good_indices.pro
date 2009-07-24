@@ -95,17 +95,29 @@ function slr_get_good_indices, cat, option, fitpar, $
                count))
      if count eq 0 or ind[0] eq -1 then begin
         message,'No good objects in '+fitpar.bandnames[ii]
-     endif
+     endif else begin
+;        print,n_elements(ind),' after including '+fitpar.bandnames[ii]
+     endelse
   endfor
 
 ;;; Make further cuts
-  ind=setintersection($
-      ind,$
-      where(abs(cat.bee) gt option.beelow and $
-            (cat.ctab.type eq option.type and cat.ctab.tmixed eq option.tmixed), $
-            count))
-  if count eq 0 then begin
-     message,'No good objects 1'
+  if count eq 0 or ind[0] eq -1 then begin
+     message,'No good objects! Failed selecting on magnitude and SNR'
+  endif
+  tmpi=where(abs(cat.bee) gt option.beelow and $
+             (cat.ctab.type eq option.type), $
+             count)
+  ind=setintersection(ind,tmpi)
+  if option.tmixed eq 0 then begin
+     tmpi=where(cat.ctab.tmixed eq option.tmixed, $
+                count)
+  endif else if option.tmixed eq 1 then begin
+;;; Anything is ok!
+     tmpi=ind
+  endif
+  ind=setintersection(ind,tmpi)
+  if count eq 0 or ind[0] eq -1 then begin
+     message,'No good objects! Failed after selecting on bee, type, and tmixed'
   endif
   if option.cutdiskstars then begin
      ind=setintersection($
@@ -123,6 +135,10 @@ function slr_get_good_indices, cat, option, fitpar, $
      if ind[0] eq -1 then begin
         message,'No good objects 3'
      endif
+  endif
+
+  if ind[0] eq -1 then begin
+     message,'No good objects!  Failed'
   endif
 
   return,ind

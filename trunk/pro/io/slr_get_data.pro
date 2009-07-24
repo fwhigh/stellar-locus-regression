@@ -82,9 +82,7 @@ pro slr_get_data, file=file,$
      message,"Using default options",/info
      option=slr_options()
   endif
-  if n_elements(force) eq 0 then force=1 else begin
-     if keyword_set(force) then force=1 else force=0
-  endelse
+  if keyword_set(force) then force=1 else force=0
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
@@ -101,6 +99,8 @@ pro slr_get_data, file=file,$
 ;;; Initialize the log file
   logfile=slr_get_log_filename(data.field)
   data=create_struct(data,"logfile",logfile)
+  print,"Logging SLR data to:"
+  print,logfile
   slr_log,data.logfile,$
           ["Stellar Locus Regression v"+option.version,$
            "High et al. 2009, The Astronomical Journal, 138, 110",$
@@ -108,7 +108,7 @@ pro slr_get_data, file=file,$
           initialize=0
 
 
-  if file_test(savefile) and ~force then begin
+  if 0 and file_test(savefile) and ~force then begin
      restore,savefile
   endif else if fieldname ne 'none' then begin
 
@@ -118,9 +118,17 @@ pro slr_get_data, file=file,$
      euler_2000_fast, ctab.ra, ctab.dec, $
                       ell, bee, 1
      if slr_have_sfd() then begin
-        extinction_a=dust_getval(ell,bee,/interp)
-        k_ext=slr_sfd_coeff()
+        sfd_file=file+'.sfd.sav'
+        if ~file_test(sfd_file) or force then begin
+           extinction_a=dust_getval(ell,bee,/interp)
+           print,'Saving SFD file '+sfd_file
+           save,extinction_a,file=sfd_file
+        endif else begin
+           print,'Restoring SFD file '+sfd_file
+           restore,sfd_file
+        endelse
 
+        k_ext=slr_sfd_coeff()
         if option.verbose ge 1 then begin
            print,'Galactic latitude',$
                  mean(bee),'+/-',stddev(bee)
