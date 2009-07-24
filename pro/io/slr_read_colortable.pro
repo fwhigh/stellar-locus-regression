@@ -284,6 +284,7 @@ function slr_read_colortable, file,$
 ;  on_error, 2
 
   if not keyword_set(verbose) then verbose=0
+  if size(force,/tname) eq 'UNDEFINED' then force=1
   
   if verbose ge 1 then $
      message,"Reading color table "+file,/info
@@ -306,7 +307,7 @@ function slr_read_colortable, file,$
         cat=create_struct(cat,$
                           name,tmpcat.(ii))
      endfor
-     save,file=savefile
+     save,cat,file=savefile
   endelse
 
   return,cat
