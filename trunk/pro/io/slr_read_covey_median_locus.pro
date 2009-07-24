@@ -84,6 +84,8 @@ function slr_read_covey_median_locus, $
 ;  k0 = [0.01,0.005,0.005] & print,'Shifting median locus'
 
   if not keyword_set(verbose) then verbose=0
+  if size(force,/tname) eq 'UNDEFINED' then force=1
+  force=keyword_set(force)
 
   file=slr_datadir()+path_sep()+'covey'+path_sep()+'medianlocus.tbl'
   savefile=file+'.sav'
