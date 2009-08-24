@@ -1,6 +1,6 @@
 function deslash,name,$
-                 get_path=get_path,$
-                 get_raw_path=get_raw_path
+                 path=path,$
+                 raw_path=raw_path
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -51,6 +51,7 @@ function deslash,name,$
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
+;       8/09  Added optional path outputs
 ;       Written by:     FW High 2009
 ;
 ;-
@@ -61,38 +62,30 @@ function deslash,name,$
 ; Preserve the variable "name".
 name2=name
 
-if keyword_set(get_path) then begin
+path='.'
+count=0
+while ( strpos(name2,path_sep()) ne -1 ) do begin
+   if count eq 0 then path=''
+   path=path+strmid(name2,0,strpos(name2,path_sep())+1)
+   name2=strmid(name2,strpos(name2,path_sep())+1,strlen(name2))
+   count++
+endwhile
 
-    val='.'
-    count=0
-    while ( strpos(name2,path_sep()) ne -1 ) do begin
-        if count eq 0 then val=''
-        val=val+strmid(name2,0,strpos(name2,path_sep())+1)
-        name2=strmid(name2,strpos(name2,path_sep())+1,strlen(name2))
-        count++
-    endwhile
+                                ; Remove the trailing slash.
+if strmid(path,strlen(path)-1,strlen(path)) eq path_sep() then $
+   path=strmid(path,0,strlen(path)-1)
 
-    ; Remove the trailing slash.
-    if strmid(val,strlen(val)-1,strlen(val)) eq path_sep() then $
-      val=strmid(val,0,strlen(val)-1)
+raw_path=''
+while ( strpos(name2,path_sep()) ne -1 ) do begin
+   raw_path=raw_path+strmid(name2,0,strpos(name2,path_sep())+1)
+   name2=strmid(name2,strpos(name2,path_sep())+1,strlen(name2))
+endwhile
 
-endif else if keyword_set(get_raw_path) then begin
+bare_file=name2
+while ( strpos(bare_file,path_sep()) ne -1 ) do begin
+   bare_file=strmid(bare_file,strpos(bare_file,path_sep())+1,strlen(bare_file))
+endwhile
 
-    val=''
-    while ( strpos(name2,path_sep()) ne -1 ) do begin
-        val=val+strmid(name2,0,strpos(name2,path_sep())+1)
-        name2=strmid(name2,strpos(name2,path_sep())+1,strlen(name2))
-    endwhile
-
-endif else begin
-
-    val=name2
-    while ( strpos(val,path_sep()) ne -1 ) do begin
-        val=strmid(val,strpos(val,path_sep())+1,strlen(val))
-    endwhile
- 
-endelse
-
-return,val
+return,bare_file
 
 end

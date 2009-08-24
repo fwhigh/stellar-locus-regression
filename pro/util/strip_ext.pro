@@ -72,8 +72,8 @@ if keyword_set(get_ext) then begin
 endif else begin
 
 ; Strip the last extension.
-    path=deslash(name2,/get_raw_path)
-    val=deslash(name2)
+;    path=deslash(name2,/get_raw_path)
+    val=deslash(name2,raw_path=raw_path)
     name2=val
     count=0
     while ( strpos(name2,'.') ne -1 ) do begin
@@ -96,7 +96,7 @@ endif else begin
     if strmid(val,strlen(val)-1,strlen(val)) eq '.' then $
       val=strmid(val,0,strlen(val)-1)
 
-    val=path+val
+    val=raw_path+val
     
 endelse
 
