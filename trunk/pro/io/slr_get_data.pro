@@ -87,17 +87,20 @@ pro slr_get_data, file=file,$
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
 
-  fieldname=slr_colortable_file_to_fieldname(file)
+  fieldname=slr_colortable_file_to_fieldname(file,path=path)
+  if size(path,/tname) eq "UNDEFINED" then path=''
 
 ;;; Initialize the data structure
   data=create_struct("field",fieldname)
+  data=create_struct(data,$
+                     "path",path)
 
 
 
   savefile=file+'.data.sav'
 
 ;;; Initialize the log file
-  logfile=slr_get_log_filename(data.field)
+  logfile=slr_get_log_filename(data.field,path=data.path)
   data=create_struct(data,"logfile",logfile)
   print,"Logging SLR data to:"
   print,logfile

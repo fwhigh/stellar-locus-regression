@@ -82,6 +82,36 @@ function colortable_column_format
         J_err          : 4 ,$
         H_err          : 4 ,$
         K_err          : 4 ,$
+        u_type          : 4 ,$
+        g_type          : 4 ,$
+        r_type          : 4 ,$
+        i_type          : 4 ,$
+        z_type          : 4 ,$
+        B_type          : 4 ,$
+        V_type          : 4 ,$
+        J_type          : 4 ,$
+        H_type          : 4 ,$
+        K_type          : 4 ,$
+        u_stargal          : 4 ,$
+        g_stargal          : 4 ,$
+        r_stargal          : 4 ,$
+        i_stargal          : 4 ,$
+        z_stargal          : 4 ,$
+        B_stargal          : 4 ,$
+        V_stargal          : 4 ,$
+        J_stargal          : 4 ,$
+        H_stargal          : 4 ,$
+        K_stargal          : 4 ,$
+        u_flags          : 2 ,$
+        g_flags          : 2 ,$
+        r_flags          : 2 ,$
+        i_flags          : 2 ,$
+        z_flags          : 2 ,$
+        B_flags          : 2 ,$
+        V_flags          : 2 ,$
+        J_flags          : 2 ,$
+        H_flags          : 2 ,$
+        K_flags          : 2 ,$
         gr             : 4 ,$
         gi             : 4 ,$
         gz             : 4 ,$
@@ -128,7 +158,25 @@ function colortable_column_format
         g_seflag       : 3 ,$
         r_seflag       : 3 ,$
         i_seflag       : 3 ,$
-        z_seflag       : 3 }
+        z_seflag       : 3 ,$
+;;; Galfit
+        x_gal          : 3 ,$
+        xerr_gal       : 3 ,$
+        y_gal          : 3 ,$
+        yerr_gal       : 3 ,$
+        mag_gal        : 4 ,$
+        magerr_gal     : 4 ,$
+        re_gal         : 4 ,$
+        reerr_gal      : 4 ,$
+        ser_gal        : 4 ,$
+        sererr_gal     : 4 ,$
+        elong_gal      : 4 ,$
+        elongerr_gal   : 4 ,$
+        pa_gal         : 4 ,$
+        paerr_gal      : 4 ,$
+        chisq_gal      : 4 ,$
+        chisqnu_gal    : 4 $
+        }
 
   return,types
 

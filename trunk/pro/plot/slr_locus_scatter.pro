@@ -64,9 +64,9 @@ pro slr_locus_scatter,x,y,$
   min2=min(y)
   max2=max(y)
 
-  z=alog10(hist_2d(x,y,$
-                   bin1=histbin,min1=min1,max1=max1,$
-                   bin2=histbin,min2=min2,max2=max2)) > 0
+;  z=alog10(hist_2d(x,y,$
+;                   bin1=histbin,min1=min1,max1=max1,$
+;                   bin2=histbin,min2=min2,max2=max2)) > 0
   if not keyword_set(overplot) then begin
      plot,x,y,$
           psym=psym,symsize=symsize,$

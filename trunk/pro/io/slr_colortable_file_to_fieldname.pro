@@ -1,5 +1,6 @@
 function slr_colortable_file_to_fieldname,$
-   colortable_file
+   colortable_file,$
+   path=path
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -58,15 +59,16 @@ function slr_colortable_file_to_fieldname,$
 ;       Written by:     FW High 2009
 ;-
 
- compile_opt idl2, hidden
- on_error, 2
+  compile_opt idl2, hidden
+  on_error, 2
 
   ext=strip_ext(colortable_file,/get_ext)
 
   if ext eq 'ctab' then begin
-     return,deslash(strip_ext(colortable_file))
+     field=deslash(strip_ext(colortable_file),path=path)
   endif else begin
-     return,deslash(colortable_file)
+     field=deslash(colortable_file,path=path)
   endelse
 
+  return,field
 end

@@ -1,6 +1,6 @@
 function slr_get_log_filename, field,$
                                out=out,$
-                               dir=dir
+                               path=path
 
 ;$Rev:: 56            $:  Revision of last commit
 ;$Author:: fwhigh     $:  Author of last commit
@@ -62,14 +62,14 @@ function slr_get_log_filename, field,$
 ;
 ;-
 
- compile_opt idl2, hidden
- on_error,2
+  compile_opt idl2, hidden
+  on_error,2
 
-if not keyword_set(dir) then begin
-   file=field+'.slr'
-endif else begin
-   file=dir+path_sep()+field+'.slr'
-endelse
-return, file
+  if not keyword_set(path) then begin
+     file=field+'.slr.log'
+  endif else begin
+     file=path+path_sep()+field+'.slr.log'
+  endelse
+  return, file
 
 end
