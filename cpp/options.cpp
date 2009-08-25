@@ -1,4 +1,4 @@
-#include <options.hpp>
+#include <slr/options.hpp>
 
 // A helper function to simplify the main part.
 template<class T>
@@ -24,8 +24,8 @@ slr::options::options(int ac, char* av[]) {
 
 void slr::options::init(int ac, char* av[])
 {
-// Based on Boost's program_options class, specifically their example
-// file multiple_sources.cpp
+  // Based on Boost's program_options class, specifically their example
+  // file multiple_sources.cpp
   try {
     string usage1 = "slr infile outfile [options]";
     string usage2 = "slr --input_file infile --output_file outfile [options]";
@@ -200,15 +200,34 @@ void slr::options::init(int ac, char* av[])
       .add(fitter_options)
       .add(data_options)
       ;
-        
+
     po::positional_options_description p;
     p.add("input_file", 1).add("output_file", 2);
-        
-    store(po::command_line_parser(ac, av).
-	  options(cmdline_options).positional(p).run(), vm);
 
-    ifstream ifs(config_file.c_str());
-    store(parse_config_file(ifs, config_file_options), vm);
+    try
+      {
+	po::command_line_parser cmd(ac, av);
+	store(cmd.
+	      options(cmdline_options).positional(p).run(), vm);
+      }
+    catch(exception& e)
+      {
+	cout << e.what() << "\n";
+	exit(0);
+      }    
+
+    try
+      {
+	ifstream ifs(config_file.c_str());
+	po::basic_parsed_options<char> cfg = parse_config_file(ifs, config_file_options);
+	store(cfg, vm);
+      }
+    catch(exception& e)
+      {
+	cout << e.what() << "\n";
+	exit(0);
+      }    
+
     notify(vm);
     
     if (vm.count("help")) {
@@ -233,60 +252,109 @@ void slr::options::init(int ac, char* av[])
   } // try
   catch(exception& e)
     {
-      cout << e.what() << "\n";
+      cout  << "slr::options::init: "<< e.what() << "\n";
     }    
 }
 
-void slr::options::check()
-{
-
-  if ( vm.count("input_file") ) {
-    string file = vm["input_file"].as<string>();
-    if ( ! slr::utilities::fileExists( file ) ) {
-      throw logic_error("Cannot access input file: "+file);
-    }
-  }    
-  else {
-    throw logic_error("Must specify one input file");
-  }
-  if ( vm.count("output_file") ) {
-    string file = vm["output_file"].as<string>();
-    if ( ! slr::utilities::fileWriteable( file ) ) {
-      throw logic_error("Cannot create output file: "+file);
-    }
-  }    
-  else {
-    throw logic_error("Must specify one output file");
-  }
-  
-}
-
-string slr::options::show_all()
+string slr::options::showAll()
 {
   string summary;
 
   if ( vm["verbosity"].as<int>() >= 1 ) {
     try 
       {
+	if (vm.count("verbosity"))
+	  {
+	    char buffer [14];
+	    sprintf(buffer,"verbosity: %d\n",vm["verbosity"].as< int >());
+	    summary += buffer;
+	  }
 	if (vm.count("input_file"))
 	  {
-	    summary += "Input file: " + vm["input_file"].as< string >() + "\n";
+	    summary += "input_file: " + vm["input_file"].as< string >() + "\n";
 	  }
 	else
 	  {
-	    throw logic_error("");
+	    throw logic_error("Must specify one input file");
 	  }
   
 	if (vm.count("output_file"))
 	  {
-	    summary += "Output file: " + vm["output_file"].as< string >() + "\n";
+	    summary += "output_file: " + vm["output_file"].as< string >() + "\n";
 	  }
       }
     catch(exception& e)
       {
-	cout << e.what() << "\n";
+	cout << "slr::options::showAll: " << e.what() << "\n";
       }
   } // if verbosity >= 1
 
   return summary;
+}
+
+// Validate the overall configuration
+void slr::options::validate(string par)
+{
+  if ( par == "input_file" ) {
+    if ( (int) vm.count(par) == 1 ) {
+      string file = vm[par].as< string >();
+      if ( ! slr::utilities::fileReadable( file ) ) {
+	throw runtime_error("Cannot access input file: "+file);
+      }
+    } else {
+      throw runtime_error("Must specify one input file");
+    }
+  } else if ( par == "output_file" ) {
+    if ( vm.count(par) == 1 ) {
+      string file = vm[par].as< string >();
+      if ( ! slr::utilities::fileWriteable( file ) ) {
+	throw runtime_error("Cannot access output file: "+file);
+      }
+    } else {
+      throw runtime_error("Must specify one output file");
+    }
+  } else if ( par == "config_file" ) {
+    if ( vm.count(par) ) {
+      string file = vm[par].as< string >();
+      if ( ! slr::utilities::fileReadable( file ) ) {
+	throw runtime_error("Cannot access config file: "+file);
+      }
+    } else {
+      throw runtime_error("Must specify one config file");
+    }
+  } else {
+    throw runtime_error("Parameter "+par+" not recognized");
+  }
+}
+
+void slr::options::validateAll()
+{
+  vector<string> requiredOptions;
+  requiredOptions.push_back("input_file");
+  requiredOptions.push_back("output_file");
+  requiredOptions.push_back("config_file");
+
+  for (vector<string>::iterator i = requiredOptions.begin(); 
+       i != requiredOptions.end(); 
+       ++i) {
+    string par = *i;
+    slr::io::print(2,"Validating " + par + ": ");
+    try 
+      { 
+	validate(par); 
+      }
+    catch(exception& e)
+      {
+	slr::io::print(2,"fail\n");
+	cout << e.what() << "\n";
+	exit(1);
+      }
+    slr::io::print(2,"ok\n");
+  }
+
+}
+
+int slr::options::verbose()
+{
+  return vm["verbosity"].as< int >();
 }
