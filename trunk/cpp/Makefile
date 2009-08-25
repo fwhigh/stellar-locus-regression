@@ -2,15 +2,19 @@ CXXFLAGS =	-g -Wall -fmessage-length=0
 #CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
 SOURCES =   slr.cpp \
+			io.cpp \
 			options.cpp \
-			utilities.cpp 
+			utilities.cpp \
+
+HEADERS =	$(SOURCES:.cpp=.h)
 
 OBJS =		$(SOURCES:.cpp=.o)
 
-INCLUDE =   -I/usr/include/boost -I.
+INCLUDE =   -I/usr/include/boost -I./include
 
 LIBS =      -L/usr/lib \
-			-lboost_program_options-gcc42-1_34_1
+			-lboost_program_options \
+			-lboost_regex
 
 TARGET =	slr
 
@@ -25,8 +29,9 @@ clean:
 reallyclean: clean
 	rm -f *~
 
-.cpp.o:
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
+
 
 
 BOOSTDIR = boost_program_options_example

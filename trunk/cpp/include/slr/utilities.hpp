@@ -12,7 +12,7 @@ namespace slr {
   namespace utilities {
 
     // Member methods
-    bool fileExists( string fileName );
+    bool fileReadable( string fileName );
     bool fileWriteable( string fileName );
 
   } // utilities

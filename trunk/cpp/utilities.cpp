@@ -1,7 +1,7 @@
-#include <utilities.hpp>
+#include <slr/utilities.hpp>
 
 
-bool slr::utilities::fileExists( string FileName )
+bool slr::utilities::fileReadable( string FileName )
 {
   ifstream fin(FileName.c_str());
   return fin;
