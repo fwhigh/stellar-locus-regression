@@ -26,7 +26,7 @@ void slr::init(int ac, char* av[])
       // Declare and parse commandline and config file options
       opt.init(ac, av);
       opt.validateAll();
-      cout << opt.showAll();
+      opt.showAll();
     }
   catch (exception& e)
     {
