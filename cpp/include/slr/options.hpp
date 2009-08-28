@@ -17,14 +17,7 @@ using namespace std;
 namespace slr {
 
   class options {
-    /*
-     * enum optID {
-     * input_file,
-     * output_file,
-     * config_file
-     * }; 
-    */
-
+    
   public:
     // Constructors
     options();
@@ -35,14 +28,25 @@ namespace slr {
 
     // Member methods
     void init(int ac, char* av[]);
-    string showAll();
+    void showAll();
+    void show(string par);
     void validateAll();
     void validate(string par);
+    string nameOf(int ID);
 
     int verbose();
 
+    enum optIDs {
+      verbosity,
+      input_file,
+      output_file,
+      config_file      
+    }; 
+    
+
   private:
     po::variables_map vm;
+     optIDs optID;
 
   }; // class options
 }

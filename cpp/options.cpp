@@ -87,24 +87,24 @@ void slr::options::init(int ac, char* av[])
        po::value< string >(), 
        "The color vector to regress.")
       ("kappa_fix", 
-       po::value< int >(), 
+       po::value< string >(), 
        "Fix the corresponding kappa component during regression?")
       ("kappa_guess", 
-       po::value< float >(), 
+       po::value< string >(), 
        "The kappa vector used as the initial guess in the regression.")
       ("kappa_guess_err", 
-       po::value< float >(), 
+       po::value< string >(), 
        "The kappa error vector. Comma separated list of real numbers.")
       ("kappa_guess_range", 
-       po::value< float >(), 
+       po::value< string >(), 
        "The area of kappa parameter space that the numerical fitter should explore.")
       ("colorterms", 
-       po::value< float >(), 
+       po::value< string >(), 
        "Colorterms to apply.")
       ("colortermbands", 
        po::value< string >(), 
        "The bands to which the colorterms apply.")
-      ("colortermult", 
+      ("colormult", 
        po::value< string >(), 
        "The colors that the colorterms multiply.")
       ("mags2write", 
@@ -216,9 +216,11 @@ void slr::options::init(int ac, char* av[])
 	exit(0);
       }    
 
+    cout << "cfg " << vm["config_file"].as<string>() << endl;
+
     try
       {
-	ifstream ifs(config_file.c_str());
+	ifstream ifs((vm["config_file"].as<string>()).c_str());
 	po::basic_parsed_options<char> cfg = parse_config_file(ifs, config_file_options);
 	store(cfg, vm);
       }
@@ -229,6 +231,11 @@ void slr::options::init(int ac, char* av[])
       }    
 
     notify(vm);
+
+    po::variables_map::iterator iter;
+    for(iter = vm.begin(); iter != vm.end(); iter++)
+      cout << "*** "<< iter->first << endl;
+
     
     if (vm.count("help")) {
       cout << "Usage: " << usage1 << "\n";
@@ -256,71 +263,186 @@ void slr::options::init(int ac, char* av[])
     }    
 }
 
-string slr::options::showAll()
+void slr::options::show(string par)
 {
-  string summary;
+  char* par_is_val;
+  if ( par == "verbosity" ) {
+    int val = vm[par].as< int >();
+    sprintf(par_is_val,"%s = %d\n",par.c_str(),val);
+  } else if ( par == "input_file" ) {
+    string val = vm[par].as< string >();
+    sprintf(par_is_val,"%s = %s\n",par.c_str(),val.c_str());
+  } else if ( par == "output_file" ) {
+    string val = vm[par].as< string >();
+    sprintf(par_is_val,"%s = %s\n",par.c_str(),val.c_str());
+  } else if ( par == "config_file" ) {
+    string val = vm[par].as< string >();
+    sprintf(par_is_val,"%s = %s\n",par.c_str(),val.c_str());
+  } else if ( par == "transform_only" ) {
+    int val = vm[par].as< int >();
+    sprintf(par_is_val,"%s = %d\n",par.c_str(),val);
+  } else if ( par == "have_sfd" ) {
+    int val = vm[par].as< int >();
+    sprintf(par_is_val,"%s = %d\n",par.c_str(),val);
+  } else if ( par == "write_output_file" ) {
+    int val = vm[par].as< int >();
+    sprintf(par_is_val,"%s = %d\n",par.c_str(),val);
+  } else if ( par == "colors2calibrate" ) {
+    string val = vm[par].as< string >();
+    sprintf(par_is_val,"%s = %s\n",par.c_str(),val.c_str());
+  } else if ( par == "kappa_fix" ) {
+    vector<int> val = vm[par].as< vector<int> >();
+    sprintf(par_is_val,"%s = ",par.c_str());
+    vector<int>::iterator i;
+    for ( i = val.begin(); i != val.end(); i++) {
+      sprintf(par_is_val,"%s%d ",par_is_val,*i);
+    }
+    sprintf(par_is_val,"%s\n",par_is_val);
+  } else {
+    throw runtime_error("Parameter "+par+" not recognized");
+  }
 
-  if ( vm["verbosity"].as<int>() >= 1 ) {
+  slr::io::print(1,par_is_val);
+}
+
+void slr::options::showAll()
+{
+  po::variables_map::iterator p;
+
+  for(p = vm.begin(); p != vm.end(); p++) {
     try 
-      {
-	if (vm.count("verbosity"))
-	  {
-	    char buffer [14];
-	    sprintf(buffer,"verbosity: %d\n",vm["verbosity"].as< int >());
-	    summary += buffer;
-	  }
-	if (vm.count("input_file"))
-	  {
-	    summary += "input_file: " + vm["input_file"].as< string >() + "\n";
-	  }
-	else
-	  {
-	    throw logic_error("Must specify one input file");
-	  }
-  
-	if (vm.count("output_file"))
-	  {
-	    summary += "output_file: " + vm["output_file"].as< string >() + "\n";
-	  }
+      { 
+	show(p->first); 
       }
     catch(exception& e)
       {
-	cout << "slr::options::showAll: " << e.what() << "\n";
+	cout << e.what() << "\n";
+	//	exit(1);
       }
-  } // if verbosity >= 1
-
-  return summary;
+  }
 }
+
+// string slr::options::showAll()
+// {
+//   po::variables_map::iterator p;
+
+//   string summary;
+
+//   if ( vm["verbosity"].as<int>() >= 1 ) {
+//     try 
+//       {
+// 	if (vm.count("verbosity"))
+// 	  {
+// 	    char buffer [14];
+// 	    sprintf(buffer,"verbosity: %d\n",vm["verbosity"].as< int >());
+// 	    summary += buffer;
+// 	  }
+// 	if (vm.count("input_file"))
+// 	  {
+// 	    summary += "input_file: " + vm["input_file"].as< string >() + "\n";
+// 	  }
+// 	else
+// 	  {
+// 	    throw logic_error("Must specify one input file");
+// 	  }
+  
+// 	if (vm.count("output_file"))
+// 	  {
+// 	    summary += "output_file: " + vm["output_file"].as< string >() + "\n";
+// 	  }
+//       }
+//     catch(exception& e)
+//       {
+// 	cout << "slr::options::showAll: " << e.what() << "\n";
+//       }
+//   } // if verbosity >= 1
+
+//   return summary;
+// }
 
 // Validate the overall configuration
 void slr::options::validate(string par)
 {
-  if ( par == "input_file" ) {
+  char* errmsg;
+  if ( par == "verbosity" ) {
     if ( (int) vm.count(par) == 1 ) {
-      string file = vm[par].as< string >();
-      if ( ! slr::utilities::fileReadable( file ) ) {
-	throw runtime_error("Cannot access input file: "+file);
+      int val = vm[par].as< int >();
+      if ( val < 0 || val > 3 ) {
+	sprintf(errmsg,"Verbosity must be an integer between 0 and 3: %d",val);
+	throw runtime_error(errmsg);
+      }
+    } else {
+      throw runtime_error("Must specify verbosity once");
+    }
+  } else if ( par == "input_file" ) {
+    if ( (int) vm.count(par) == 1 ) {
+      string val = vm[par].as< string >();
+      if ( ! slr::utilities::fileReadable( val ) ) {
+	sprintf(errmsg,"Cannot access input file: %s",val.c_str());
+	throw runtime_error(errmsg);
       }
     } else {
       throw runtime_error("Must specify one input file");
     }
   } else if ( par == "output_file" ) {
     if ( vm.count(par) == 1 ) {
-      string file = vm[par].as< string >();
-      if ( ! slr::utilities::fileWriteable( file ) ) {
-	throw runtime_error("Cannot access output file: "+file);
+      string val = vm[par].as< string >();
+      if ( ! slr::utilities::fileWriteable( val ) ) {
+	sprintf(errmsg,"Cannot access output file: %s",val.c_str());
+	throw runtime_error(errmsg);
       }
     } else {
       throw runtime_error("Must specify one output file");
     }
   } else if ( par == "config_file" ) {
     if ( vm.count(par) ) {
-      string file = vm[par].as< string >();
-      if ( ! slr::utilities::fileReadable( file ) ) {
-	throw runtime_error("Cannot access config file: "+file);
+      string val = vm[par].as< string >();
+      if ( ! slr::utilities::fileReadable( val ) ) {
+	sprintf(errmsg,"Cannot access config file: %s",val.c_str());
+	throw runtime_error(errmsg);
       }
     } else {
       throw runtime_error("Must specify one config file");
+    }
+  } else if ( par == "transform_only" ) {
+    if ( vm.count(par) ) {
+      int val = vm[par].as< int >();
+      if ( val != 0 && val != 1 ) {
+	sprintf(errmsg,"transform_only must be 0 or 1: %d",val);
+	throw runtime_error(errmsg);
+      }
+    } else {
+      throw runtime_error("Must specify transform_only once");
+    }
+  } else if ( par == "have_sfd" ) {
+    if ( vm.count(par) ) {
+      int val = vm[par].as< int >();
+      if ( val != 0 && val != 1 ) {
+	sprintf(errmsg,"have_sfd must be 0 or 1: %d",val);
+	throw runtime_error(errmsg);
+      }
+    } else {
+      throw runtime_error("Must specify have_sfd once");
+    }
+  } else if ( par == "write_output_file" ) {
+    if ( vm.count(par) ) {
+      int val = vm[par].as< int >();
+      if ( val != 0 && val != 1 ) {
+	sprintf(errmsg,"write_output_file must be 0 or 1: %d",val);
+	throw runtime_error(errmsg);
+      }
+    } else {
+      throw runtime_error("Must specify write_output_file once");
+    }
+  } else if ( par == "colors2calibrate" ) {
+    if ( vm.count(par) ) {
+      string val = vm[par].as< string >();
+      if ( 0 ) {
+	sprintf(errmsg,"colors2calibrate must be : %s",val.c_str());
+	throw runtime_error(errmsg);
+      }
+    } else {
+      throw runtime_error("Must specify colors2calibrate once");
     }
   } else {
     throw runtime_error("Parameter "+par+" not recognized");
@@ -329,32 +451,78 @@ void slr::options::validate(string par)
 
 void slr::options::validateAll()
 {
-  vector<string> requiredOptions;
-  requiredOptions.push_back("input_file");
-  requiredOptions.push_back("output_file");
-  requiredOptions.push_back("config_file");
+  po::variables_map::iterator p;
 
-  for (vector<string>::iterator i = requiredOptions.begin(); 
-       i != requiredOptions.end(); 
-       ++i) {
-    string par = *i;
-    slr::io::print(2,"Validating " + par + ": ");
+  for(p = vm.begin(); p != vm.end(); p++) {
+    slr::io::print(2,"Validating " + p->first + "... ");
+    //    cout << p->first << endl;
     try 
       { 
-	validate(par); 
+	validate(p->first); 
+	slr::io::print(2,"ok\n");
       }
     catch(exception& e)
       {
 	slr::io::print(2,"fail\n");
 	cout << e.what() << "\n";
-	exit(1);
+	//	exit(1);
       }
-    slr::io::print(2,"ok\n");
   }
-
 }
+
+// void validateAll2()
+// {
+//   vector<string> requiredOptions;
+//   requiredOptions.push_back("input_file");
+//   requiredOptions.push_back("output_file");
+//   requiredOptions.push_back("config_file");
+//   requiredOptions.push_back("config_file");
+
+//   for (vector<string>::iterator i = requiredOptions.begin(); 
+//        i != requiredOptions.end(); 
+//        ++i) {
+//     string par = *i;
+//     slr::io::print(2,"Validating " + par + ": ");
+//     try 
+//       { 
+// 	validate(par); 
+//       }
+//     catch(exception& e)
+//       {
+// 	slr::io::print(2,"fail\n");
+// 	cout << e.what() << "\n";
+// 	exit(1);
+//       }
+//     slr::io::print(2,"ok\n");
+//   }
+
+// }
 
 int slr::options::verbose()
 {
   return vm["verbosity"].as< int >();
+}
+
+string slr::options::nameOf (int ID)
+{
+  string name="";
+  switch (ID) {
+  case verbosity:
+    name="verbosity";
+    break;
+  case input_file:
+    name="input_file";
+    break;
+  case output_file:
+    name="output_file";
+    break;
+  case config_file:
+    name="config_file";
+    break;
+  default:
+    char* error_msg;
+    sprintf(error_msg,"Don't recognize parameter ID %d",ID);
+    throw logic_error(error_msg);
+  }
+  return name;
 }
