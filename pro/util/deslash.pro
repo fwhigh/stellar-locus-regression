@@ -71,14 +71,15 @@ while ( strpos(name2,path_sep()) ne -1 ) do begin
    count++
 endwhile
 
-                                ; Remove the trailing slash.
+; Remove the trailing slash.
 if strmid(path,strlen(path)-1,strlen(path)) eq path_sep() then $
    path=strmid(path,0,strlen(path)-1)
 
+name3=name
 raw_path=''
-while ( strpos(name2,path_sep()) ne -1 ) do begin
-   raw_path=raw_path+strmid(name2,0,strpos(name2,path_sep())+1)
-   name2=strmid(name2,strpos(name2,path_sep())+1,strlen(name2))
+while ( strpos(name3,path_sep()) ne -1 ) do begin
+   raw_path=raw_path+strmid(name3,0,strpos(name3,path_sep())+1)
+   name3=strmid(name3,strpos(name3,path_sep())+1,strlen(name3))
 endwhile
 
 bare_file=name2

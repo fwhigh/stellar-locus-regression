@@ -74,7 +74,7 @@ if keyword_set(inverse) then begin
       x2_test[here]=1e10
    if keyword_set(debug) then $
       pm,B_use
-   for ii=0,n_dat-1 do begin
+   for ii=0L,n_dat-1 do begin
 ;      if keyword_set(debug) then begin
 ;         print
 ;         pm,x2[ii,*]-kappa
@@ -95,7 +95,7 @@ endif else begin
    B_use = B
 
    x2_tr=x2/x2-1
-   for ii=0,n_dat-1 do begin
+   for ii=0L,n_dat-1 do begin
       x2_tr[ii,*] = kappa+matrix_multiply(B_use,x2[ii,*],/btranspose)
    endfor
 
