@@ -68,7 +68,6 @@ function slr_colortable_file_to_fieldname,$
      field=deslash(strip_ext(colortable_file),path=path)
   endif else begin
      field=deslash(colortable_file,path=path)
-  endelse
-
+ endelse
   return,field
 end

@@ -243,6 +243,8 @@ function slr_options, file=file, $
   option=create_struct(option,"bands",bands)
   n_colors=n_elements(option.colors2calibrate)
   n_bands=n_elements(option.bands)
+print,"bands2calibrate: ",option.bands
+print,"colors2calibrate: ",option.colors2calibrate
 
   this_par="kappa_fix"
   slr_check4option,file_option,this_par,here1,/isrequired
@@ -486,7 +488,8 @@ function slr_options, file=file, $
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_bands)
   endif else if n_elements(val) eq n_bands then begin
-     val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
      message,"N("+this_par+") must equal N(bands) or 1"
   endelse
@@ -496,17 +499,18 @@ function slr_options, file=file, $
   slr_check4option,file_option,this_par,here1,/isrequired
   slr_check4option,ex,this_par,here2,isthere=isthere
   if isthere then begin
+;     val=float(strsplit(ex.(here2),',',/extract))
      val=ex.(here2)
-     if ~isnumber(val) then $
-           message,this_par+" must be a vector of numbers"
-  endif else begin
+ endif else begin
      val=float(strsplit(file_option.(here1),',',/extract))
-  endelse
+ endelse
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_colors)
   endif else if n_elements(val) eq n_colors then begin
-     ;val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
+     print,"N("+this_par+")=",n_elements(val)," must equal N(colors)=",n_colors," or 1"
      message,"N("+this_par+") must equal N(colors) or 1"
   endelse
   option=create_struct(option,this_par,val)
@@ -515,16 +519,16 @@ function slr_options, file=file, $
   slr_check4option,file_option,this_par,here1,/isrequired
   slr_check4option,ex,this_par,here2,isthere=isthere
   if isthere then begin
+;     val=float(strsplit(ex.(here2),',',/extract))
      val=ex.(here2)
-     if ~isnumber(val) then $
-           message,this_par+" must be a vector of numbers"
   endif else begin
      val=float(strsplit(file_option.(here1),',',/extract))
   endelse
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_colors)
   endif else if n_elements(val) eq n_colors then begin
-     ;val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
      message,"N("+this_par+") must equal N(colors) or 1"
   endelse
@@ -541,7 +545,8 @@ function slr_options, file=file, $
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_bands)
   endif else if n_elements(val) eq n_bands then begin
-     val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
      message,"N("+this_par+") must equal N(bands) or 1"
   endelse
@@ -558,7 +563,8 @@ function slr_options, file=file, $
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_bands)
   endif else if n_elements(val) eq n_bands then begin
-     val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
      message,"N("+this_par+") must equal N(bands) or 1"
   endelse
@@ -575,7 +581,8 @@ function slr_options, file=file, $
   if n_elements(val) eq 1 then begin
      val=replicate(val[0],n_bands)
   endif else if n_elements(val) eq n_bands then begin
-     val=val[0]
+;     val=val[0]
+     val=val
   endif else begin
      message,"N("+this_par+") must equal N(bands) or 1"
   endelse

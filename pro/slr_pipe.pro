@@ -40,7 +40,7 @@ pro slr_pipe, infile=infile,$
 ; CALLING SEQUENCE:
 ;  slr_pipe,infile=infile,outfile=outfile,configfile=configfile,$
 ;   kappa_out=kappa_out,kappa_err_out=kappa_err_out,$
-;   _EXTRA=x
+;   _EXTRA=ex
 ;
 ; INPUTS:
 ;  infile (string)    Input colortable file.
@@ -108,7 +108,6 @@ pro slr_pipe, infile=infile,$
   endif
 
   message,'Regressing data',/info
-
 ;;; Initialize data with low Galactic dust extinction
   slr_get_data,$
      file=infile,$
@@ -129,7 +128,6 @@ pro slr_pipe, infile=infile,$
         bootstrap=(option.nbootstrap ne 0)
      data.fitpar=fitpar
   endif
-
   kappa_out=data.fitpar.kappa.val
   kappa_err_out=data.fitpar.kappa.err
 

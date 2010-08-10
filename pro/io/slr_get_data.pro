@@ -98,7 +98,6 @@ pro slr_get_data, file=file,$
 
 
   savefile=file+'.data.sav'
-
 ;;; Initialize the log file
   logfile=slr_get_log_filename(data.field,path=data.path)
   data=create_struct(data,"logfile",logfile)
@@ -208,7 +207,6 @@ pro slr_get_data, file=file,$
 
      save,file=savefile,data
   endif                         ; Savefile exists
-
   if option.plot then begin
      goodi=slr_get_good_indices(data,option,data.fitpar)
 
