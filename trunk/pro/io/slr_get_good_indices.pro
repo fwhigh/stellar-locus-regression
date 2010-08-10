@@ -104,6 +104,7 @@ endfor
 if count eq 0 or ind[0] eq -1 then begin
     message,'No good objects! Failed selecting on magnitude and SNR'
 endif
+
 cat_tags=tag_names(cat)
 ctab_tags=tag_names(cat.ctab)
 for ii=0,n_elements(fitpar.colornames)-1 do begin
@@ -143,6 +144,7 @@ for ii=0,n_elements(fitpar.colornames)-1 do begin
     endif else begin
         print,n_elements(ind),' after including '+band1+'-'+band2
     endelse
+
 endfor
 
 if 1 then begin
