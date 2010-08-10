@@ -246,7 +246,6 @@ pro slr_fit_curve, x_dat=x_dat,$
 
   y=slr_get_covey_data(fitpar.kappa.names,$
                        err=y_err)
-
   gof2=slr_distance_residual(x_transform,x_err,y,y_err,weighted=weighted)
   best_gof=slr_distance_residual(x_transform,x_err,y,y_err,$
                                  /get_goodi,goodi=goodi,$
@@ -299,7 +298,6 @@ pro slr_fit_curve, x_dat=x_dat,$
         multiplot,/dox,/doy
 
      endfor
-
      if n_elements(gof_arr) ge 2 then begin
         plot,findgen(n_elements(gof_arr)),$
              gof_arr,$
@@ -308,7 +306,6 @@ pro slr_fit_curve, x_dat=x_dat,$
              ytitle='!6Goodness of Fit'
      endif                 
      loadct,0,/silent
-     
      multiplot
      
      plot,[0,1],[0,1],/nodata,$
@@ -342,7 +339,7 @@ pro slr_fit_curve, x_dat=x_dat,$
             '!c!c'+$
             'Optimal goodness-of-fit:'+$
             ' '+strtrim(string(best_gof,format='(F10.3)'),2)
-     
+   
 
      multiplot,/default
      loadct,0,/silent
@@ -354,7 +351,8 @@ pro slr_fit_curve, x_dat=x_dat,$
         junk='' & read,'Hit enter',junk
      endif
 
-  endif
+ endif
+
 
   bestfit={p:p,$
            goodi:goodi}

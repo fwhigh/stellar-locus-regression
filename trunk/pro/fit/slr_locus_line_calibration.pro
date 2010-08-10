@@ -115,7 +115,6 @@ pro slr_locus_line_calibration,$
                             color_err=x1_err,$
                             output_indices=ind1,$
                             input_indices=obji_in)
-
   slr_fit_curve,x_dat=x1_dat,$
                 x_err=x1_err,$
                 fitpar=fitpar,$
