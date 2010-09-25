@@ -386,6 +386,36 @@ print,"colors2calibrate: ",option.colors2calibrate
   endelse
   option=create_struct(option,this_par,val)
 
+  this_par="colorconst"
+  slr_check4option,file_option,this_par,here1,/isrequired
+  slr_check4option,ex,this_par,here2,isthere=isthere
+  if isthere then begin
+     val=ex.(here2)
+     if size(val,/tname) eq "STRING" then  begin
+        if n_elements(val) eq 1 then begin
+           if val eq 'none' then $
+              val=replicate(0.0,n_colors)
+        endif
+     endif else begin
+        if isnumber(val) then begin
+
+        endif else begin
+           message,this_par+" must be a vector of numbers or 'none'"
+        endelse
+     endelse
+  endif else begin
+     val=file_option.(here1)
+     val=strsplit(val,',',/extract)
+     if n_elements(val) eq 1 then begin
+        if val eq 'none' then $
+           val=replicate(0.0,n_colors)
+     endif
+  endelse
+  val=float(val)
+  if n_elements(val) ne n_colors then $
+     message,"N("+this_par+") must equal N(colors2calibrate)"
+  option=create_struct(option,this_par,val)
+  n_colorterms=n_elements(option.colorterms)
 
 ;;; Plotting
   this_par="plot"

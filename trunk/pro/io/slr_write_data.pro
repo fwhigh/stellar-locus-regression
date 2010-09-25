@@ -87,10 +87,12 @@ pro slr_write_data, file=file,$
   endfor
 
   B=fitpar.b.matrix
+  colorconst=fitpar.b.const
 
   colors_calib=slr_color_transform(colors,$
                                    kappa=kappa,$
                                    B=B,$
+                                   colorconst=colorconst,$
                                    /inverse,debug=0)
 
   here=where(~finite(colors_calib),count)

@@ -1,6 +1,7 @@
 function slr_get_2mass_filename, field, $
                                  out=out, $
-                                 web=web
+                                 web=web, $
+                                 band=band
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -64,10 +65,11 @@ function slr_get_2mass_filename, field, $
 ;-
 
 if keyword_set(out) then out='_2mass_out' else out=''
+if ~keyword_set(band) then band="J"
 
 if keyword_set(web) then begin
    if keyword_set(out) then begin
-      file=field+".WEB2MASS_J"
+      file=field+".WEB2MASS_"+band
    endif else begin
       ext=strip_ext(field,/get)
       if ext eq 'ctab' then begin
@@ -91,5 +93,6 @@ endelse
 
 
 return,file
+
 
 end

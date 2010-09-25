@@ -1,6 +1,7 @@
 function slr_color_transform, x2,$
                               kappa=kappa,$
                               B=B,$
+                              colorconst=colorconst,$
                               inverse=inverse,$
                               debug=debug
 
@@ -51,6 +52,7 @@ function slr_color_transform, x2,$
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
+;  FWH Sep 2010: added colorconst
 ;       Written by:     FW High 2008
 ;
 ;-
@@ -61,11 +63,13 @@ n_dat=n_elements(x2[*,0])
 if n_elements(kappa) ne n_dim then $
    message,'Constant array must have same dimensions as color vector'
 if not keyword_set(B) then B=identity(n_dim)
+colorconst_use=transpose(colorconst)
+unit_matrix =identity(n_dim)
 
 if keyword_set(inverse) then begin
 
-;   B_use = imsl_inv(B)
-   B_use = matrix_power(B,-1)
+   B_use = B
+;   B_use_inv = matrix_power(B,-1)
 
    x2_tr=x2/x2-1
    x2_test=x2
@@ -80,7 +84,10 @@ if keyword_set(inverse) then begin
 ;         pm,x2[ii,*]-kappa
 ;         pm,x2_test[ii,*]-kappa
 ;      endif
-      x2_tr[ii,*] = matrix_multiply(B_use,x2_test[ii,*]-kappa,/btranspose)
+      x2_tr[ii,*] = $
+        matrix_multiply(matrix_power(unit_matrix+B_use,-1),$
+                        x2_test[ii,*]-kappa+matrix_multiply(B_use,colorconst_use,/btranspose),$
+                        /btranspose)
 ;      if keyword_set(debug) then begin
 ;         pm,x2_tr[ii,*]
 ;         junk='' & read,'Hit enter',junk
@@ -96,7 +103,10 @@ endif else begin
 
    x2_tr=x2/x2-1
    for ii=0L,n_dat-1 do begin
-      x2_tr[ii,*] = kappa+matrix_multiply(B_use,x2[ii,*],/btranspose)
+      x2_tr[ii,*] = $
+        kappa+$
+        matrix_multiply(unit_matrix+B_use, x2[ii,*]      , /btranspose)-$ ; MINUS
+        matrix_multiply(            B_use, colorconst_use, /btranspose)
    endfor
 
 endelse

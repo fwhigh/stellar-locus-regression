@@ -69,7 +69,7 @@ function slr_get_log_filename, field,$
      file=field+'.slr.log'
   endif else begin
      file=path+path_sep()+field+'.slr.log'
-  endelse
+ endelse
   return, file
 
 end
