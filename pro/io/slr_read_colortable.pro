@@ -27,7 +27,7 @@ function colortable_column_format
         sigxy          : 4 ,$
         sigy           : 4 ,$
         class          : 4 ,$
-        type           : 7 ,$
+        type           : 4 ,$
         NUMBER         : 3 ,$
         X_IMAGE        : 4 ,$
         Y_IMAGE        : 4 ,$

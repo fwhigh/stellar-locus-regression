@@ -86,7 +86,6 @@ pro slr_get_data, file=file,$
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
-
   fieldname=slr_colortable_file_to_fieldname(file,path=path)
   if size(path,/tname) eq "UNDEFINED" then path=''
 
@@ -195,6 +194,7 @@ pro slr_get_data, file=file,$
                  matrix:identity(n_elements(option.colors2calibrate)),$
                  bands:option.colortermbands,$
                  mult :option.colormult,$
+                 const:option.colorconst,$
                  guess:replicate(0.,n_elements(option.colormult)),$
                  range:replicate(0.,n_elements(option.colormult)),$
                  val  :float(option.colorterms),$
@@ -226,6 +226,7 @@ pro slr_get_data, file=file,$
         n_dim=n_elements(option.colors2calibrate)
         y=slr_get_covey_data(option.colors2calibrate)
 
+        loadct,12,/silent
         erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],$
                           /dox,/doy,gap=0.05,$
                           mtitle='!6Input data'
@@ -242,12 +243,24 @@ pro slr_get_data, file=file,$
               ytitle='!8'+option.colors2calibrate[ii+1]+'!6',$
               xrange=xrange,yrange=yrange,$
               nlevels=nlevels,histbin=histbin    
-           oplot,y[*,ii],y[*,ii+1],thick=2
+           oplot,y[*,ii],y[*,ii+1],thick=2,color=200
+           slr_plot_locus,$
+              datarr[*,ii],datarr[*,ii+1],$
+             /over,$
+              contour=contour,scatter=scatter,djs_contour=contour,$
+              fill=fill,linecolor=linecolor,ctable=ctable,$
+              psym=8,symsize=symsize,charsize=charsize,$
+              xtitle='!8'+option.colors2calibrate[ii]+'!6',$
+              ytitle='!8'+option.colors2calibrate[ii+1]+'!6',$
+              xrange=xrange,yrange=yrange,$
+              nlevels=nlevels,histbin=histbin
+           
            
            multiplot,/dox,/doy
         endfor
 
         multiplot,/default
+        loadct,0,/silent
 
         if option.interactive then begin
            junk='' & read,'Hit enter',junk

@@ -86,6 +86,7 @@ function slr_get_ctab_filename, field,$
      return,file
   endif
 
+
   if not keyword_set(dir) then begin
      file=field+'.ctab'
   endif else begin
@@ -96,5 +97,4 @@ function slr_get_ctab_filename, field,$
   endif else begin
      message,"Colortable "+file+" not found"
   endelse
-
 end

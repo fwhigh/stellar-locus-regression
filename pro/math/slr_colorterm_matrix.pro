@@ -49,11 +49,12 @@ function slr_colorterm_matrix, coltrm,$
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
+;  FWH Sep 2010: Redefined the matrix be B from SLR paper, not 1+B.
 ;       Written by:     FW High 2008
 ;
 ;-
 
-  matrix_out=identity(fitpar.n_colors)
+  matrix_out=identity(fitpar.n_colors)*0.0 ; Matrix of zeros
 
   if fitpar.b.bands[0] ne '' then begin
      for ii=0,n_elements(fitpar.colornames)-1 do begin

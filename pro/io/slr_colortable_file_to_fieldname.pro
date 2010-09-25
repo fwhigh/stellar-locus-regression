@@ -69,5 +69,6 @@ function slr_colortable_file_to_fieldname,$
   endif else begin
      field=deslash(colortable_file,path=path)
  endelse
+
   return,field
 end

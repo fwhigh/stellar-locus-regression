@@ -8,9 +8,10 @@ function curve_dist_func, p
 
   p_counter=0
   kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
+  colorconst=fitpar.b.const
 ;  B =slr_fitpar_struct_to_colorterm_matrix(fitpar,p,p_counter=p_counter)
-  unit_matrix =identity(n_dim)
-  x_transform=slr_color_transform(x,kappa=kappa,B=unit_matrix,/inverse)
+  zero_matrix =identity(n_dim)*0
+  x_transform=slr_color_transform(x,kappa=kappa,B=zero_matrix,colorconst=replicate(0.,n_dim),/inverse)
 
   if size(y,/tname) eq 'UNDEFINED' then begin
 
@@ -35,7 +36,8 @@ function curve_dist_func, p
         print,transpose(kappa)
      endif
      y=slr_color_transform(y,kappa=replicate(0.,n_dim),$
-                           B=color_matrix)
+                           B=color_matrix,$
+                           colorconst=colorconst)
      
   endif
 
@@ -237,10 +239,11 @@ pro slr_fit_curve, x_dat=x_dat,$
 ;print,'result p',p
   p_counter=0
   kappa=slr_fitpar_struct_to_kappa(fitpar,p,p_counter=p_counter)
+  colorconst=fitpar.b.const
 ;  colorterm_matrix=slr_fitpar_struct_to_colorterm_matrix($
 ;                   fitpar,p,p_counter=p_counter)
   colorterm_matrix=fitpar.b.matrix
-  x_transform=slr_color_transform(x,kappa=kappa,B=colorterm_matrix,/inverse)
+  x_transform=slr_color_transform(x,kappa=kappa,B=colorterm_matrix,colorconst=colorconst,/inverse)
   fitpar.kappa.val=kappa
   fitpar.kappa.guess=kappa
 
