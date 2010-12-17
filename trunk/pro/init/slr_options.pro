@@ -374,7 +374,7 @@ print,"colors2calibrate: ",option.colors2calibrate
      endelse
     val=slr_color_string_to_struct_tag(val,isknown=isknown)
     if n_elements(val) ne n_colorterms then $
-       message,"N("+this_par+") must equal N(colorsterms)"
+       message,"N("+this_par+") must equal N(colorterms)"
     if total(isknown) ne n_colorterms then $
        message,"Don't know colorterm multiplier(s): "+$
                strjoin(val[where(~isknown)],',')

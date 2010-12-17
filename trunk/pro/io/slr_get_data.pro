@@ -165,6 +165,10 @@ pro slr_get_data, file=file,$
         data=create_struct(data,"Jtmass_galext",extinction_a*k_ext[5])
         data=create_struct(data,"Htmass_galext",extinction_a*k_ext[6])
         data=create_struct(data,"Ktmass_galext",extinction_a*k_ext[7])
+        data=create_struct(data,"Bjohn_galext",extinction_a*k_ext[8])
+        data=create_struct(data,"Vjohn_galext",extinction_a*k_ext[9])
+        data=create_struct(data,"Rjohn_galext",extinction_a*k_ext[10])
+        data=create_struct(data,"Ijohn_galext",extinction_a*k_ext[11])
         data=create_struct(data,"ebv_galext",extinction_a)
 
         if option.verbose ge 1 then begin

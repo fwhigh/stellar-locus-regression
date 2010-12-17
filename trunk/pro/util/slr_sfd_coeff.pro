@@ -55,9 +55,10 @@ function slr_sfd_coeff
 ;       Written by:     FW High 2008
 ;-
 
-; ugrizJHK
+; ugrizJHKBVRI
 galext=[5.115,3.793,2.751,2.086,1.479,$
-        0.902,0.576,0.367]
+        0.902,0.576,0.367,$
+       4.315,3.315,2.673,1.940]
 
 return,galext
 
