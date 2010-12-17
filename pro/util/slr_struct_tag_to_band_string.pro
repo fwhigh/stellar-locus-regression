@@ -50,6 +50,8 @@ function slr_struct_tag_to_band_string, $
 ; PROCEDURES USED:
 ;       
 ; HISTORY:
+;   FWH 12/2010: _stargal and _flags now recognized suffixes to filter strings
+;   FWH 12/2010: fixed bug, 'JOHN' -> 'john'
 ;       Written by:     FW High 2009
 ;
 ;-
@@ -81,6 +83,33 @@ function slr_struct_tag_to_band_string, $
         isknown=push_arr(isknown,1)
      endif else if total(tmass_bands+'tmass_err' eq string[ii]) then begin
         tmptag=tmass_bands[where(tmass_bands+'tmass_err' eq string[ii])]+'_err'
+        isknown=push_arr(isknown,1)
+     endif else if total(john_bands+'john_stargal' eq string[ii]) then begin
+        tmptag=john_bands[where(john_bands+'john_stargal' eq string[ii])]+'_stargal'
+        isknown=push_arr(isknown,1)
+     endif else if total(sdss_bands+'sdss_stargal' eq string[ii]) then begin
+        tmptag=sdss_bands[where(sdss_bands+'sdss_stargal' eq string[ii])]+'_stargal'
+        isknown=push_arr(isknown,1)
+     endif else if total(tmass_bands+'tmass_stargal' eq string[ii]) then begin
+        tmptag=tmass_bands[where(tmass_bands+'tmass_stargal' eq string[ii])]+'_stargal'
+        isknown=push_arr(isknown,1)
+     endif else if total(john_bands+'john_flags' eq string[ii]) then begin
+        tmptag=john_bands[where(john_bands+'john_flags' eq string[ii])]+'_flags'
+        isknown=push_arr(isknown,1)
+     endif else if total(sdss_bands+'sdss_flags' eq string[ii]) then begin
+        tmptag=sdss_bands[where(sdss_bands+'sdss_flags' eq string[ii])]+'_flags'
+        isknown=push_arr(isknown,1)
+     endif else if total(tmass_bands+'tmass_flags' eq string[ii]) then begin
+        tmptag=tmass_bands[where(tmass_bands+'tmass_flags' eq string[ii])]+'_flags'
+        isknown=push_arr(isknown,1)
+     endif else if total(john_bands+'john_type' eq string[ii]) then begin
+        tmptag=john_bands[where(john_bands+'john_type' eq string[ii])]+'_type'
+        isknown=push_arr(isknown,1)
+     endif else if total(sdss_bands+'sdss_type' eq string[ii]) then begin
+        tmptag=sdss_bands[where(sdss_bands+'sdss_type' eq string[ii])]+'_type'
+        isknown=push_arr(isknown,1)
+     endif else if total(tmass_bands+'tmass_type' eq string[ii]) then begin
+        tmptag=tmass_bands[where(tmass_bands+'tmass_type' eq string[ii])]+'_type'
         isknown=push_arr(isknown,1)
      endif else begin
         tmptag=string[ii]
