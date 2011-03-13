@@ -346,7 +346,6 @@ pro slr_fit_curve, x_dat=x_dat,$
 
      multiplot,/default
      loadct,0,/silent
-
      if keyword_set(postscript) then begin
         cps
      endif
