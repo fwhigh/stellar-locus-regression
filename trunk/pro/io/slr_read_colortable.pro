@@ -112,6 +112,16 @@ function colortable_column_format
         J_flags          : 2 ,$
         H_flags          : 2 ,$
         K_flags          : 2 ,$
+        U_fwhm         : 4 ,$
+        g_fwhm         : 4 ,$
+        r_fwhm         : 4 ,$
+        i_fwhm         : 4 ,$
+        z_fwhm         : 4 ,$
+        B_fwhm         : 4 ,$
+        V_fwhm         : 4 ,$
+        J_fwhm         : 4 ,$
+        H_fwhm         : 4 ,$
+        K_fwhm         : 4 ,$
         gr             : 4 ,$
         gi             : 4 ,$
         gz             : 4 ,$
