@@ -1,6 +1,7 @@
 % \documentclass[preprint]{aastex}
 %\documentclass{article}
 \documentclass{report}
+\usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{rotating}
@@ -36,8 +37,9 @@
 %\newcommand{\galextcolor}{\mathcal{E}^{\text{G}}}
 \newcommand{\atmextcolor}{\boldsymbol{E}^{\text{A}}}
 \newcommand{\galextcolor}{\mathcal{E}^{\text{G}}}
-%\newcommand{\color}{\mathcal{C}}
-\newcommand{\color}{\boldsymbol{c}}
+%\newcommand{\colorvec}{\mathcal{C}}
+\newcommand{\colorvec}{\boldsymbol{c}}
+\newcommand{\colorconst}{\boldsymbol{\gamma}}
 %\newcommand{\colormatrix}{\mathcal{M}}
 \newcommand{\colormatrix}{\mathbf{B}}
 \newcommand{\identity}{\boldsymbol{1}}
@@ -74,10 +76,10 @@ Stellar Locus Regression\\User Manual\\
 F.~William High\\
 \vspace{3cm}
 \large
-Department of Physics\\ Harvard
-University\\ 17 Oxford Street\\ Cambridge, MA 02138\\
-\href{mailto:high@physics.harvard.edu}{high@physics.harvard.edu}\\
-\url{http://physics.harvard.edu/~high}
+University of Chicago\\Department of Astronomy and Astrophysics\\Kavli
+Institute for Cosmological Physics\\933 East 56th Street\\Chicago, IL 60637\\
+\href{mailto:fwhigh@kicp.uchicago.edu}{fwhigh@kicp.uchicago.edu}\\
+\url{http://kicp.uchicago.edu/~fwhigh/}
 \end{center}
 \end{minipage}
 \end{titlepage}
@@ -244,6 +246,42 @@ and this manual serves as a guide to that particular code.
   performed once per detector. }
 \label{fig:algorithm}
 \end{figure}
+
+\section{Equation Being Solved}
+
+\slr\ solves the equation
+\begin{equation}
+  \label{eqn:transform}
+  \colorvec = \zptcolor + (\identity + \colormatrix)(\colorvec_0-\colorconst),
+\end{equation}
+where $\colorvec$ is the vector of colors being calibrated,
+$\zptcolor$ is the vector of zeropoint differences for each color,
+$\identity$ is the identity matrix, $\colormatrix$ is the matrix of
+color terms, $\colorvec_0$ is color ``truth'', and $\colorconst$ is a
+vector of constants.
+
+This differs from Equation (1) of \citet{bib:slr} only by the
+inclusion of the color-constant vector $\colorconst$ on the right-hand
+side.  The effect of the color constants is to bring the color pivot
+point to roughly the mean of the stellar locus, so that the
+$\zptcolor$ vector is approximately equal for zero-value color terms
+as for nonzero color terms.  If $\colorconst$ is set to zero, then
+this equation reduces to Equation (1) of \citet{bib:slr}.
+
+\section{Accepted Passbands}
+
+As of now, this implementation will accept and calibrate colors and
+magnitudes taken from the filterset $ugrizUBVRIJHK$.  It will output
+calibrations of $ugriz$ colors and mags in the AB system, and
+$UBVRIJHK$ in Vega.  Colors that are hybrids of these 2 filter sets,
+e.g., $i-J$, will therefore be $i$ AB minus $J$ Vega.
+
+The list of accepted passbands is determined only by the filters in
+which the standard stellar locus of \citet{bib:covey} is defined.  The
+list is therefore easy to expand as long as the standard locus shape
+in the new filterset is known.  The current implementation does not
+(yet) accept an arbitrary input stellar locus line.
+
 
 
 \chapter{Quick Start}
@@ -625,7 +663,7 @@ Table \ref{tab:colortable} lists the columns that are recognized and
 used by the SLR code.
 
 \begin{center}
-\begin{longtable}{lllcp{2in}}
+\begin{longtable}{lllcp{3in}}
 \caption[Colortable columns.]{Colortable columns.}
 \label{tab:colortable} \\
   \hline \hline \\[-2ex]
@@ -703,7 +741,7 @@ the file.
 Table \ref{tab:config} describes all configuration paramaters.
 
 \begin{center}
-\begin{longtable}{llp{2in}}
+\begin{longtable}{llp{3.5in}}
 \caption[Configuration parameters.]{Configuration parameters.}
 \label{tab:config} \\
   \hline \hline \\[-2ex]
@@ -739,6 +777,7 @@ Table \ref{tab:config} describes all configuration paramaters.
 \hline ~ & ~ & ~ \\ 
 
 \verb|colorterms| & {\it float array} & Color terms to use. \\
+\verb|colorconst| & {\it float array} & Color constants $\colorconst$. The comma separated list of values must correspond to each entry of \verb|colors2calibrate|, and the code will use the appropriate values depending on the specified \verb|colortermbands|. \\
 \verb|colortermbands| & {\it string array} & Comma separated list of the bands that use the color terms. Each band here must appear somewhere in \verb|colors2calibrate|, although not all magntiudes in \verb|colors2calibrate| need have a \verb|colortermband|.  See \S\ref{sec:colorterms}.  If {\tt none}, then color terms are not used. \\
 \verb|colormult| & {\it string array} & Comma separated list of the colors that multiply the \verb|colorterms|. \\
 
@@ -815,8 +854,9 @@ First, understand that you must adopt a color term convention.  You do
 this by adopting photometric calibration equations of the form
 \begin{subequations} 
 \begin{align}
-  \textrm{instrumental mag} & = \textrm{standard mag} + \textrm{zeropoints} + \\
-  & (\textrm{color term})\times(\textrm{standard color}).
+  \textrm{instrumental mag} & = \textrm{standard mag} + \textrm{zeropoint} + \\
+  & (\textrm{color term})\times(\textrm{standard color} -
+  \textrm{color constant}).
 \end{align}
 \end{subequations}
 Here the instrumental mag is what is measured after bias subtraction
@@ -902,10 +942,10 @@ that the color term corrections were significant, so we adopted some
 color term equations of the form
 \begin{subequations} 
 \begin{align}
-  g & = g_0 + a_g + E_g + A_g + b_g(g_0-r_0) \\
-  r & = r_0 + a_r + E_r + A_r + b_r(r_0-i_0) \\
-  i & = i_0 + a_i + E_i + A_i + b_i(i_0-z_0) \\
-  z & = z_0 + a_z + E_z + A_z + b_z(i_0-z_0)
+  g & = g_0 + a_g + E_g + A_g + b_g(g_0-r_0 - \gamma_{gr}) \\
+  r & = r_0 + a_r + E_r + A_r + b_r(r_0-i_0 - \gamma_{ri}) \\
+  i & = i_0 + a_i + E_i + A_i + b_i(i_0-z_0 - \gamma_{iz}) \\
+  z & = z_0 + a_z + E_z + A_z + b_z(i_0-z_0 - \gamma_{iz})
 \end{align} 
 \end{subequations}
 We observed some standard star fields in Stripe 82 and measured the
@@ -916,6 +956,7 @@ by setting the color term parameters as follows:
 colors2calibrate        gr,ri,iz
 colortermbands          g,r,i,z
 colorterms              -0.11,-0.01,-0.17,-0.01
+colorconst              0.3,0.5,0.7
 colormult               gr,ri,iz,iz
 \end{verbatim}
 
@@ -926,14 +967,17 @@ term configuration to calibrate our Magellan $i$-band data:
 \begin{verbatim}
 colors2calibrate        iz,iJ
 colortermbands          i,z
-colorterms              -0.17,-0.01
+colorterms              -0.17,-0.01 
+colorconst              0.5,0.9 
 colormult               iz,iz
 \end{verbatim}
 Note that we had to remove the $g$ and $r$ band entries from the color
 term parameters because those bands don't appear in the new list of
 \verb|colors2calibrate|.  Also note that the $J$-band needed no color
 term correcton.  This is because the $J$ magnitudes were already
-calibrated!
+calibrated!  In this example, the \slr\ code will not use the second
+\verb|colorconst| value because $iJ$ is not one of the
+\verb|colormult|'s.
 
 
 
