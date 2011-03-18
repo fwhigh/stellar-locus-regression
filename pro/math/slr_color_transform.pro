@@ -56,12 +56,15 @@ function slr_color_transform, x2,$
 ;       Written by:     FW High 2008
 ;
 ;-
+; compile_opt idl2, hidden
+  on_error, 2
 
 n_dim=n_elements(x2[0,*])
 n_dat=n_elements(x2[*,0])
 
 if n_elements(kappa) ne n_dim then $
-   message,'Constant array must have same dimensions as color vector'
+   message,'Constant array must have same dimensions as color vector: '+$
+           strtrim(n_elements(kappa),2)+' '+strtrim(n_dim,2)
 if not keyword_set(B) then B=identity(n_dim)
 colorconst_use=transpose(colorconst)
 unit_matrix =identity(n_dim)
