@@ -354,7 +354,6 @@ function slr_read_colortable, file,$
   endif else begin
      template=get_cat_template(file,header=header,literal=literal)
      tmpcat=read_ascii(file,template=template)
-     
      tags=(strsplit(header,/extract))[1:*]
      cat=create_struct('catalog_type','colortable',$
                        'header',header)
