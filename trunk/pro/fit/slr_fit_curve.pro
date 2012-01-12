@@ -2,6 +2,7 @@ function curve_dist_func, p
 
   common curve_fit_func_xy, x, x_err, y, y_err, gof_arr, basis, this_fittype, colorterms, animate, weighted
   common curve_fit_test_par, fittype, A2_mean, A3_mean, fitpar
+  common curve_fit_pars, use_synth
 
   n_dim=n_elements(x[0,*])
   n_dat=n_elements(x[*,0])
@@ -14,9 +15,8 @@ function curve_dist_func, p
   x_transform=slr_color_transform(x,kappa=kappa,B=zero_matrix,colorconst=replicate(0.,n_dim),/inverse)
 
   if size(y,/tname) eq 'UNDEFINED' then begin
-
      y=slr_get_covey_data(fitpar.kappa.names,$
-                          err=y_err)
+                          use_synth,err=y_err)
 
      if size(y,/tname) eq 'UNDEFINED' then $
         message,"No standard colors!"
@@ -51,7 +51,7 @@ function curve_dist_func, p
      symcolor=200 
      histbin=0.05
      symsize=0.3
-     buffer=0.5
+     if use_synthetic then buffer=[0.5,-0.5] else buffer=0.5
      
      loadct,12,/silent
 
@@ -87,7 +87,7 @@ function curve_dist_func, p
      loadct,0,/silent
      
      
-     wait,0.001
+     wait,2
      
   endif
 
@@ -96,7 +96,6 @@ function curve_dist_func, p
   return,gof
 
 end
-
 
 pro slr_fit_curve, x_dat=x_dat,$
                    x_err=x_dat_err,$
@@ -115,6 +114,7 @@ pro slr_fit_curve, x_dat=x_dat,$
                    debug=debug,$
                    verbose=verbose,$
                    bestfit=bestfit, $
+                   use_synthetic=use_synthetic,$
                    benchmark=benchmark
 
 ;$Rev::               $:  Revision of last commit
@@ -179,7 +179,8 @@ pro slr_fit_curve, x_dat=x_dat,$
 
   common curve_fit_func_xy, x, x_err, y, y_err, gof_arr, basis, this_fittype, colorterms, animate, weighted
   common curve_fit_test_par, this_fittype2, A2_mean, A3_mean, fitpar_str
-
+  common curve_fit_pars, use_synth
+  
   delvarx,y,y_err
   x=x_dat
   x_err=x_dat_err
@@ -190,6 +191,7 @@ pro slr_fit_curve, x_dat=x_dat,$
   colorterms=colorterms_in
   animate=keyword_set(animate_regression)
   weighted=keyword_set(weighted_residual)
+  use_synth=keyword_set(use_synthetic)
 
   if not keyword_set(verbose) then verbose=0
 
@@ -247,9 +249,11 @@ pro slr_fit_curve, x_dat=x_dat,$
   fitpar.kappa.val=kappa
   fitpar.kappa.guess=kappa
 
-  y=slr_get_covey_data(fitpar.kappa.names,$
-                       err=y_err)
-  gof2=slr_distance_residual(x_transform,x_err,y,y_err,weighted=weighted)
+if (use_synthetic) then y=slr_get_covey_data(fitpar.kappa.names,1,err=y_err) $
+  else y=slr_get_covey_data(fitpar.kappa.names,0,err=y_err)
+
+  
+gof2=slr_distance_residual(x_transform,x_err,y,y_err,weighted=weighted)
   best_gof=slr_distance_residual(x_transform,x_err,y,y_err,$
                                  /get_goodi,goodi=goodi,$
                                  weighted=weighted,$
@@ -277,7 +281,7 @@ pro slr_fit_curve, x_dat=x_dat,$
      symcolor=200 
      histbin=0.05
      symsize=0.3
-     buffer=0.5
+if use_synthetic then buffer=[0.5,-0.5] else buffer=0.5
 
      loadct,12,/silent
 

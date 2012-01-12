@@ -1,7 +1,8 @@
 pro slr_get_data, file=file,$
                   option=option,$
                   force=force,$
-                  data=data
+                  data=data,$
+                  use_synthetic=use_synthetic
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -83,6 +84,7 @@ pro slr_get_data, file=file,$
      option=slr_options()
   endif
   if keyword_set(force) then force=1 else force=0
+  if not keyword_set(use_synthetic) then use_synthetic=0
 
 ;;; Set psym=8 to be a circle for plotting
   usersym, cos(2*!pi*findgen(21)/20), sin(2*!pi*findgen(21)/20), /fill 
@@ -115,7 +117,6 @@ pro slr_get_data, file=file,$
 
      data=create_struct(data,"filename",file)
      ctab=slr_read_colortable(file,/verbose,force=force)
-
      euler_2000_fast, ctab.ra, ctab.dec, $
                       ell, bee, 1
      if slr_have_sfd() then begin
@@ -219,7 +220,10 @@ pro slr_get_data, file=file,$
                                   magnitudes=magarr,$
                                   color_err=datarr_err,$
                                   output_indices=ind)
-        covey=slr_read_covey_median_locus()
+        if (use_synthetic) then begin
+            restore,slr_datadir()+path_sep()+'phoenixlocus.sav'
+            covey=cat
+        endif else covey=slr_read_covey_median_locus()
 
         scatter=1
         contour=~scatter
@@ -228,7 +232,7 @@ pro slr_get_data, file=file,$
         histbin=0.05
         symsize=0.2
         n_dim=n_elements(option.colors2calibrate)
-        y=slr_get_covey_data(option.colors2calibrate)
+        y=slr_get_covey_data(option.colors2calibrate,use_synthetic)
 
         loadct,12,/silent
         erase & multiplot,[ceil(n_dim/2.),floor(n_dim/2.)],$

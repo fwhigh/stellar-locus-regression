@@ -3,6 +3,7 @@ pro slr_pipe, infile=infile,$
               configfile=configfile, $
               kappa_out=kappa_out, $
               kappa_err_out=kappa_err_out, $
+              use_synthetic=use_synthetic,$
               _EXTRA = ex 
 
 ;$Rev:: 76            $:  Revision of last commit
@@ -105,7 +106,10 @@ pro slr_pipe, infile=infile,$
   if infile eq '' then begin
      message,"You must specify an input colortable with the "+$
              "environment variable SLR_COLORTABLE_IN"
-  endif
+ endif
+
+if not keyword_set(use_synthetic) then use_synthetic=0
+
 
   message,'Regressing data',/info
 ;;; Initialize data with low Galactic dust extinction
@@ -113,8 +117,8 @@ pro slr_pipe, infile=infile,$
      file=infile,$
      force=option.force,$
      option=option,$
-     data=data
-
+     data=data,$
+    use_synthetic=use_synthetic
 
 ;;; Regress the data to the Covey median locus
   if ~option.transform_only then begin
@@ -125,7 +129,8 @@ pro slr_pipe, infile=infile,$
         fitpar=fitpar,$
         galext_mean=galext_mean,$
         galext_stddev=galext_stddev,$
-        bootstrap=(option.nbootstrap ne 0)
+        bootstrap=(option.nbootstrap ne 0),$
+        use_synthetic=use_synthetic
      data.fitpar=fitpar
   endif
   kappa_out=data.fitpar.kappa.val

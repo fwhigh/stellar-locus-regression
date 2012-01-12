@@ -1,8 +1,12 @@
 function slr_get_covey_data,$
-   colornames,$
-   err=err
+                            colornames,$
+                            use_synthetic,$
+                            err=err
+                        
+if n_elements(use_synthetic) eq 0 then use_synthetic=0
 
-  cat=slr_read_covey_median_locus()
+if (use_synthetic) then restore,slr_datadir()+path_sep()+'phoenixlocus.sav' $
+else cat=slr_read_covey_median_locus()
   for jj=0,n_elements(colornames)-1 do begin
 ;     this_color=strjoin(strsplit(colornames[jj],'-',/extract))
      this_color=colornames[jj]

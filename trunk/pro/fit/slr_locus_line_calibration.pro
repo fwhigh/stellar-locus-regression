@@ -9,7 +9,8 @@ pro slr_locus_line_calibration,$
    obji_out=obji_out, $
    errflag=errflag, $
    tostd=tostd,$
-   nstars=nstars
+   nstars=nstars,$
+   use_synthetic=use_synthetic
 
 ;$Rev::               $:  Revision of last commit
 ;$Author::            $:  Author of last commit
@@ -115,6 +116,8 @@ pro slr_locus_line_calibration,$
                             color_err=x1_err,$
                             output_indices=ind1,$
                             input_indices=obji_in)
+wait,2
+
   slr_fit_curve,x_dat=x1_dat,$
                 x_err=x1_err,$
                 fitpar=fitpar,$
@@ -132,6 +135,7 @@ pro slr_locus_line_calibration,$
                 animate_regression=option.animate_regression,$
                 postscript=option.postscript,$
                 bestfit=calibfit1,$
+                use_synthetic=use_synthetic,$
                 /benchmark
   if option.verbose ge 2 then $
      print,'Intermediate kappa = ',calibfit1.p
@@ -161,6 +165,7 @@ pro slr_locus_line_calibration,$
                 animate_regression=option.animate_regression,$
                 postscript=option.postscript,$
                 bestfit=calibfit1,$
+                use_synthetic=use_synthetic,$
                 /benchmark
 
   if n_elements(ind1_better) eq 0 then begin
@@ -231,7 +236,8 @@ pro slr_locus_line_calibration,$
                       plot=plotboot,$
                       animate_regression=0,$
                       postscript=0,$
-                      bestfit=bootfit
+                      bestfit=bootfit,$
+                      use_synthetic=use_synthetic
         
         if i eq 0 then begin
            p_bootstrap=bootfit.p

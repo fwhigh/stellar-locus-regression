@@ -107,9 +107,11 @@ pro slr_append_colortable, ctab_out_file,$
      for jj=0,n_elements(frmt_struct.header)-1 do begin
         here=where(strlowcase(tmptags) eq strlowcase(frmt_struct.header[jj]))
         val=string(ctab.(here)[ii],format='('+frmt_struct.format[jj]+')')
-        if val eq '-' then val=string('-',format='(A9)')
+;        if val eq '-' then val=string('-',format='(A9)')
+        if val eq '-' then val=string('99.000',format='(A9)')
         if size(ctab.(here)[ii],/tname) ne 'STRING' then begin
-           if ~finite(ctab.(here)[ii]) then val=string('-',format='(A9)')
+;           if ~finite(ctab.(here)[ii]) then val=string('-',format='(A9)')
+           if ~finite(ctab.(here)[ii]) then val=string('99.000',format='(A9)')
         endif
         line+=val
      endfor
